@@ -57,7 +57,21 @@ struct class_s
 
 struct obj_s
 {
+	union {
+		obj_base base;
+		struct {
+			EXHANDLE hObj_;
+			EXHANDLE objChildFirst_;
+			EXHANDLE objChildLast_;
+			EXHANDLE hLayout_;
+			int dwFlags_;
+			bkgimg_s* lpBackgroundImage_;
+			theme_s* hTheme_;
+		};
+	};
+
 	wnd_s* pWnd_;
+
 	int left_; //组件相对位置
 	int top_;
 	int right_;
@@ -90,13 +104,6 @@ struct obj_s
 	int crVisted_;
 	int crShadow_;
 	int dwShadowSize_;
-	EXHANDLE hObj_;
-	EXHANDLE objChildFirst_;
-	EXHANDLE objChildLast_;
-	EXHANDLE hLayout_;
-	int dwFlags_;
-	bkgimg_s* lpBackgroundImage_;
-	theme_s* hTheme_;
 
 	int minmax_reserved_1_;
 	int minmax_reserved_2_;
@@ -228,8 +235,8 @@ struct si_s
 int Ex_ObjRegister(LPCWSTR lptszClassName, int dwStyle, int dwStyleEx, int dwTextFormat, int cbObjExtra, void* hCursor, int dwFlags, ClsPROC pfnObjProc);
 void _obj_register(int atomClass, int dwStyle, int dwStyleEx, int dwTextFormat, int cbObjExtra, void* hCursor, ClsPROC pfnObjProc, int dwFlags, int* nError);
 EXHANDLE Ex_ObjLayoutGet(EXHANDLE handle);
-void _obj_z_clear(EXHANDLE hObj, obj_s* pObj, EXHANDLE* hParent, void** pParent);
-void _obj_z_set_before_topmost(EXHANDLE objChildFirst, void* pObjChildFirst, EXHANDLE objChildLast, obj_s* pObjChildLast, EXHANDLE hObj, obj_s* pObj, void* pParent);
+void _obj_z_clear(EXHANDLE hObj, obj_s* pObj, EXHANDLE* hParent, obj_base** pParent);
+void _obj_z_set_before_topmost(EXHANDLE objChildFirst, void* pObjChildFirst, EXHANDLE objChildLast, obj_s* pObjChildLast, EXHANDLE hObj, obj_s* pObj, obj_base* pParent);
 void _obj_z_set(EXHANDLE hObj, obj_s* pObj, EXHANDLE hObjInsertAfter, UINT flags, int* nError);
 bool _obj_autosize(obj_s* pObj, EXHANDLE hObj, int* width, int* height);
 size_t _obj_sendmessage(HWND hWnd, EXHANDLE hObj, obj_s* pObj, int uMsg, size_t wParam, size_t lParam, int dwReserved);
@@ -282,7 +289,7 @@ void _obj_notify_brothers(HWND hWnd, EXHANDLE hObj, obj_s* pObj, int uMsg, size_
 int Ex_ObjDispatchMessage(EXHANDLE hObj, int uMsg, size_t wParam, size_t lParam);
 int _obj_dispatchnotify(HWND hWnd, obj_s* pObj, EXHANDLE hObj, int nID, int nCode, size_t wParam, size_t lParam);
 int Ex_ObjDispatchNotify(EXHANDLE hObj, int nCode, size_t wParam, size_t lParam);
-void _obj_backgroundimage_clear(HWND hWnd, void* pObj);
+void _obj_backgroundimage_clear(HWND hWnd, obj_base* pObj);
 void _obj_destroy(EXHANDLE hObj, obj_s* pObj, int* nError);
 EXHANDLE _obj_create_init(HWND hWnd, wnd_s* pWnd, int atomClass, void* pfnMsgProc, obj_s** pObj, int* nError);
 void _obj_create_proc(int* nError, bool fScale, theme_s* hTheme, obj_s* pObj, int dwStyleEx, int atomClass, void* lpszName, int dwStyle, int x, int y, int width, int height, EXHANDLE hParent, int nID, int atomName, size_t lParam, int dwTextFormat);

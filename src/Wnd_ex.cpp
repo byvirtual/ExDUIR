@@ -1859,7 +1859,7 @@ int _wnd_destroy(HWND hWnd, wnd_s* pWnd)
 
 	//bkgimginfo
 	KillTimer(hWnd, (size_t)pWnd + TIMER_BKG_INHERIT);
-	_obj_backgroundimage_clear(hWnd, pWnd);
+	_obj_backgroundimage_clear(hWnd, (obj_base*)pWnd);
 	_font_destroy(pWnd->hFont_Menu_);
 	
 	bool bMainWnd = ((pWnd->dwStyle_ & EWS_MAINWINDOW) == EWS_MAINWINDOW);
@@ -2396,7 +2396,6 @@ bool _wnd_wm_getminmaxinfo(wnd_s* pWnd, HWND hWnd, LPARAM lParam)
 
 void _wnd_wm_buttondown(HWND hWnd, wnd_s* pWnd, EXHANDLE hObj, obj_s* pObj, int uMsg, WPARAM wParam, LPARAM lParam)
 {
-	
 	if (!((pWnd->dwFlags_ & EWF_bTrackObject) == EWF_bTrackObject))
 	{
 		pWnd->dwFlags_ = pWnd->dwFlags_ - (pWnd->dwFlags_ & (EWF_bLeftTrack | EWF_bRightTrack | EWF_bMidTrack));

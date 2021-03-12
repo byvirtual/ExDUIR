@@ -50,19 +50,22 @@ EXHANDLE Ex_ObjLayoutGet(EXHANDLE handle)
 	return hLayout;
 }
 
-//TODO: pParent有可能是wnd或obj，临时解决方案
-#define offsetofobj(s, m) (((obj_s*)s)->pWnd_)?offsetof(obj_s,m):offsetof(wnd_s,m)
-
-void _obj_z_clear(EXHANDLE hObj, obj_s* pObj, EXHANDLE* hParent, void** pParent)
+void _obj_z_clear(EXHANDLE hObj, obj_s* pObj, EXHANDLE* hParent, obj_base** pParent)
 {
 	//逆序,顶部->底部
-	*hParent = pObj->objParent_;
+	if (hParent) {
+		*hParent = pObj->objParent_;
+	}
 	int nError = 0;
 	
-	if (!_handle_validate(*hParent, HT_OBJECT, pParent, &nError))
+	if (!_handle_validate(pObj->objParent_, HT_OBJECT, (void**)pParent, &nError))
 	{
-		*hParent = 0;
-		*pParent = pObj->pWnd_;
+		if (hParent) {
+			*hParent = 0;
+		}
+		if (pParent) {
+			*pParent = (obj_base *)pObj->pWnd_;
+		}
 	}
 	
 	
@@ -70,10 +73,13 @@ void _obj_z_clear(EXHANDLE hObj, obj_s* pObj, EXHANDLE* hParent, void** pParent)
 	EXHANDLE objPrev = pObj->objPrev_;
 	EXHANDLE objNext = pObj->objNext_;
 	//修复父层组件链表
-	if (((obj_s*)pParent)->objChildFirst_ == hObj)
-		((obj_s*)pParent)->objChildFirst_ = objNext;
-	if (((obj_s*)pParent)->objChildLast_ == hObj)
-		((obj_s*)pParent)->objChildLast_ = objPrev;
+	if (pParent) {
+		if ((*pParent)->objChildFirst_ == hObj)
+			(*pParent)->objChildFirst_ = objNext;
+		if ((*pParent)->objChildLast_ == hObj)
+			(*pParent)->objChildLast_ = objPrev;
+	}
+
 	//修复兄弟层组件链表
 	obj_s* pNext = nullptr;
 	obj_s* pPrev = nullptr;
@@ -83,13 +89,13 @@ void _obj_z_clear(EXHANDLE hObj, obj_s* pObj, EXHANDLE* hParent, void** pParent)
 	}
 	if (_handle_validate(objPrev, HT_OBJECT, (void**)&pPrev, &nError))
 	{
-		pNext->objNext_ = objNext;
+		pPrev->objNext_ = objNext;
 	}
 	pObj->objNext_ = 0;
 	pObj->objPrev_ = 0;
 }
 
-void _obj_z_set_before_topmost(EXHANDLE objChildFirst, void* pObjChildFirst, EXHANDLE objChildLast, obj_s* pObjChildLast, EXHANDLE hObj, obj_s* pObj, void* pParent)
+void _obj_z_set_before_topmost(EXHANDLE objChildFirst, void* pObjChildFirst, EXHANDLE objChildLast, obj_s* pObjChildLast, EXHANDLE hObj, obj_s* pObj, obj_base* pParent)
 {
 	int nError = 0;
 	if ((pObjChildLast->dwStyleEx_ & EOS_EX_TOPMOST) == EOS_EX_TOPMOST)//检查有没置顶组件
@@ -97,7 +103,7 @@ void _obj_z_set_before_topmost(EXHANDLE objChildFirst, void* pObjChildFirst, EXH
 		EXHANDLE objPrev = pObjChildLast->objPrev_;
 		if (objPrev == 0)//没有置顶组件
 		{
-			((wnd_s*)pParent)->objChildFirst_ = hObj;
+			pParent->objChildFirst_ = hObj;
 			pObjChildLast->objPrev_ = hObj;
 			pObj->objNext_ = objChildLast;
 		}
@@ -120,11 +126,12 @@ void _obj_z_set_before_topmost(EXHANDLE objChildFirst, void* pObjChildFirst, EXH
 					{
 						pObjPrev->objPrev_ = hObj;
 						pObj->objNext_ = objPrev;
-						((obj_s*)pParent)->objChildFirst_ = hObj;
+						pParent->objChildFirst_ = hObj;
 					}
 				}
 				else 
 				{
+					tmp = pObjPrev->objNext_;
 					pObjPrev->objNext_ = hObj;
 					pObj->objNext_ = tmp;
 					pObj->objPrev_ = objPrev;
@@ -133,7 +140,7 @@ void _obj_z_set_before_topmost(EXHANDLE objChildFirst, void* pObjChildFirst, EXH
 						pTmp->objPrev_ = hObj;
 					}
 					else {
-						((obj_s*)pParent)->objChildFirst_ = hObj;
+						pParent->objChildFirst_ = hObj;
 					}
 				}
 				break;
@@ -143,29 +150,29 @@ void _obj_z_set_before_topmost(EXHANDLE objChildFirst, void* pObjChildFirst, EXH
 	else {
 		pObjChildLast->objNext_ = hObj;
 		pObj->objPrev_ = objChildLast;
-		((obj_s*)pParent)->objChildFirst_ = hObj;
+		pParent->objChildFirst_ = hObj;
 	}
 }
 void _obj_z_set(EXHANDLE hObj, obj_s* pObj, EXHANDLE hObjInsertAfter, UINT flags, int* nError)
 {
 	// TODO: hParnet->hParent
-	EXHANDLE hParnet = 0;
-	void* pParent = nullptr;
+	EXHANDLE hParent = 0;
+	obj_base* pParent = nullptr;
 	obj_s* pObjChildLast = nullptr;
 	obj_s* pObjChildFirst = nullptr;
-	_obj_z_clear(hObj, pObj, &hParnet, &pParent);
-	pObj->objParent_ = hParnet;
+	_obj_z_clear(hObj, pObj, &hParent, &pParent);
+	pObj->objParent_ = hParent;
 
 	EXHANDLE objChildFirst = 0;
 	EXHANDLE objChildLast = 0;
 
-	objChildFirst = __get_int(pParent, offsetofobj(pParent, objChildFirst_));//((obj_s*)pParent)->objChildFirst_;
-	objChildLast = __get_int(pParent, offsetofobj(pParent, objChildLast_));
+	objChildFirst = pParent->objChildFirst_;
+	objChildLast = pParent->objChildLast_;
 
 	if (objChildLast == 0 || objChildFirst == 0)
 	{
-		__set_int(pParent, offsetofobj(pParent, objChildFirst_), hObj);
-		__set_int(pParent, offsetofobj(pParent, objChildLast_), hObj);
+		pParent->objChildFirst_ = hObj;
+		pParent->objChildLast_ = hObj;
 	}
 	else {
 		if (_handle_validate(objChildLast, HT_OBJECT, (void**)&pObjChildLast, nError))
@@ -183,7 +190,7 @@ void _obj_z_set(EXHANDLE hObj, obj_s* pObj, EXHANDLE hObjInsertAfter, UINT flags
 					pObj->dwStyleEx_ = pObj->dwStyleEx_ | EOS_EX_TOPMOST;
 					pObjChildLast->objNext_ = hObj;
 					pObj->objPrev_ = objChildLast;
-					((wnd_s*)pParent)->objChildLast_ = hObj;
+					pParent->objChildLast_ = hObj;
 				}
 				else if (hObjInsertAfter == (size_t)HWND_TOP)//顶层
 				{
@@ -191,7 +198,7 @@ void _obj_z_set(EXHANDLE hObj, obj_s* pObj, EXHANDLE hObjInsertAfter, UINT flags
 					{
 						pObjChildLast->objNext_ = hObj;
 						pObj->objPrev_ = objChildLast;
-						__set(pParent, offsetofobj(pParent, objChildLast_), hObj);
+						pParent->objChildLast_ = hObj;
 					}
 					else {
 						_obj_z_set_before_topmost(objChildFirst, pObjChildFirst, objChildLast, pObjChildLast, hObj, pObj, pParent);
@@ -206,7 +213,7 @@ void _obj_z_set(EXHANDLE hObj, obj_s* pObj, EXHANDLE hObjInsertAfter, UINT flags
 					else {
 						pObjChildFirst->objPrev_ = hObj;
 						pObj->objNext_ = objChildFirst;
-						((wnd_s*)pParent)->objChildFirst_ = hObj;
+						pParent->objChildFirst_ = hObj;
 					}
 				}
 			}
@@ -1588,15 +1595,10 @@ int Ex_ObjDispatchNotify(EXHANDLE hObj, int nCode, size_t wParam, size_t lParam)
 	return ret;
 }
 
-void _obj_backgroundimage_clear(HWND hWnd, void* pObj)
+void _obj_backgroundimage_clear(HWND hWnd, obj_base* pObj)
 {
-	void* dwTmp = 0;
-	if (((obj_s*)pObj)->pWnd_) {
-		dwTmp = ((obj_s*)pObj)->lpBackgroundImage_;
-	}
-	else {
-		dwTmp = ((wnd_s*)pObj)->lpBackgroundImage_;
-	}
+	void* dwTmp = pObj->lpBackgroundImage_;
+
 
 	if (dwTmp != 0)
 	{
@@ -1604,7 +1606,7 @@ void _obj_backgroundimage_clear(HWND hWnd, void* pObj)
 		_img_destroy(((bkgimg_s*)dwTmp)->hImage_);
 		_struct_destroyfromaddr(dwTmp, offsetof(bkgimg_s, lpDelay_));
 		_struct_destroyfromaddr(dwTmp, offsetof(bkgimg_s, lpGrid_));
-		_struct_destroyfromaddr(pObj, offsetof(obj_s, lpBackgroundImage_));
+		_struct_destroyfromaddr(pObj, offsetof(obj_base, lpBackgroundImage_));
 	}
 }
 
@@ -1648,7 +1650,7 @@ void _obj_destroy(EXHANDLE hObj, obj_s* pObj, int* nError)
 	//timer
 	KillTimer(hWnd, (UINT_PTR)((size_t)pObj + TIMER_OBJECT));
 	//backgroundinfo
-	_obj_backgroundimage_clear(hWnd, pObj);
+	_obj_backgroundimage_clear(hWnd, (obj_base*)pObj);
 	_obj_z_clear(hObj, pObj, 0, 0);
 	//清理子组件
 	EXHANDLE sObj = pObj->objChildFirst_;
@@ -2481,7 +2483,7 @@ EXHANDLE Ex_ObjGetFromID(EXHANDLE hExDuiOrhObj, int nID)
 
 EXHANDLE Ex_ObjFind(EXHANDLE hObjParent, EXHANDLE hObjChildAfter, void* lpClassName, void* lpTitle)
 {
-	void* pObj = nullptr;
+	obj_base* pObj = nullptr;
 	int nError = 0;
 	EXHANDLE ret = 0;
 	if (!_handle_validate(hObjParent, HT_OBJECT, (void**)&pObj, &nError))
@@ -2491,7 +2493,7 @@ EXHANDLE Ex_ObjFind(EXHANDLE hObjParent, EXHANDLE hObjChildAfter, void* lpClassN
 			return 0;
 		}
 	}
-	EXHANDLE objEntry = offsetofobj(pObj, objChildFirst_);
+	EXHANDLE objEntry = pObj -> objChildFirst_;
 	bool bStart = (hObjChildAfter == 0);
 	size_t atomClass = 0;
 	if (lpClassName != 0)
@@ -2563,16 +2565,16 @@ bool Ex_ObjEnumChild(EXHANDLE hObjParent, void* lpEnumFunc, size_t lParam)
 	{
 		return false;
 	}
-	void* pObj = nullptr;
+	obj_base* pObj = nullptr;
 	int nError = 0;
-	if (!_handle_validate(hObjParent, HT_OBJECT, &pObj, &nError))
+	if (!_handle_validate(hObjParent, HT_OBJECT, (void**)&pObj, &nError))
 	{
-		if (!_handle_validate(hObjParent, HT_DUI, &pObj, &nError))
+		if (!_handle_validate(hObjParent, HT_DUI, (void**)&pObj, &nError))
 		{
 			return false;
 		}
 	}
-	EXHANDLE objEntry = offsetofobj(pObj, objChildFirst_);
+	EXHANDLE objEntry = pObj->objChildFirst_;
 	obj_s* pObj2 = nullptr;
 	while (_handle_validate(objEntry, HT_OBJECT, (void**)&pObj2, &nError))
 	{
@@ -2612,8 +2614,8 @@ bool Ex_ObjGetBackgroundImage(EXHANDLE handle, void* lpBackgroundImage)
 void CALLBACK _obj_backgroundimage_timer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
 	KillTimer(hWnd, idEvent);
-	obj_s* pObj = (obj_s*)(idEvent - TIMER_BKG);
-	void* lpBI = ((wnd_s*)pObj)->lpBackgroundImage_;
+	obj_base* pObj = (obj_base*)(idEvent - TIMER_BKG);
+	void* lpBI = pObj->lpBackgroundImage_;
 	if (lpBI != 0)
 	{
 		void* pDelay = ((bkgimg_s*)lpBI)->lpDelay_;
@@ -2631,7 +2633,7 @@ void CALLBACK _obj_backgroundimage_timer(HWND hWnd, UINT uMsg, UINT_PTR idEvent,
 			if (((pObj->dwFlags_ & EOF_OBJECT) == EOF_OBJECT))
 			{
 				int nError = 0;
-				_obj_invalidaterect(pObj, 0, &nError);
+				_obj_invalidaterect((obj_s*)pObj, 0, &nError);
 			}
 			else {
 				_wnd_redraw_bkg(hWnd, (wnd_s*)pObj, 0, true, false);
@@ -2646,14 +2648,14 @@ bool _obj_backgroundimage_set(HWND hWnd, obj_s* pObj, void* lpImage, int dwImage
 {
 	if (dwImageLen == 0)
 	{
-		_obj_backgroundimage_clear(hWnd, pObj);
+		_obj_backgroundimage_clear(hWnd, (obj_base*)pObj);
 		return true;
 	}
 	else {
 		EXHANDLE hImg = _img_createfrommemory(lpImage, dwImageLen);
 		if (hImg != 0)
 		{
-			void* lpBI = _struct_createfromaddr(pObj, offsetofobj(pObj, lpBackgroundImage_), sizeof(bkgimg_s), nError);
+			void* lpBI = _struct_createfromaddr(pObj, offsetof(obj_base, lpBackgroundImage_), sizeof(bkgimg_s), nError);
 			if (lpBI != 0)
 			{
 				((bkgimg_s*)lpBI)->dwFlags_ = dwFlags;
