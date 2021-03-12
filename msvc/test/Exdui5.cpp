@@ -5,21 +5,13 @@
 #include <algorithm>
 #include <Windows.h>
 
-
 #include "help_ex.h"
-
-
-//#include "Global_ex.h"
-//#include "Array_ex.h"
-//#include "Resource_ex.h"
-//#include "Gdiplusdll_ex.h"
-
 
 
 void 测试哈希表()
 {
 	auto aptr = LocalAlloc(64, sizeof(void*));
-	auto table = HashTable_Create(17, &pfnDefaultFreeData);
+	hashtable_s* table = HashTable_Create(17, &pfnDefaultFreeData);
 	auto aptr2 = LocalAlloc(64, sizeof(void*));
 	HashTable_Set(table, 1, (size_t)aptr);
 	HashTable_Set(table, 8, (size_t)aptr2);
@@ -83,7 +75,7 @@ void 测试子程序()
 	
 }
 
-bool 枚举数组(void* pArray,int nIndex,void* pvItem,int nType,size_t pvParam)
+bool 枚举数组(array_s* pArray,int nIndex,void* pvItem,int nType,size_t pvParam)
 {
 	std::cout << "句柄:"<<pArray << std::endl;
 	std::cout << "索引:" << nIndex << std::endl;
@@ -95,7 +87,7 @@ bool 枚举数组(void* pArray,int nIndex,void* pvItem,int nType,size_t pvParam)
 
 void 测试数组()
 {
-	auto aa = Array_Create(5);
+	array_s* aa = Array_Create(5);
 	Array_AddMember(aa, 6);
 	Array_SetMember(aa, 2, 3);
 	std::cout << Array_GetMember(aa, 2) << std::endl;//3
@@ -187,15 +179,18 @@ void 测试窗口()
 	HWND hWnd = Ex_WndCreate(0, classa, title, 0, 0, 400, 300, 0, 0);
 	if (hWnd != 0)
 	{
-		size_t hExDui = Ex_DUIBindWindow(hWnd, 0, EWS_MAINWINDOW | EWS_BUTTON_CLOSE | EWS_BUTTON_MIN | EWS_MOVEABLE | EWS_CENTERWINDOW | EWS_ESCEXIT | EWS_TITLE | EWS_SIZEABLE);
+		size_t hExDui = Ex_DUIBindWindow(hWnd, 0, EWS_MAINWINDOW | EWS_BUTTON_CLOSE | EWS_BUTTON_MIN | EWS_BUTTON_MAX | EWS_MOVEABLE | EWS_CENTERWINDOW | EWS_ESCEXIT | EWS_TITLE | EWS_SIZEABLE | EWS_HASICON);
 		std::cout << "hExDui:" << hExDui << std::endl;
 		Ex_DUISetLong(hExDui, EWL_CRBKG, -100630528);//-97900239
 		LPCWSTR class_name = L"static";
 		LPCWSTR title_button = L"test";
 		EXHANDLE img = Ex_ObjCreateEx(-1, (void*)class_name, (void*)title_button, EOS_VISIBLE, 50, 50, 100, 30, hExDui, 0, DT_CENTER, 0, 0, NULL);
 		std::vector<char> imgdata;
-		Ex_ReadFile(L"D:\\huoshansample\\huoshanonnx\\onnx\\00000.jpg", &imgdata);
+		Ex_ReadFile(L".\\00000.jpg", &imgdata);
 		Ex_ObjSetBackgroundImage(img, imgdata.data(), imgdata.size(), 0, 0, 0, 0, 0, 255, true);
+		LPCWSTR text = L"testa";
+		LPCWSTR cap = L"testb";
+		Ex_MessageBoxEx(hExDui, (void*)text, (void*)cap, 0, 0, 0, 0, 0, 0);
 		Ex_DUIShowWindow(hExDui, 5, 0, 0, 0);
 	}
 	Ex_WndMsgLoop();
