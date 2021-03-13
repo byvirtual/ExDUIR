@@ -1,29 +1,117 @@
 #pragma once
 
-
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <string>
 #include <Windows.h>
 
-#define IDI_ICON1 129
+template <class Ty>//这里实现了 int long float double  unsigned int/... 等等
+static void pt(std::wstring& str, Ty v)
+{
+	str.append(std::to_wstring(v) + L"\r\n");
+}
+static void pt(std::wstring& str, std::wstring s)//这个是 文本型 
+{
+	str.append(s + L"\r\n");
+}
+static void pt(std::wstring& str, const wchar_t* s)//这个是 L"" 
+{
+	str.append(s); str.append(L"\r\n");
+}
+//可以无限重载自定义类型的 调试输出  输出内容格式可以自定义   
+//下面的字节集调试输出例子 是用vector自封的数组  输出结果 跟易语言调试输出字节集一样的效果
+// static void pt(std::wstring & str, 字节集 s)
+// {
+	// str.append(L"字节集:" + 长整数到文本(s.取字节数()) + L"{" + 字节集_字节集到文本(s) + L"}");
+// }
 
+//调试输出 支持 无限参数!  任意类型!  (没有的可以在上面重载方法自定义)
+template <class... T>
+static void 调试输出(T...args) {
+	std::wstring str = L"";
+	std::initializer_list<int>{ (pt(str, std::forward<T>(args)), 0)...};
+	OutputDebugString(str.c_str());
+	//OutputDebugString(L"\r\n");
+}
 
 #define EX_DEFINE_API(NAME,RET,ARGS)	typedef RET (WINAPI* ExPFN_##NAME)ARGS; extern ExPFN_##NAME	NAME					//定义一个API函数类型,并声明
 #define EX_DECLEAR_API(NAME)			ExPFN_##NAME NAME																	//声明一个函数指针变量
 #define EX_GET_API(NAME)				NAME = (ExPFN_##NAME) ::GetProcAddress(hModule,#NAME)	
 
 #include "constant_ex.h"
+
+struct wnd_s;
+struct obj_s;
+struct font_s;
+struct ti_s;
+struct classtable_s;
+struct si_s;
+struct img_s;
+struct bkgimg_s;
+struct matrix_s;
+struct mempool_s;
+struct hashtable_s;
+struct theme_s;
+struct entry_s;
+struct layout_s;
+struct array_s;
+struct mbp_s;
+struct menu_s;
+struct sli_s;
+struct slb_s;
+struct paintstruct_s;
+struct mempoolmsg_s;
+
+struct obj_base {
+	union {
+		EXHANDLE hexdui_;
+		EXHANDLE hObj_;
+	};
+	EXHANDLE objChildFirst_;
+	EXHANDLE objChildLast_;
+	EXHANDLE hLayout_;
+	int dwFlags_;
+	bkgimg_s* lpBackgroundImage_;
+	theme_s* hTheme_;
+};
+
+typedef BOOL(*UpdateLayeredWindowIndirectPROC)(HWND, UPDATELAYEREDWINDOWINFO*);
+typedef size_t(*MsgPROC)(HWND, EXHANDLE, int, size_t, void*, void*);
+
+
+
+#include "Array_ex.h"
 #include "Thread_ex.h"
 #include "HashTable_ex.h"
 #include "MemPool_ex.h"
 #include "HandelTable_ex.h"
 #include "Global_ex.h"
 
-typedef BOOL(*UpdateLayeredWindowIndirectPROC)(HWND, UPDATELAYEREDWINDOWINFO*);
-typedef int(*ClsPROC)(HWND, size_t, int, size_t, size_t, void*);
-typedef int(*MsgPROC)(HWND, size_t, int, size_t, void*, void*);
+#include "Canvas_ex.h"
+#include "Font_ex.h"
+#include "Format_ex.h"
+#include "Brush_ex.h"
+#include "Image_ex.h"
+#include "DirectX_ex.h"
+#include "Object_ex.h"
+#include "Wnd_ex.h"
+#include "Path_ex.h"
+#include "Layout_ex.h"
+#include "Region_ex.h"
+#include "Resource_ex.h"
+#include "StrokeStyle_ex.h"
+#include "Theme_ex.h"
+#include "Hook_ex.h"
+#include "Matrix_ex.h"
+
+#include "Class_Static_SysLink_ex.h"
+#include "Class_SysButton_Page_ex.h"
+#include "Class_Scrollbar_ex.h"
+#include "Class_Button_Item_ex.h"
+#include "Class_Edit_ex.h"
+#include "Class_ListView_ex.h"
+
 
 #define ExGetB(rgb)			(LOBYTE(rgb))
 #define ExGetG(rgb)			(LOBYTE(((WORD)(rgb)) >> 8))
@@ -31,11 +119,12 @@ typedef int(*MsgPROC)(HWND, size_t, int, size_t, void*, void*);
 #define ExGetA(rgb)			(LOBYTE((rgb)>>24))
 #define ExRGB(r,g,b)        ((int)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((INT)(BYTE)(b))<<16)))
 #define ExRGBA(r,g,b,a)		((int)(RGB(b,g,r)|(a<<24)))
-#define ExARGB(r,g,b)		ExRGBA(r,g,b,0xFF)
+#define ExARGB2RGB(argb)    (argb & 0xFFFFFF)
+#define ExRGB2ARGB(rgb,a)    ((int)(rgb|(a<<24)))
 
-#define FLAG_CHECK(a,b) ((a)&(b)) == (b)
-#define FLAG_ADD(a,b) a |= | (b)
-#define FLAG_DEL(a,b)  a &= ~(b)
+#define FLAGS_CHECK(a,b) (((a)&(b)) == (b))
+#define FLAGS_ADD(a,b) (a |= (b))
+#define FLAGS_DEL(a,b)  (a &= ~(b))
 
 #define HT_DUI 1
 #define HT_OBJECT 2
@@ -316,19 +405,19 @@ struct LOCALINFO
 	WORD atomClassName;
 	WORD atomSysShadow;
 	UINT dwMessage;
-	void* hMemPoolMsg;
-	void* hTableClass;
-	void* hTableFont;
-	void* hTableLayout;
+	mempool_s* hMemPoolMsg;
+	hashtable_s* hTableClass;
+	hashtable_s* hTableFont;
+	hashtable_s* hTableLayout;
 	UpdateLayeredWindowIndirectPROC pfnUpdateLayeredWindowIndirect;
 	void* lpLogFontDefault;
-	void* hThemeDefault;
-	void* hMenuVS;
-	void* hMenuHS;
-	void* hMenuEdit;
+	theme_s* hThemeDefault;
+	HMENU hMenuVS;
+	HMENU hMenuHS;
+	HMENU hMenuEdit;
 	void* hHookMsgBox;
-	void* hHandles;
-	std::vector<void*> aryThemes;
+	mempool_s* hHandles;
+	std::vector<theme_s*> aryThemes;
 	std::vector<int> aryColorsAtom;
 	std::vector<int> aryColorsOffset;
 	void* lpstr_min;
@@ -362,6 +451,8 @@ struct RENDERINFO
 	float bp_dpiy;
 	int bp_bitmapOptions;
 	void* bp_colorContext;
+
+	HMODULE hRiched20;
 };
 
 extern LOCALINFO g_Li;
@@ -375,6 +466,7 @@ struct ARGB_s
 	int a;
 };
 
+int DtoHimetric(int d, int PerInchc);
 void* GetProcAddr(LPCWSTR szMod, LPCSTR szApi);
 bool Ex_MemFree(void* hMem);
 void* Ex_MemAlloc(size_t dwSize, int dwFlags = LMEM_ZEROINIT);

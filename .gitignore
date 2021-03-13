@@ -10,3 +10,10 @@
 /msvc/dll/Debug/
 /msvc/dll/Release/
 /cmake-build-debug/
+/x64/
+/Debug/
+/Release/
+/msvc/dll/x64/
+/msvc/libexdui/x64/
+/msvc/test/x64/
+/build/

@@ -1,11 +1,11 @@
 #include "Class_SysButton_Page_ex.h"
 
-size_t _sysbutton_paint(HWND hWnd, size_t hObj, obj_s* pObj)
+size_t _sysbutton_paint(HWND hWnd, EXHANDLE hObj, obj_s* pObj)
 {
 	paintstruct_s ps;
 	int atomClass = 0;
 	int atomState = 0;
-	if (Ex_ObjBeginPaint(hObj, (void*)&ps))
+	if (Ex_ObjBeginPaint(hObj, (paintstruct_s*)&ps))
 	{
 		if ((ps.dwStyle_ & EWS_BUTTON_CLOSE) != 0)
 		{
@@ -70,7 +70,7 @@ size_t _sysbutton_paint(HWND hWnd, size_t hObj, obj_s* pObj)
 				size_t atomClass = 窗口_取图标句柄(hWnd, false);
 				if (atomClass != 0)
 				{
-					size_t hImg = _img_createfromhicon((void*)atomClass);
+					EXHANDLE hImg = _img_createfromhicon((void*)atomClass);
 					if (hImg != 0)
 					{
 						_canvas_drawimagerect(ps.hCanvas_, hImg, left, (ps.t_bottom_ - ps.t_top_ - 16) / 2, left + 16, (ps.t_bottom_ - ps.t_top_ - 16) / 2 + 16, 255);
@@ -86,7 +86,7 @@ size_t _sysbutton_paint(HWND hWnd, size_t hObj, obj_s* pObj)
 					DT_VCENTER | DT_LEFT | DT_SINGLELINE | DT_WORD_ELLIPSIS, left, ps.t_top_, ps.t_right_, ps.t_bottom_, pObj->dwShadowSize_, 0, 0, 0);
 			}
 		}
-		Ex_ObjEndPaint(hObj, (void*)&ps);
+		Ex_ObjEndPaint(hObj, (paintstruct_s*)&ps);
 	}
 	return 0;
 }
@@ -94,23 +94,23 @@ size_t _sysbutton_paint(HWND hWnd, size_t hObj, obj_s* pObj)
 void _sysbutton_remove_proc(obj_s* pObj, int width, int height)
 {
 	EXHANDLE sObj = pObj->objChildFirst_;
-	void* psobj = nullptr;
+	obj_s* psobj = nullptr;
 	int nError = 0;
 	bool bReCalced = false;
 	int nOffset = 0;
-	while (_handle_validate(sObj, HT_OBJECT, &psobj, &nError))
+	while (_handle_validate(sObj, HT_OBJECT, (void**)&psobj, &nError))
 	{
 		if (!bReCalced)
 		{
 			bReCalced = true;
-			nOffset = width - ((obj_s*)psobj)->right_;
+			nOffset = width - psobj->right_;
 		}
-		Ex_ObjSetPos(sObj, 0, ((obj_s*)psobj)->left_ + nOffset, EOP_DEFAULT, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_EX_NODPISCALE);
-		sObj = ((obj_s*)psobj)->objNext_;
+		Ex_ObjSetPos(sObj, 0, psobj->left_ + nOffset, EOP_DEFAULT, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_EX_NODPISCALE);
+		sObj = psobj->objNext_;
 	}
 }
 
-size_t _sysbutton_proc(HWND hWnd, size_t hObj, int uMsg, size_t wParam, size_t lParam, obj_s* pObj)
+size_t _sysbutton_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj)
 {
 	int nError = 0;
 	if (uMsg == WM_NCCREATE)
@@ -256,17 +256,17 @@ size_t _sysbutton_proc(HWND hWnd, size_t hObj, int uMsg, size_t wParam, size_t l
 	return Ex_ObjDefProc(hWnd, hObj, uMsg, wParam, lParam);
 }
 
-size_t _page_paint(size_t hObj)
+size_t _page_paint(EXHANDLE hObj)
 {
 	paintstruct_s ps;
-	if (Ex_ObjBeginPaint(hObj, (void*)&ps))
+	if (Ex_ObjBeginPaint(hObj, (paintstruct_s*)&ps))
 	{
-		Ex_ObjEndPaint(hObj, (void*)&ps);
+		Ex_ObjEndPaint(hObj, (paintstruct_s*)&ps);
 	}
 	return 0;
 }
 
-void _page_onvscrollbar(HWND hWnd, size_t hObj, obj_s* pObj, int uMsg, size_t wParam, size_t lParam)
+void _page_onvscrollbar(HWND hWnd, EXHANDLE hObj, obj_s* pObj, UINT uMsg, size_t wParam, size_t lParam)
 {
 	auto nCode = LOWORD(wParam);
 	int oPos = Ex_ObjScrollGetPos(hObj, SB_VERT);
@@ -298,7 +298,7 @@ void _page_onvscrollbar(HWND hWnd, size_t hObj, obj_s* pObj, int uMsg, size_t wP
 	}
 	else if (nCode == SB_BOTTOM)
 	{
-		RECT rect;
+		RECT rect{ 0 };
 		Ex_ObjGetRect(pObj->objChildFirst_, &rect);
 		nPos = rect.bottom - rect.top - height;
 	}
@@ -310,7 +310,7 @@ void _page_onvscrollbar(HWND hWnd, size_t hObj, obj_s* pObj, int uMsg, size_t wP
 	Ex_ObjSetPos(pObj->objChildFirst_, 0, EOP_DEFAULT, (-nPos), 0, 0, SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOACTIVATE | SWP_EX_NODPISCALE);
 }
 
-size_t _page_proc(HWND hWnd, size_t hObj, int uMsg, size_t wParam, size_t lParam, obj_s* pObj)
+size_t _page_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj)
 {
 	if (uMsg == WM_VSCROLL || uMsg == WM_HSCROLL)
 	{

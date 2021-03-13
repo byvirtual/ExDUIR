@@ -43,6 +43,11 @@ void* Ex_MemAlloc(size_t dwSize, int dwFlags)
 	//return LocalAlloc(dwFlags, dwSize);
 }
 
+int DtoHimetric(int d, int PerInchc)
+{
+	return MulDiv(d, 2540, PerInchc);
+}
+
 size_t __get(void* lpAddr, size_t offset)
 {
 	size_t a = (size_t)lpAddr + offset;
@@ -555,11 +560,11 @@ HRESULT IDropTarget_DragOver(void* thisptr, int grfKeyState, int x, int y, int* 
 {
 	wnd_s* pWnd = (wnd_s*)__get(thisptr, sizeof(wnd_s*));
 	_wnd_wm_nchittest(pWnd, pWnd->hWnd_, MAKELONG(x, y));
-	void* phit = nullptr;
+	obj_s* phit = nullptr;
 	int nError = 0;
-	if (_handle_validate(pWnd->objHittest_, HT_OBJECT, &phit, &nError))
+	if (_handle_validate(pWnd->objHittest_, HT_OBJECT, (void**)&phit, &nError))
 	{
-		if (((((obj_s*)phit)->dwStyleEx_ & EOS_EX_DRAGDROP) == EOS_EX_DRAGDROP))
+		if (((phit->dwStyleEx_ & EOS_EX_DRAGDROP) == EOS_EX_DRAGDROP))
 		{
 			return S_OK;
 		}
@@ -573,7 +578,7 @@ HRESULT IDropTarget_Drop(void* thisptr, IDataObject* pDataObj, int grfKeyState, 
 	wnd_s* pWnd = (wnd_s*)__get(thisptr, sizeof(wnd_s*));
 	HWND hWnd = pWnd->hWnd_;
 	_wnd_wm_nchittest(pWnd, hWnd, MAKELONG(x, y));
-	size_t hObj = pWnd->objHittest_;
+	EXHANDLE hObj = pWnd->objHittest_;
 	obj_s* pObj = nullptr;
 	int nError = 0;
 	if (_handle_validate(hObj, HT_OBJECT, (void**)&pObj, &nError))

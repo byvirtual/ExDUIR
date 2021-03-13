@@ -1,6 +1,7 @@
 #pragma once
 
-
+// 调试模式
+#define EXGF_DEBUG	1
 // 启用DPI缩放
 #define EXGF_DPI_ENABLE	2
 // 画布_不抗锯齿
@@ -1060,26 +1061,17 @@ typedef UINT32 EXATOM;			// 原子号
 typedef UINT32 EXHANDLE;		// 句柄
 typedef EXHANDLE HEXDUI;		// 界面句柄
 typedef EXHANDLE HEXLAYOUT;		// 布局句柄
-typedef EXHANDLE HEXTHEME;		// 主题句柄
+typedef LPVOID HEXTHEME;		// 主题句柄
 typedef EXHANDLE HEXOBJ;		// 控件句柄
 typedef EXHANDLE HEXCANVAS;		// 画布句柄
-typedef EXHANDLE HEXBRUSH;		// 刷子句柄
+typedef LPVOID HEXBRUSH;		// 刷子句柄
 typedef EXHANDLE HEXIMAGE;		// 图片句柄
-typedef EXHANDLE HEXFONT;		// 字体句柄
-typedef EXHANDLE HEXEASING;		// 缓动句柄/指针
+typedef LPVOID HEXFONT;		// 字体句柄
+typedef LPVOID HEXEASING;		// 缓动句柄/指针
 typedef EXHANDLE HEXPATH;		// 路径句柄
-typedef EXHANDLE HEXMATRIX;		// 矩阵句柄
+typedef LPVOID HEXMATRIX;		// 矩阵句柄
 
 
-struct wnd_s;
-struct obj_s;
-
-struct EXDATA
-{
-
-	LPBYTE ptr;		// 数据指针
-	size_t len;		// 数据长度
-};
 struct EX_NMHDR
 {
 	HEXOBJ	hObjFrom;			// 0	组件句柄
@@ -1195,7 +1187,7 @@ struct EX_TREEVIEW_INSERTINFO {
 	DWORD dwStyle;					// 风格
 	BOOL fUpdateLater;				// 是否暂不更新(统一用TVM_UPDATE更新)
 };
-struct TREEVIEW_NODEITEM
+struct EX_TREEVIEW_NODEITEM
 {
 	INT nID;						// ID
 	LPCWSTR wzText;					// 文本

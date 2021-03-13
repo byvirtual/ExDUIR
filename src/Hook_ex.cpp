@@ -11,7 +11,7 @@ LRESULT CALLBACK _hook_proc(int code, size_t wParam, size_t lParam)
 
 LRESULT _hook_oncreate(int code, HWND hWnd, size_t lParam)
 {
-	auto lpcs = ((CBT_CREATEWND*)(void*)lParam)->lpcs;
+	auto lpcs = ((CBT_CREATEWND*)lParam)->lpcs;
 	auto atomClass = (int)(lpcs->lpszClass);
 	auto hParent = lpcs->hwndParent;
 
@@ -23,18 +23,18 @@ LRESULT _hook_oncreate(int code, HWND hWnd, size_t lParam)
 		int nError = 0;
 		if (_handle_validate(hExDui, HT_DUI, (void**)&pWnd, &nError))
 		{
-			void* pMsg = pWnd->lpMsgParams_;
+			mbp_s* pMsg = pWnd->lpMsgParams_;
 			pWnd->lpMsgParams_ = 0;
 			if (pMsg != 0)
 			{
 				SetClassLongPtrW(hWnd, -12, (LONG)g_Li.hCursor);
 				int style = EWS_TITLE | EWS_BUTTON_CLOSE | EWS_ESCEXIT | EWS_MOVEABLE | EWS_MESSAGEBOX;
 				
-				if (((((mbp_s*)pMsg)->dwFlags_ & EMBF_WINDOWICON) == EMBF_WINDOWICON))
+				if (((pMsg->dwFlags_ & EMBF_WINDOWICON) == EMBF_WINDOWICON))
 				{
 					style = style | EWS_HASICON;
 				}
-				Ex_DUIBindWindowEx(hWnd, pWnd->hTheme_, style, (size_t)pMsg, ((mbp_s*)pMsg)->lpfnNotifyCallback_);
+				Ex_DUIBindWindowEx(hWnd, pWnd->hTheme_, style, (size_t)pMsg, pMsg->lpfnNotifyCallback_);
 			}
 		}
 	}
@@ -45,7 +45,7 @@ LRESULT _hook_oncreate(int code, HWND hWnd, size_t lParam)
 	return CallNextHookEx((HHOOK)g_Li.hHookMsgBox, code, (WPARAM)hWnd, lParam);
 }
 
-size_t _menu_proc(void* pData, int uMsg, size_t wParam, size_t lParam)
+size_t _menu_proc(void* pData, UINT uMsg, size_t wParam, size_t lParam)
 {
 #if defined(_M_IX86)
 	HWND hWnd = (HWND)__get_int(pData, 13);
@@ -73,27 +73,27 @@ void _menu_init(HWND hWnd)
 	void* hMenu = (void*)SendMessageW(hWnd, 481, 0, 0);
 	if (hMenu != 0)
 	{
-		size_t hExDui;
+		size_t hExDui; // 由于HashTable_Get会写入8字节，这里必须是size_t类型
 		HashTable_Get(g_Li.hTableLayout, (size_t)hMenu, &hExDui);
 		wnd_s* pWnd = nullptr;
 		int nError = 0;
 		if (_handle_validate(hExDui, HT_DUI, (void**)&pWnd, &nError))
 		{
 			HashTable_Remove(g_Li.hTableLayout, (size_t)hMenu);
-			void* lpMenuParams = pWnd->lpMenuParams_;
+			menu_s* lpMenuParams = pWnd->lpMenuParams_;
 			SetWindowLongPtrW(hWnd, -20, WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_LAYERED);
 			SetClassLongPtrW(hWnd, -26, 1 | 2 | 8);
 			int dwStyle = EWS_MENU | EWS_NOINHERITBKG | EWS_ESCEXIT | EWS_FULLSCREEN;
-			void* pfnCallback = nullptr;
+			MsgPROC pfnCallback = nullptr;
 			if (!IsBadReadPtr(lpMenuParams, sizeof(menu_s)))
 			{
-				if (((((menu_s*)lpMenuParams)->dwFlags_ & EMNF_NOSHADOW) == EMNF_NOSHADOW))
+				if (((lpMenuParams->dwFlags_ & EMNF_NOSHADOW) == EMNF_NOSHADOW))
 				{
 					dwStyle = dwStyle | EWS_NOSHADOW;
 				}
-				pfnCallback = ((menu_s*)lpMenuParams)->pfnCallback_;
+				pfnCallback = lpMenuParams->pfnCallback_;
 			}
-			size_t hExDui = Ex_DUIBindWindowEx(hWnd, pWnd->hTheme_, dwStyle, (size_t)pWnd, pfnCallback);
+			EXHANDLE hExDui = Ex_DUIBindWindowEx(hWnd, pWnd->hTheme_, dwStyle, (size_t)pWnd, pfnCallback);
 			if (_handle_validate(hExDui, HT_DUI, (void**)&pWnd, &nError))
 			{
 				pWnd->lpMenuParams_ = lpMenuParams;
@@ -108,19 +108,19 @@ void _msgbox_drawinfo(wnd_s* pWnd, EXHANDLE cvBkg)
 {
 	int w, h;
 	_canvas_getsize(cvBkg, &w, &h);
-	void* hTheme = pWnd->hTheme_;
+	theme_s* hTheme = pWnd->hTheme_;
 	Ex_ThemeDrawControl(hTheme, cvBkg, 0, 0, w, h, ATOM_MESSAGEBOX, ATOM_RECT, 255);
-	void* pMsg = pWnd->lpMsgParams_;
+	mbp_s* pMsg = pWnd->lpMsgParams_;
 	if (pMsg != 0)
 	{
-		int wType = ((mbp_s*)pMsg)->uType_ & 240;
+		int wType = pMsg->uType_ & 240;
 		int l = Ex_Scale(15);
 		int t = Ex_Scale(15);
-		void* pCaption = nullptr;
+		obj_s* pCaption = nullptr;
 		int nError = 0;
-		if (_handle_validate(pWnd->objCaption_, HT_OBJECT, &pCaption, &nError))
+		if (_handle_validate(pWnd->objCaption_, HT_OBJECT, (void**)&pCaption, &nError))
 		{
-			t = t + ((obj_s*)pCaption)->bottom_;
+			t = t + pCaption->bottom_;
 		}
 
 		if (wType != 0)
@@ -128,7 +128,7 @@ void _msgbox_drawinfo(wnd_s* pWnd, EXHANDLE cvBkg)
 			std::wstring value;
 			value.push_back(wType);
 			void* pValue = Ex_ThemeGetValuePtr(hTheme, ATOM_MESSAGEBOX, Ex_Atom(value.data()));
-			int r, b;
+			int r = NULL, b = NULL;
 			if (pValue != 0)
 			{
 				r = l + Ex_Scale(__get_int(pValue, 8) - __get_int(pValue, 0));
@@ -137,7 +137,7 @@ void _msgbox_drawinfo(wnd_s* pWnd, EXHANDLE cvBkg)
 			}
 			l = r + Ex_Scale(15);
 		}
-		void* pText = ((mbp_s*)pMsg)->lpText_;
+		void* pText = pMsg->lpText_;
 		if (pText != 0)
 		{
 			void* hFont = _font_create();
@@ -152,15 +152,15 @@ void _msgbox_drawinfo(wnd_s* pWnd, EXHANDLE cvBkg)
 
 void _msgbox_initdialog(HWND hWnd, wnd_s* pWnd, size_t wParam, size_t lParam)
 {
-	void* pMsg = pWnd->lpMsgParams_;
+	mbp_s* pMsg = pWnd->lpMsgParams_;
 	if (pMsg == 0) return;
-	auto lpwzCheckbox = ((mbp_s*)pMsg)->lpCheckBox_;
-	auto lpCheckboxChecked = ((mbp_s*)pMsg)->lpCheckBoxChecked_;
-	auto uType = ((mbp_s*)pMsg)->uType_;
-	auto pfnCallback = ((mbp_s*)pMsg)->lpfnNotifyCallback_;
+	auto lpwzCheckbox = pMsg->lpCheckBox_;
+	auto lpCheckboxChecked = pMsg->lpCheckBoxChecked_;
+	auto uType = pMsg->uType_;
+	auto pfnCallback = pMsg->lpfnNotifyCallback_;
 	auto hTheme = pWnd->hTheme_;
 	auto hWndChild = GetWindow(hWnd, GW_CHILD);
-	RECT rcText;
+	RECT rcText = { 0 };
 	std::vector<std::wstring> aryText;
 	std::vector<size_t> aryID;
 	size_t iDef = 0;
@@ -185,11 +185,11 @@ void _msgbox_initdialog(HWND hWnd, wnd_s* pWnd, size_t wParam, size_t lParam)
 	}
 	auto n = aryID.size();
 	int maxWidth = Ex_Scale(10) * 2 + Ex_Scale(80) * n + Ex_Scale(5) * n;
-	size_t hCanvas = pWnd->canvas_bkg_;
+	EXHANDLE hCanvas = pWnd->canvas_bkg_;
 	void* hFont = _font_create();
 	int width = rcText.right - rcText.left;
-	int w, h;
-	int widthCheckbox;
+	int w = NULL, h = NULL;
+	int widthCheckbox = NULL;
 	if (hFont != 0 && hCanvas != 0)
 	{
 		if (lpwzCheckbox != 0)
@@ -207,7 +207,7 @@ void _msgbox_initdialog(HWND hWnd, wnd_s* pWnd, size_t wParam, size_t lParam)
 
 		if (_canvas_begindraw(hCanvas))
 		{
-			_canvas_calctextsize(hCanvas, hFont, (LPCWSTR)((mbp_s*)pMsg)->lpText_, -1, DT_NOPREFIX | DT_WORDBREAK | DT_EDITCONTROL, 0, width, rcText.bottom - rcText.top, &w, &h);
+			_canvas_calctextsize(hCanvas, hFont, (LPCWSTR)pMsg->lpText_, -1, DT_NOPREFIX | DT_WORDBREAK | DT_EDITCONTROL, 0, width, rcText.bottom - rcText.top, &w, &h);
 			_canvas_enddraw(hCanvas);
 		}
 		_font_destroy(hFont);
@@ -232,7 +232,7 @@ void _msgbox_initdialog(HWND hWnd, wnd_s* pWnd, size_t wParam, size_t lParam)
 	maxHeight = Ex_Scale(__get_int(pValue, 4)) + Ex_Scale(__get_int(pValue, 12)) + maxHeight + Ex_Scale(15) * 2;
 	if (maxHeight < Ex_Scale(140)) maxHeight = Ex_Scale(140);
 	if (maxWidth < Ex_Scale(220)) maxWidth = Ex_Scale(220);
-	RECT rcWindow;
+	RECT rcWindow{ 0 };
 	GetWindowRect(hWnd, &rcWindow);
 	int left = rcWindow.right - rcWindow.left;
 	int top = rcWindow.bottom - rcWindow.top;
@@ -251,12 +251,12 @@ void _msgbox_initdialog(HWND hWnd, wnd_s* pWnd, size_t wParam, size_t lParam)
 	EXHANDLE hObj = 0;
 	obj_s* pObj = nullptr;
 	int nError = 0;
-	for (int i = aryID.size(); i > 1; i--)
+	for (int i = aryID.size() - 1; i >= 0; i--)
 	{
 		hObj = _obj_create_init(hWnd, pWnd, ATOM_BUTTON, 0, &pObj, &nError);
 		if (hObj != 0)
 		{
-			_obj_create_proc(&nError, true, hTheme, pObj, -1, ATOM_BUTTON, aryText.data(), -1, left, top, 80, 24, 0, ~aryID[i], 0, aryID[i], -1);
+			_obj_create_proc(&nError, true, hTheme, pObj, -1, ATOM_BUTTON, (void*)aryText[i].c_str(), -1, left, top, 80, 24, 0, ~aryID[i], 0, aryID[i], -1);
 			pObj->dwFlags_ = pObj->dwFlags_ | eof_bMsgBoxControl;
 			_obj_create_done(hWnd, pWnd, hObj, pObj);
 			if (aryID[i] == iDef) _obj_setfocus(hWnd, pWnd, hObj, pObj, true);
@@ -283,14 +283,14 @@ void _msgbox_initdialog(HWND hWnd, wnd_s* pWnd, size_t wParam, size_t lParam)
 		Ex_ObjEnable(Ex_ObjGetFromID(pWnd->objCaption_, EWS_BUTTON_CLOSE), false);
 	}
 	
-	if (((((mbp_s*)pMsg)->dwFlags_ & EMBF_CENTEWINDOW) == EMBF_CENTEWINDOW))
+	if (((pMsg->dwFlags_ & EMBF_CENTEWINDOW) == EMBF_CENTEWINDOW))
 	{
 		Ex_WndCenterFrom(hWnd, (HWND)GetWindowLongPtrW(hWnd, -8), false);
 	}
 	else {
 		Ex_WndCenterFrom(hWnd, 0, false);//检查是否同个屏幕
 	}
-	((mbp_s*)pWnd)->dwFlags_ = ((mbp_s*)pWnd)->dwFlags_ | EWF_INTED;
+	pWnd->dwFlags_ = pWnd->dwFlags_ | EWF_INTED;
 	ShowWindow(hWnd, 1);
 	InvalidateRect(hWnd, 0, false);
 	UpdateWindow(hWnd);
