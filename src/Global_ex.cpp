@@ -149,6 +149,8 @@ void _object_init()
 	_obj_register(ATOM_LISTVIEW, EOS_VISIBLE | EOS_HSCROLL | EOS_VSCROLL, EOS_EX_FOCUSABLE | EOS_EX_TABSTOP, DT_NOPREFIX | DT_SINGLELINE, 0, 0, &_lv_proc, 0, &nError);
 	_obj_register(ATOM_ITEM, EOS_VISIBLE, EOS_EX_FOCUSABLE | EOS_EX_TABSTOP, DT_VCENTER | DT_SINGLELINE, 0, 0, &_item_proc, 0, &nError);
 
+	_obj_register(ATOM_POPUPBOX, EOS_VISIBLE, EOS_EX_FOCUSABLE, DT_VCENTER | DT_SINGLELINE, 0, 0, &_pb_proc, 0, 0);
+	_obj_register(ATOM_COMBOBOX, EOS_VISIBLE, EOS_EX_FOCUSABLE, DT_VCENTER | DT_SINGLELINE, 0, 0, &_cb_proc, 0, 0);
 }
 
 float Ex_Scale(float n)//OK
@@ -158,6 +160,24 @@ float Ex_Scale(float n)//OK
 		n = round(n * g_Li.DpiX);
 	}
 	return n;
+}
+
+void Ex_Sleep(int us)
+{
+	LARGE_INTEGER li;
+	li.QuadPart = -10 * us;
+	HANDLE hTimer = CreateWaitableTimerW(0, 0, 0);
+	SetWaitableTimer(hTimer, &li, 0, 0, 0, 0);
+	while (MsgWaitForMultipleObjects(1, &hTimer, 0, -1, 255) != 0)
+	{
+		MSG msg;
+		while (PeekMessageW(&msg, 0, 0, 0, 1))
+		{
+			TranslateMessage(&msg);
+			DispatchMessageW(&msg);
+		}
+	}
+	CloseHandle(hTimer);
 }
 
 int Ex_Atom(LPCWSTR lptstring)//OK

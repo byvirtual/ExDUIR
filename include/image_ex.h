@@ -91,3 +91,5 @@ bool _apng_thunk_getnext(void* lpMem, int* nPos, int dwThunkType, void** lpThunk
 void _apng_int(EXHANDLE hImage, void* lpStream);
 bool _apng_getframedelay(img_s* pImg, void* lpDelay, int nFrames);
 bool _img_selectactiveframe(EXHANDLE hImg, int nIndex);
+EXHANDLE _img_createfromres(hashtable_s* hRes, int atomPath);
+EXHANDLE _img_createfromhbitmap(void* hBitmap, void* hPalette, int fPreAlpha);

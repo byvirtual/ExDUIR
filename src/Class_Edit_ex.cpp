@@ -198,7 +198,7 @@ public:
 
     //@cmember Get the background color for the window
     COLORREF TxGetSysColor(int nIndex) {
-        if (nIndex = COLOR_WINDOWTEXT) {
+        if (nIndex == COLOR_WINDOWTEXT) {
             return ExARGB2RGB(_obj_getcolor(m_pOwner->pObj_, COLOR_EX_TEXT_NORMAL));
         }
         else {
@@ -402,7 +402,7 @@ void _edit_setpcf(obj_s *pObj, edit_s *pOwner, int height) {
             BYTE PitchAndFamily = logfont->lfPitchAndFamily;
             pcf->bPitchAndFamily = PitchAndFamily;
             pcf->crTextColor = ExARGB2RGB(_obj_getcolor(pObj, COLOR_EX_TEXT_NORMAL));
-            RtlMoveMemory(pcf->szFaceName, logfont->lfFaceName, lstrlenW((LPCWSTR) logfont->lfFaceName) * 2);
+            RtlMoveMemory(pcf->szFaceName, logfont->lfFaceName, lstrlenW((LPCWSTR) logfont->lfFaceName) * (size_t)2);
             pcf->dwMask = dwMask;
             Ex_MemFree(logfont);
         }

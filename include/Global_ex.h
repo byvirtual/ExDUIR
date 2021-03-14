@@ -13,3 +13,4 @@ BOOL Ex_IsDxRender();
 bool Flag_Query(int dwFlag);
 void Flag_Add(int dwFlag);
 void Flag_Del(int dwFlag);
+void Ex_Sleep(int us);

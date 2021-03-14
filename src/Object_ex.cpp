@@ -1100,9 +1100,9 @@ void _obj_setpos_org(obj_s* pObj, EXHANDLE hObj, EXHANDLE hObjInsertAfter, int x
 	HWND hWnd = pWnd->hWnd_;
 	bool fAsyn = (flags & SWP_ASYNCWINDOWPOS) != 0;
 	bool fNotify = (flags & SWP_NOSENDCHANGING) == 0;
-	if ((flags & SWP_NOZORDER) == 0)
+	if ((flags & SWP_NOZORDER) == 0)// 调整Z序
 	{
-		_obj_z_set(hObj, (obj_s*)pObj, hObjInsertAfter, flags, nError);
+		_obj_z_set(hObj, pObj, hObjInsertAfter, flags, nError);
 	}
 	if (_obj_autosize(pObj, hObj, &width, &height))
 	{
@@ -1343,7 +1343,7 @@ void _obj_setpos_org(obj_s* pObj, EXHANDLE hObj, EXHANDLE hObjInsertAfter, int x
 				}
 			}
 		}
-		_obj_scroll_repostion(hWnd, hObj, true);
+		_obj_scroll_repostion(hWnd, hObj, true);//重新更新滚动条位置，与其状态无关
 		UnionRect(&np.rgrc[2], (RECT*)((size_t)pObj + offsetof(obj_s, w_left_)), &rcOld);
 	}
 	else
@@ -2995,6 +2995,11 @@ void _obj_tooltips_popup(wnd_s* pWnd, void* lpTitle, void* lpText, int x, int y,
 	}
 }
 
+bool Ex_ObjTooltipsPop(EXHANDLE hObj, void* lpText)
+{
+	return Ex_ObjTooltipsPopEx(hObj, 0, lpText,-1,-1,-1,0,false);
+}
+
 bool Ex_ObjTooltipsPopEx(EXHANDLE hObj, void* lpTitle, void* lpText, int x, int y, int dwTime, int nIcon, bool fShow)
 {
 	obj_s* pObj = nullptr;
@@ -3138,6 +3143,47 @@ bool Ex_ObjInitPropList(EXHANDLE hObj, int nPropCount)
 	}
 	Ex_SetLastError(nError);
 	return nError == 0;
+}
+
+int Ex_ObjEnumProps(EXHANDLE hObj, void* lpfnCbk, size_t param)
+{
+	obj_s* pObj;
+	int nError = 0;
+	int nList = 0;
+	if (_handle_validate(hObj, HT_OBJECT, (void**)&pObj, &nError))
+	{
+		nList=pObj->nPropCount_;
+		hashtable_s* pList = pObj->pPropListEntry_;
+		if (pList != 0)
+		{
+			if (nList == -1)
+			{
+				std::vector<size_t> aKey;
+				std::vector<size_t> aValue;
+				nList = HashTable_GetAllKeysAndValues(pList, aKey, aValue);
+				if (lpfnCbk != 0)
+				{
+					for (int i = 0; i < aKey.size(); i++)
+					{
+						if (((EnumPropsPROC)lpfnCbk)(hObj, aKey[i], aValue[i], param) != 0)
+						{
+							break;
+						}
+					}
+				}
+			}
+			else {
+				for (int i = 0; i < nList; i++)
+				{
+					if (((EnumPropsPROC)lpfnCbk)(hObj, i, __get(pList,i*sizeof(size_t)), param) != 0)
+					{
+						break;
+					}
+				}
+			}
+		}
+	}
+	return nList;
 }
 
 bool Ex_ObjMove(EXHANDLE hObj, int x, int y, int width, int height, bool bRepaint)
@@ -3550,5 +3596,104 @@ bool Ex_ObjScrollEnable(EXHANDLE hObj, int wSB, int wArrows)
 			_sb_set_wArrows(_sb_getscroll(pObj, wSB), wArrows, true);
 		}
 	}
+	return nError == 0;
+}
+
+bool Ex_ObjGetRectEx(EXHANDLE hObj, void* lpRect, int nType)
+{
+	int nError = 0;
+	obj_s* pObj = nullptr;
+	if (_handle_validate(hObj, HT_OBJECT, (void**)&pObj, &nError))
+	{
+		if (IsBadWritePtr(lpRect, 16))
+		{
+			nError = ERROR_EX_MEMORY_BADPTR;
+		}
+		else if (nType == 0)
+		{
+			RtlMoveMemory(lpRect, (void*)((size_t)pObj + offsetof(obj_s, left_)), 16);
+		}
+		else if (nType == 1)
+		{
+			RtlMoveMemory(lpRect, (void*)((size_t)pObj + offsetof(obj_s, c_left_)), 16);
+		}
+		else if (nType == 2)
+		{
+			RtlMoveMemory(lpRect, (void*)((size_t)pObj + offsetof(obj_s, w_left_)), 16);
+		}
+		else if (nType == 3)
+		{
+			RtlMoveMemory(lpRect, (void*)((size_t)pObj + offsetof(obj_s, d_left_)), 16);
+		}
+		else if (nType == 4)
+		{
+			RtlMoveMemory(lpRect, (void*)((size_t)pObj + offsetof(obj_s, t_left_)), 16);
+		}
+		else {
+			nError = ERROR_EX_HANDLE_BADINDEX;
+		}
+		if (nError == ERROR_EX_NOERROR && Flag_Query(EXGF_DPI_ENABLE))
+		{
+			__set_int(lpRect, 0, __get_int(lpRect, 0) / g_Li.DpiX);
+			__set_int(lpRect, 4, __get_int(lpRect, 4) / g_Li.DpiY);
+			__set_int(lpRect, 8, __get_int(lpRect, 8) / g_Li.DpiX);
+			__set_int(lpRect, 12, __get_int(lpRect, 12) / g_Li.DpiY);
+		}
+	}
+	Ex_SetLastError(nError);
+	return nError == 0;
+}
+
+void Ex_ObjPointTransform(EXHANDLE hObjSrc, EXHANDLE hObjDst, int* ptX, int* ptY)
+{
+	int nError = 0;
+	if (hObjSrc != hObjDst)
+	{
+		obj_s* pObjSrc = nullptr;
+		if (_handle_validate(hObjSrc, HT_OBJECT, (void**)&pObjSrc, &nError))
+		{
+			int nOffsetX = pObjSrc->w_left_;
+			int nOffsetY = pObjSrc->w_top_;
+			obj_s* pObjDst = nullptr;
+			if (_handle_validate(hObjDst, HT_OBJECT, (void**)&pObjDst, &nError))
+			{
+				int nOffsetX = nOffsetX- pObjDst->w_left_;
+				int nOffsetY = nOffsetY-pObjDst->w_top_;
+			}
+			*ptX = *ptX - nOffsetX;
+			*ptY = *ptY = nOffsetY;
+		}
+	}
+	Ex_SetLastError(nError);
+}
+
+bool Ex_ObjEnableEventBubble(EXHANDLE hObj, bool fEnable)
+{
+	obj_s* pObj = nullptr;
+	int nError = 0;
+	if (_handle_validate(hObj, HT_OBJECT, (void**)&pObj, &nError))
+	{
+		if (fEnable)
+		{
+			pObj->dwFlags_ = pObj->dwFlags_ | eof_bEventBubble;
+		}
+		else {
+			pObj->dwFlags_ = pObj->dwFlags_ - (pObj->dwFlags_ & eof_bEventBubble);
+		}
+	}
+	Ex_SetLastError(nError);
+	return nError == 0;
+}
+
+bool Ex_ObjGetClassInfo(EXHANDLE hObj, void* lpClassInfo)
+{
+	obj_s* pObj = nullptr;
+	int nError = 0;
+	if (_handle_validate(hObj, HT_OBJECT, (void**)&pObj, &nError))
+	{
+		class_s* pClass=pObj->pCls_;
+		RtlMoveMemory(lpClassInfo, pClass, sizeof(class_s));
+	}
+	Ex_SetLastError(nError);
 	return nError == 0;
 }
