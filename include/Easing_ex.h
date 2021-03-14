@@ -79,3 +79,4 @@ double _easing_calc_asin(double v);
 void _easing_calc_Clerp(double nProgress, int nStart, int nStop, double* nCurrent, void* param);
 void _easing_calc_Spring(double nProgress, int nStart, int nStop, double* nCurrent, void* param);
 void _easing_calc_Punch(double nProgress, int nStart, int nStop, double* nCurrent, void* param);
+easing_s* _easing_create(int dwType, void* pEasingContext, int dwMode, EXHANDLE pContext, int nTotalTime, int nInterval, int nState, int nStart, int nStop, size_t param1, size_t param2, size_t param3, size_t param4);

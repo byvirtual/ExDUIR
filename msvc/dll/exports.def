@@ -11,7 +11,7 @@ Ex_UnInit
 Ex_Scale
 ;F2I
 ;I2F
-;Ex_Sleep
+Ex_Sleep
 
 ;----------------------------------------
 ;wnd
@@ -106,7 +106,7 @@ Ex_ObjSetTimer
 Ex_ObjKillTimer
 Ex_ObjSetRadius
 Ex_ObjTooltipsSetText
-;Ex_ObjTooltipsPop
+Ex_ObjTooltipsPop
 Ex_ObjTooltipsPopEx
 Ex_ObjGetFocus
 Ex_ObjSetFocus
@@ -114,17 +114,17 @@ Ex_ObjKillFocus
 Ex_ObjGetProp
 Ex_ObjSetProp
 Ex_ObjRemoveProp
-;Ex_ObjEnumProps
+Ex_ObjEnumProps
 Ex_ObjInitPropList
 Ex_ObjMove
 Ex_ObjSetUIState
 Ex_ObjGetUIState
 ;Ex_ObjLoadFromLayout
 ;Ex_ObjGetFromNodeID
-;Ex_ObjGetRectEx
-;Ex_ObjPointTransform
-;Ex_ObjEnableEventBubble
-;Ex_ObjGetClassInfo
+Ex_ObjGetRectEx
+Ex_ObjPointTransform
+Ex_ObjEnableEventBubble
+Ex_ObjGetClassInfo
 ;Ex_ObjGetClassInfoEx
 
 Ex_ObjScrollGetControl
@@ -212,8 +212,8 @@ _layout_absolute_setedge
 ;canvas
 ;----------------------------------------
 _canvas_destroy
-;_canvas_createfromobj
-;_canvas_createfromexdui
+_canvas_createfromobj
+_canvas_createfromexdui
 _canvas_resize
 _canvas_getcontext
 _canvas_begindraw
@@ -256,8 +256,8 @@ _canvas_rotate_hue
 ;----------------------------------------
 _img_destroy
 _img_create
-;_img_createfromres
-;_img_createfromhbitmap
+_img_createfromres
+_img_createfromhbitmap
 _img_createfromhicon
 _img_createfrommemory
 _img_createfromstream
@@ -358,10 +358,10 @@ _rgn_hittest
 ;easing
 ;----------------------------------------
 ;_easing_curve_load
-;_easing_curve_free
-;_easing_create
-;_easing_setstate
-;_easing_getstate
+_easing_curve_free
+_easing_create
+_easing_setstate
+_easing_getstate
 
 
 ;----------------------------------------

@@ -224,7 +224,7 @@ size_t HashTable_GetCounts(hashtable_s* hTable)
 	return 0;
 }
 
-size_t HashTable_GetAllKeysAndValues(hashtable_s* hTable, size_t** aryKey, size_t** aryValue)
+size_t HashTable_GetAllKeysAndValues(hashtable_s* hTable, std::vector<size_t>& aryKey, std::vector<size_t>& aryValue)
 {
 	size_t dwCount = 0;
 	if (hTable != nullptr)
@@ -234,16 +234,16 @@ size_t HashTable_GetAllKeysAndValues(hashtable_s* hTable, size_t** aryKey, size_
 		dwCount = hTable->dwCount;
 		if (pTable != nullptr && dwCount > 0)
 		{
-			LocalReAlloc(*aryKey, dwCount * sizeof(size_t), 0);
-			LocalReAlloc(*aryValue, dwCount * sizeof(size_t), 0);
+			aryKey.resize(dwCount);
+			aryValue.resize(dwCount);
 			size_t ii = 0;
 			for (size_t i = 0; i < dwBound; i++)
 			{
 				entry_s* pEntry = (entry_s*)__get(pTable, i * sizeof(void*));
 				while (pEntry != nullptr)
 				{
-					*aryKey[ii] = pEntry->hKey;
-					*aryValue[ii] = pEntry->dwValue;
+					aryKey[ii] = pEntry->hKey;
+					aryValue[ii] = pEntry->dwValue;
 					ii++;
 					pEntry = pEntry->pEntry;
 				}

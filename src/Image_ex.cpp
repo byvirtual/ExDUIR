@@ -928,3 +928,28 @@ bool _apng_getframedelay(img_s* pImg, void* lpDelay, int nFrames)
 	}
 	return ret;
 }
+
+EXHANDLE _img_createfromres(hashtable_s* hRes, int atomPath)
+{
+	void* lpFile = nullptr;
+	size_t dwLen = 0;
+	EXHANDLE ret = 0;
+	if (Ex_ResGetFileFromAtom(hRes, atomPath, &lpFile, &dwLen))
+	{
+		ret = _img_createfrommemory(lpFile, dwLen);
+	}
+	return ret;
+}
+
+EXHANDLE _img_createfromhbitmap(void* hBitmap, void* hPalette, int fPreAlpha)
+{
+	IWICBitmap* pBitmap = nullptr;
+	EXHANDLE hImg = 0;
+	int nError=((IWICImagingFactory*)g_Ri.pWICFactory)->CreateBitmapFromHBITMAP((HBITMAP)hBitmap, (HPALETTE)hPalette, (WICBitmapAlphaChannelOption)fPreAlpha, &pBitmap);
+	if (nError == 0)
+	{
+		hImg = _img_init(pBitmap, 0, 1, 0, &nError);
+	}
+	Ex_SetLastError(nError);
+	return hImg;
+}

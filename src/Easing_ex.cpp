@@ -722,3 +722,85 @@ void _easing_calc_Punch(double nProgress, int nStart, int nStop, double* nCurren
 	double _s = _p / (2 * 3.1415826) * _easing_calc_asin(0);
 	*nCurrent = nStop * pow(2, -10 * nProgress) * sin((nProgress - _s) * 2 * 3.1415926 / _p);
 }
+
+easing_s* _easing_create(int dwType, void* pEasingContext, int dwMode,EXHANDLE pContext, int nTotalTime, int nInterval, int nState, int nStart, int nStop, size_t param1, size_t param2, size_t param3, size_t param4)
+{
+	easing_s* pEasing = nullptr;
+	if (pContext != 0)
+	{
+		pEasing =(easing_s*)Ex_MemAlloc(sizeof(easing_s));
+		int nError = 0;
+		void* ptr;
+		if ((dwMode & 缓动模式_分发消息) == 缓动模式_分发消息)
+		{
+			if (_handle_validate(pContext, HT_DUI, (void**)&ptr, &nError))
+			{
+
+			}
+			else if (_handle_validate(pContext, HT_OBJECT, (void**)&ptr, &nError))
+			{
+
+			}
+			else {
+				Ex_MemFree(pEasing);
+				Ex_SetLastError(ERROR_EX_INVALID_OBJECT);
+				return 0;
+			}
+		}
+		pEasing->pContext_ = pContext;
+		void* lpProc = nullptr;
+		std::vector<void*> lpCalcProcs = { &_easing_calc_Linear, &_easing_calc_Clerp, &_easing_calc_Spring, &_easing_calc_Punch, &_easing_calc_InQuad, &_easing_calc_OutQuad, &_easing_calc_InOutQuad, &_easing_calc_InCubic, &_easing_calc_OutCubic, &_easing_calc_InOutCubic, &_easing_calc_InQuart, &_easing_calc_OutQuart, &_easing_calc_InOutQuart, &_easing_calc_InQuint, &_easing_calc_OutQuint, &_easing_calc_InOutQuint, &_easing_calc_InSine, &_easing_calc_OutSine, &_easing_calc_InOutSine, &_easing_calc_InExpo, &_easing_calc_OutExpo, &_easing_calc_InOutExpo, &_easing_calc_InCirc, &_easing_calc_OutCirc, &_easing_calc_InOutCirc, &_easing_calc_InBounce, &_easing_calc_OutBounce, &_easing_calc_InOutBounce, &_easing_calc_InBack, &_easing_calc_OutBack, &_easing_calc_InOutBack, &_easing_calc_InElastic, &_easing_calc_OutElastic, &_easing_calc_InOutElastic };
+		if (dwType >= 0 && dwType < lpCalcProcs.size())
+		{
+			lpProc = lpCalcProcs[dwType];
+		}
+		else if (dwType == 缓动类型_自定义)
+		{
+			lpProc = pEasingContext;
+		}
+		else if (dwType == 缓动类型_曲线)
+		{
+			lpProc = &_easing_calc_curve;
+			if (pEasingContext == 0)
+			{
+				Ex_MemFree(pEasing);
+				Ex_SetLastError(ERROR_EX_MEMORY_BADPTR);
+				return 0;
+			}
+		}
+		else {
+			lpProc = &_easing_calc_Linear;
+		}
+		if (lpProc == nullptr)
+		{
+			Ex_MemFree(pEasing);
+			Ex_SetLastError(ERROR_EX_MEMORY_BADPTR);
+			return 0;
+		}
+		pEasing->dwType_ = dwType;
+		pEasing->lpfnEsaing_ = lpProc;
+		pEasing->lpEasingContext_ = pEasingContext;
+		pEasing->dwMode_ = dwMode;
+
+		pEasing->nCurFrame_ = 0;
+		pEasing->nTotal_ = nTotalTime;
+		pEasing->nInterval_ = nInterval;
+		pEasing->nFrameCount_ = nTotalTime / nInterval;
+		pEasing->nState_ = nState;
+		pEasing->nStart_ = nStart;
+		pEasing->nStop_ = nStop;
+		pEasing->param1_ = param1;
+		pEasing->param2_ = param2;
+		pEasing->param3_ = param3;
+		pEasing->param4_ = param4;
+		pEasing->hEventPause_ = CreateEventW(0, false, true, 0);
+		if ((dwMode & 缓动模式_使用线程) != 0)
+		{
+			Thread_Create((LPTHREAD_START_ROUTINE)&_easing_progress, pEasing);
+		}
+		else {
+			_easing_progress(pEasing);
+		}
+	}
+	return pEasing;
+}

@@ -1008,3 +1008,16 @@ bool _canvas_releasedc(EXHANDLE hCanvas)
 	Ex_SetLastError(nError);
 	return nError == 0;
 }
+
+EXHANDLE _canvas_createfromexdui(EXHANDLE hExDui, int width, int height, int dwFlags)
+{
+	wnd_s* pWnd = nullptr;
+	int nError = 0;
+	EXHANDLE hCanvas=0;
+	if (_handle_validate(hExDui, HT_DUI, (void**)&pWnd, &nError))
+	{
+		hCanvas = _canvas_createfrompwnd(pWnd, width, height, dwFlags, &nError);
+	}
+	Ex_SetLastError(nError);
+	return hCanvas;
+}

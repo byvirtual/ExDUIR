@@ -67,6 +67,7 @@ void* _canvas_getdc_ex(canvas_s* pCanvas, int* nError);
 void* _canvas_getdc(EXHANDLE hCanvas);
 void _canvas_releasedc_ex(canvas_s* pCanvas, int* nError);
 bool _canvas_releasedc(EXHANDLE hCanvas);
+EXHANDLE _canvas_createfromexdui(EXHANDLE hExDui, int width, int height, int dwFlags);
 
 void* _cv_dx_bmp(canvas_s* pCanvas);
 void* _cv_context(canvas_s* pCanvas);

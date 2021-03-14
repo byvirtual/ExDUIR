@@ -17,4 +17,4 @@ size_t _pb_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lPara
 size_t _cb_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj);
 void _cb_arr_del(array_s* hArr, int nIndex, void* pvData, int nType);
 void _cb_paint(EXHANDLE hObj, obj_s* pObj);
-BOOL _cblv_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, int* lpResult);
+int _cblv_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, int* lpResult);

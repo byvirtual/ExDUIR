@@ -31,7 +31,7 @@ size_t _pbm_proc(HWND hWnd, EXHANDLE hExDUI, UINT uMsg, size_t wParam, size_t lP
 	int nError = 0;
 	if (_handle_validate(hExDUI, HT_DUI, (void**)&pWnd, &nError))
 	{
-		MENUINFO mi = { 0 };
+		MENUINFO mi;
 		mi.cbSize = sizeof(MENUINFO);
 		mi.fMask = MIM_MENUDATA;
 		pObj = (obj_s*)mi.dwMenuData;
@@ -138,7 +138,7 @@ void _cb_paint(EXHANDLE hObj, obj_s* pObj)
 	_static_paint(hObj, pObj);
 }
 
-BOOL _cblv_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, int* lpResult)
+int _cblv_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, int* lpResult)
 {
 	if (uMsg == WM_NOTIFY_SELF)
 	{

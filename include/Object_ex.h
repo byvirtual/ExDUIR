@@ -4,6 +4,7 @@
 
 typedef int(*EnumPROC)(size_t, size_t);
 typedef size_t(*ClsPROC)(HWND, EXHANDLE, UINT, size_t, size_t, obj_s*);
+typedef BOOL(*EnumPropsPROC)(EXHANDLE, int,size_t,size_t);
 
 #define WM_NOTIFY_SELF 1030 //notify父控件前,先发给自己
 
@@ -370,6 +371,7 @@ bool Ex_ObjSetBlur(EXHANDLE hObj, float fDeviation, bool bRedraw);
 bool Ex_ObjSetTextFormat(EXHANDLE hObj, int dwTextFormat, bool bRedraw);
 bool Ex_ObjTooltipsSetText(EXHANDLE hObj, void* lpString);
 void _obj_tooltips_popup(wnd_s* pWnd, void* lpTitle, void* lpText, int x, int y, int dwTime, int nIcon, bool fShow);
+bool Ex_ObjTooltipsPop(EXHANDLE hObj, void* lpText);
 bool Ex_ObjTooltipsPopEx(EXHANDLE hObj, void* lpTitle, void* lpText, int x, int y, int dwTime, int nIcon, bool fShow);
 EXHANDLE Ex_ObjGetFocus(EXHANDLE hExDuiOrhObj);
 size_t Ex_ObjGetProp(EXHANDLE hObj, size_t dwKey);
@@ -392,3 +394,8 @@ bool Ex_ObjScrollGetRange(EXHANDLE hObj, int nBar, void* lpnMinPos, void* lpnMax
 void _sb_show(EXHANDLE hSB, bool fShow);
 bool Ex_ObjScrollShow(EXHANDLE hObj, int wBar, bool fShow);
 bool Ex_ObjScrollEnable(EXHANDLE hObj, int wSB, int wArrows);
+int Ex_ObjEnumProps(EXHANDLE hObj, void* lpfnCbk, size_t param);
+bool Ex_ObjGetRectEx(EXHANDLE hObj, void* lpRect, int nType);
+void Ex_ObjPointTransform(EXHANDLE hObjSrc, EXHANDLE hObjDst, int* ptX, int* ptY);
+bool Ex_ObjEnableEventBubble(EXHANDLE hObj, bool fEnable);
+bool Ex_ObjGetClassInfo(EXHANDLE hObj, void* lpClassInfo);
