@@ -2901,8 +2901,8 @@ bool _wnd_menu_callback_test(HWND hWnd, EXHANDLE hExDui, UINT uMsg, WPARAM wPara
 		RECT rc{ 0 };
 		GetWindowRect(hWnd, &rc);
 		MoveWindow(hWnd, rc.left, rc.top, 300, 300, false);
-		MENUITEMINFO mii;
-		mii.cbSize = sizeof(MENUITEMINFO);
+		MENUITEMINFOW mii;
+		mii.cbSize = sizeof(MENUITEMINFOW);
 		mii.fMask = MIIM_FTYPE | MIIM_SUBMENU | MIIM_ID;
 		int nCount = GetMenuItemCount((HMENU)wParam) - 1;
 		std::vector<EXHANDLE> aryItems;

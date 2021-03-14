@@ -116,7 +116,7 @@ size_t _cb_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lPara
 		__set_int(pItem, offsetof(cbi_s, nItem_), 0);
 		if (wParam <= 0)
 		{
-			wParam = Array_GetCount((array_s*)_obj_pOwner(pObj)) + 1;
+			wParam = Array_GetCount((array_s*)_obj_pOwner(pObj)) + (size_t)1;
 		}
 		return Array_AddMember((array_s*)_obj_pOwner(pObj), (size_t)pItem, wParam);
 	}

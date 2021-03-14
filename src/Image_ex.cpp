@@ -105,7 +105,7 @@ void _apng_drawframe(img_s* pImage, int nIndex)//未完成
 		size_t lpStream = 0;
 		while (type== PNG_fdAT || type== PNG_IDAT)
 		{
-			lpStream=_apng_thunk_getlength(pIDATNext) + 12;
+			lpStream=_apng_thunk_getlength(pIDATNext) + (size_t)12;
 			dwLen = dwLen + lpStream + (type == PNG_fdAT ? -4 : 0);
 			pIDATNext =(void*)((size_t) pIDATNext + lpStream);
 			type = __get_int(pIDATNext, 4);
@@ -133,13 +133,13 @@ void _apng_drawframe(img_s* pImage, int nIndex)//未完成
 						{
 							__set_int(pOffset, 0, _byteswap_ulong(dwDat - 4));
 							__set_int(pOffset, 4, PNG_IDAT);
-							RtlMoveMemory((void*)((size_t)pOffset + 8), (void*)((size_t)pIDATNext + 8 + 4), dwDat - 4);
-							__set_int(pOffset, dwDat + 12 - 4, _byteswap_ulong(Crc32_Addr((void*)((size_t)pOffset + 4), dwDat)));
+							RtlMoveMemory((void*)((size_t)pOffset + 8), (void*)((size_t)pIDATNext + (size_t)8 + (size_t)4), dwDat - (size_t)4);
+							__set_int(pOffset, dwDat + (size_t)12 - (size_t)4, _byteswap_ulong(Crc32_Addr((void*)((size_t)pOffset + 4), dwDat)));
 							pOffset =(void*) ((size_t)pOffset + dwDat + 12 - 4);
 						}
 						else {
 							__set_int(pOffset, 0, __get_int(pIDATNext,4));
-							RtlMoveMemory(pOffset, pIDATNext, dwDat + 12);
+							RtlMoveMemory(pOffset, pIDATNext, dwDat + (size_t)12);
 							pOffset = (void*)((size_t)pOffset + dwDat + 12 );
 						}
 						pIDATNext = (void*)((size_t)pIDATNext + dwDat + 12);
@@ -714,7 +714,7 @@ bool _wic_getframedelay(void* pDecoder, void* lpDelay, int nCount, int* nError)
 						{
 							nDelay = 10;
 						}
-						__set_int(lpDelay, i * 4, nDelay);
+						__set_int(lpDelay, i * (size_t)4, nDelay);
 						fOK = true;
 					}
 					pReader->Release();
@@ -790,7 +790,7 @@ bool _apng_thunk_getnext(void* lpMem, int* nPos, int dwThunkType, void** lpThunk
 	int dwThunkDataLen = _apng_thunk_getlength((void*)((size_t)lpMem + i));
 	while (dwThunkDataLen != 0)
 	{
-		if (__get_int(lpMem, i + 4) == dwThunkType)
+		if (__get_int(lpMem, i + (size_t)4) == dwThunkType)
 		{
 			ret = true;
 		}

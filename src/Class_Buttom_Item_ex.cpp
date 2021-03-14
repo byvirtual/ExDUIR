@@ -7,7 +7,7 @@ size_t _button_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t l
 	{
 		_button_paint(hObj, pObj);
 	}
-	else if (uMsg == WM_EX_LCLICK | uMsg == BM_CLICK)
+	else if (uMsg == WM_EX_LCLICK || uMsg == BM_CLICK)
 	{
 		if ((pObj->dwFlags_ & eof_bMsgBoxControl) == eof_bMsgBoxControl)
 		{
@@ -242,8 +242,8 @@ void _item_click(HWND hWnd, obj_s* pObj)
 		else
 		{
 			wnd_s* pWnd = pObj->pWnd_;
-			MENUITEMINFO mii;
-			mii.cbSize = sizeof(MENUITEMINFO);
+			MENUITEMINFOW mii;
+			mii.cbSize = sizeof(MENUITEMINFOW);
 			mii.fMask = MIIM_STATE | MIIM_ID;
 			if (GetMenuItemInfoW((HMENU)pWnd->hMenuPopup_, pObj->lParam_, true, &mii))
 			{
@@ -262,8 +262,8 @@ void _item_draw(obj_s* pObj, paintstruct_s ps, int crColor, void* lpText)
 {
 	wnd_s* pWnd = pObj->pWnd_;
 	HMENU hMenu = (HMENU)pWnd->hMenuPopup_;
-	MENUITEMINFO mii;
-	mii.cbSize = sizeof(MENUITEMINFO);
+	MENUITEMINFOW mii;
+	mii.cbSize = sizeof(MENUITEMINFOW);
 	mii.fMask = MIIM_STATE | MIIM_FTYPE | MIIM_DATA | MIIM_SUBMENU;
 	size_t nID = pObj->lParam_;
 	RECT rcItem  { 0 };
@@ -386,7 +386,7 @@ void _item_paint(EXHANDLE hObj, obj_s* pObj)
 	if (Ex_ObjBeginPaint(hObj, &ps))
 	{
 		int nIndex = COLOR_EX_TEXT_NORMAL;
-		int atomProp;
+		int atomProp = 0;
 		
 		if ((ps.dwState_ & 状态_点燃) != 0)
 		{
