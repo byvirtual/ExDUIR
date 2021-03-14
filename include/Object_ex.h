@@ -5,6 +5,25 @@
 typedef int(*EnumPROC)(size_t, size_t);
 typedef size_t(*ClsPROC)(HWND, EXHANDLE, UINT, size_t, size_t, obj_s*);
 
+#define WM_NOTIFY_SELF 1030 //notify父控件前,先发给自己
+
+#define EOF_INITED 2147483648
+#define EOF_OBJECT 1073741824
+
+#define TIMER_BKG 1
+#define TIMER_ANIMATION 2
+#define TIMER_OBJECT 3
+#define TIMER_SCROLLBAR 4
+#define TIMER_TOOLTIPS_POPUP 5
+#define TIMER_TOOLTIPS_POP 6
+#define TIMER_EDIT_CARET 7
+#define TIMER_MOUSETRACK 8
+#define TIMER_BKG_INHERIT 9
+
+#define SWP_EX_UPDATEPATH 536870912
+#define SWP_EX_UPDATEOBJECT 1073741824
+#define SWP_EX_NODPISCALE 2147483648
+
 #define eof_bUserProcessesed 1
 #define eof_bMsgBoxControl 2
 #define eof_bAutosized 4
@@ -42,6 +61,16 @@ typedef size_t(*ClsPROC)(HWND, EXHANDLE, UINT, size_t, size_t, obj_s*);
 #define EWF_bInheritBkgStarted 67108864
 #define EWF_bDestroyWindow 134217728
 #define EWF_bSizeMoving 268435456
+
+struct mempoolmenumsg_s {
+	HWND hWnd;
+	EXHANDLE hExDUI;
+	obj_s* pObj;
+	UINT uMsg;
+	size_t wParam;
+	size_t lParam;
+	int dwReserved;
+};
 
 struct mempoolmsg_s {
 	obj_s* pObj;
@@ -142,7 +171,7 @@ struct obj_s
 	EXHANDLE pObjJS_;
 	hashtable_s* hTableJsEvents_;
 	int dwState_;
-	si_s* dwOwnerData_;
+	void* dwOwnerData_;
 	EXHANDLE canvas_obj_;
 	void* dwUserData_;
 	int dwStyleEx_;

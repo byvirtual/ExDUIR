@@ -1100,9 +1100,9 @@ void _obj_setpos_org(obj_s* pObj, EXHANDLE hObj, EXHANDLE hObjInsertAfter, int x
 	HWND hWnd = pWnd->hWnd_;
 	bool fAsyn = (flags & SWP_ASYNCWINDOWPOS) != 0;
 	bool fNotify = (flags & SWP_NOSENDCHANGING) == 0;
-	if ((flags & SWP_NOZORDER) == 0)
+	if ((flags & SWP_NOZORDER) == 0)// 调整Z序
 	{
-		_obj_z_set(hObj, (obj_s*)pObj, hObjInsertAfter, flags, nError);
+		_obj_z_set(hObj, pObj, hObjInsertAfter, flags, nError);
 	}
 	if (_obj_autosize(pObj, hObj, &width, &height))
 	{
@@ -1343,7 +1343,7 @@ void _obj_setpos_org(obj_s* pObj, EXHANDLE hObj, EXHANDLE hObjInsertAfter, int x
 				}
 			}
 		}
-		_obj_scroll_repostion(hWnd, hObj, true);
+		_obj_scroll_repostion(hWnd, hObj, true);//重新更新滚动条位置，与其状态无关
 		UnionRect(&np.rgrc[2], (RECT*)((size_t)pObj + offsetof(obj_s, w_left_)), &rcOld);
 	}
 	else

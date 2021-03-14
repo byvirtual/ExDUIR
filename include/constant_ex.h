@@ -1137,12 +1137,12 @@ struct EX_EASINGINFO
 	LPVOID		pEasing;			// 0  缓动指针
 	DOUBLE		nProgress;			// 4  进度 0-1
 	DOUBLE		nCurrent;			// 12 当前值
-	DWORD_PTR	pEasingContext;		// 20 缓动参数
+	LPVOID	pEasingContext;		// 20 缓动参数
 	UINT		nTimesSurplus;		// 24 剩余数
-	DWORD		p1;					// 28 参数1
-	DWORD		p2;					// 32 参数2
-	DWORD		p3;					// 36 参数3
-	DWORD		p4;					// 40 参数4
+	size_t		p1;					// 28 参数1
+	size_t		p2;					// 32 参数2
+	size_t		p3;					// 36 参数3
+	size_t		p4;					// 40 参数4
 };
 #pragma pack()
 struct EX_REPORTLIST_COLUMNINFO {

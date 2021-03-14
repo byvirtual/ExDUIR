@@ -77,9 +77,7 @@ struct obj_base {
 };
 
 typedef BOOL(*UpdateLayeredWindowIndirectPROC)(HWND, UPDATELAYEREDWINDOWINFO*);
-typedef size_t(*MsgPROC)(HWND, EXHANDLE, int, size_t, void*, void*);
-
-
+typedef size_t(*MsgPROC)(HWND, EXHANDLE, UINT, size_t, size_t, void*);
 
 #include "Array_ex.h"
 #include "Thread_ex.h"
@@ -111,7 +109,7 @@ typedef size_t(*MsgPROC)(HWND, EXHANDLE, int, size_t, void*, void*);
 #include "Class_Button_Item_ex.h"
 #include "Class_Edit_ex.h"
 #include "Class_ListView_ex.h"
-
+#include "Class_PopupBox_ComBox_ex.h"
 
 #define ExGetB(rgb)			(LOBYTE(rgb))
 #define ExGetG(rgb)			(LOBYTE(((WORD)(rgb)) >> 8))
@@ -160,23 +158,6 @@ typedef size_t(*MsgPROC)(HWND, EXHANDLE, int, size_t, void*, void*);
 //#define NM_LDOWN -20
 //#define NM_RDOWN -21
 //#define NM_INTDLG -22
-
-#define TIMER_BKG 1
-#define TIMER_ANIMATION 2
-#define TIMER_OBJECT 3
-#define TIMER_SCROLLBAR 4
-#define TIMER_TOOLTIPS_POPUP 5
-#define TIMER_TOOLTIPS_POP 6
-#define TIMER_EDIT_CARET 7
-#define TIMER_MOUSETRACK 8
-#define TIMER_BKG_INHERIT 9
-
-#define EOF_INITED 2147483648
-#define EOF_OBJECT 1073741824
-
-#define SWP_EX_UPDATEPATH 536870912
-#define SWP_EX_UPDATEOBJECT 1073741824
-#define SWP_EX_NODPISCALE 2147483648
 
 #define ATOM_RGBA 1936659208
 #define ATOM_RGB 101895158
@@ -322,10 +303,8 @@ typedef size_t(*MsgPROC)(HWND, EXHANDLE, int, size_t, void*, void*);
 #define ATOM_HUE 286188504
 #define ATOM_DESTROY 437078588
 
-
-
-#define CVC_DX_D2DCONTEXT 1
-#define CVC_DX_D2DBITMAP 2
+#define ATOM_POPUPBOX 314323724
+#define ATOM_COMBOBOX -1916733255
 
 #define ERROR_EX_NOERROR 0 //成功
 

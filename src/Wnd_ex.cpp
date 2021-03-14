@@ -69,7 +69,7 @@ int _wnd_dispatch_notify(HWND hWnd, wnd_s* pWnd, size_t hObj, int nID, int nCode
 	int ret = 0;
 	if (pfnMsgProc)
 	{
-		pfnMsgProc(hWnd, pWnd->hexdui_, WM_NOTIFY, nID, &hObj, &ret);
+		pfnMsgProc(hWnd, pWnd->hexdui_, WM_NOTIFY, nID, (size_t)&hObj, &ret);
 	}
 	return ret;
 }
@@ -633,7 +633,7 @@ size_t CALLBACK _wnd_proc(void* pData, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	if (pfnMsgProc != 0)
 	{
 		int ret = 0;
-		if (pfnMsgProc(hWnd, pWnd->hexdui_, uMsg, wParam, (void*)lParam, &ret) != 0)
+		if (pfnMsgProc(hWnd, pWnd->hexdui_, uMsg, wParam, lParam, &ret) != 0)
 		{
 			return ret;
 		}

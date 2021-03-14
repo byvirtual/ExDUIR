@@ -16,6 +16,10 @@
 #include "help_ex.h"
 
 
+
+#define CVC_DX_D2DCONTEXT 1
+#define CVC_DX_D2DBITMAP 2
+
 bool _dx_init(int* nError);
 void _dx_uninit();
 void* _dx_get_gdiInterop(void* prt);
