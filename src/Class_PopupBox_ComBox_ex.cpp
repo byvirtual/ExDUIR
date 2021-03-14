@@ -92,8 +92,8 @@ size_t _cb_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lPara
 		int nItem = Array_GetCount(hArr);
 		Ex_ObjSendMessage(hObjItem, LVM_SETITEMCOUNT, nItem, nItem);
 		int height = nItem * 25;
-		if (height < 50) height == 50;
-		if (height > 400) height == 400;
+		if (height < 50) height = 50;
+		if (height > 400) height = 400;
 		SetWindowPos((HWND)wParam, HWND_TOP, 0, 0, pObj->c_right_, Ex_Scale(height), SWP_NOMOVE | SWP_NOACTIVATE);
 		Ex_ObjMove(hObjItem, 5, 5, pObj->c_right_ - 15, height - 10, true);
 		return 1;
