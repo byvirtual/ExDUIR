@@ -16,17 +16,15 @@ void 测试哈希表()
 	std::cout << (size_t)aptr2 << std::endl;
 	HashTable_Get(table, 8, &ret);
 	std::cout << ret << std::endl;
-	size_t* arry_key = (size_t*)LocalAlloc(64, sizeof(void*));
-	size_t* arry_value = (size_t*)LocalAlloc(64, sizeof(void*));
-	HashTable_GetAllKeysAndValues(table, &arry_key, &arry_value);
+	std::vector<size_t> arry_key;
+	std::vector<size_t> arry_value ;
+	HashTable_GetAllKeysAndValues(table, arry_key, arry_value);
 	std::cout << arry_key[1] << std::endl;
 	std::cout << arry_value[1] << std::endl;
 	//std::cout << "11"<< std::endl;
 
 	HashTable_Destroy(table);
 
-	LocalFree(arry_key);
-	LocalFree(arry_value);
 }
 
 void 数组遍历()
@@ -207,22 +205,20 @@ void 测试窗口()
 		std::vector<char> imgdata;
 		Ex_ReadFile(L".\\00000.jpg", &imgdata);
 		Ex_ObjSetBackgroundImage(label, imgdata.data(), imgdata.size(), 0, 0, 0, 0, 0, 255, true);
-		调试输出(L"测试:", label);
+		
+		//按钮
+		LPCWSTR class_button = L"button";
+		EXHANDLE button = Ex_ObjCreateEx(-1, (void*)class_button, NULL, -1, 10, 130, 100, 30, hExDui, 0, DT_VCENTER, 0, 0, NULL);
+		
+
 		//编辑框
 		LPCWSTR class_edit = L"edit";
-		EXHANDLE edit = Ex_ObjCreateEx(EOS_EX_FOCUSABLE, (void*)class_edit, (void*)title, EOS_VISIBLE | 编辑框风格_显示选择文本, 10, 130, 100, 30, hExDui, 0, DT_VCENTER, 0, 0, NULL);
+		EXHANDLE edit = Ex_ObjCreateEx(EOS_EX_FOCUSABLE, (void*)class_edit, (void*)title, EOS_VISIBLE | 编辑框风格_显示选择文本, 10, 170, 100, 30, hExDui, 0, DT_VCENTER, 0, 0, NULL);
 
 		//列表框
-		LPCWSTR class_list = L"listview";
-		EXHANDLE listview = Ex_ObjCreateEx(-1, (void*)class_list, (void*)title, EOS_VISIBLE | 列表风格_横向列表, 130, 30, 500, 500, hExDui, 0, DT_VCENTER, 0, 0, &list_proc);
-		Ex_ObjSendMessage(listview, LVM_SETITEMCOUNT, 100, 100);
-
-		//组合框
-		LPCWSTR class_combobox = L"combobox";
-		EXHANDLE combobox = Ex_ObjCreateEx(-1, (void*)class_combobox, (void*)title, -1, 10, 170, 100, 30, hExDui, 0, DT_VCENTER, 0, 0, &list_proc);
-		Ex_ObjSendMessage(combobox, CB_ADDSTRING, 0, (size_t)L"test1");
-		Ex_ObjSendMessage(combobox, CB_ADDSTRING, 0, (size_t)L"test2");
-		Ex_ObjSendMessage(combobox, CB_ADDSTRING, 0, (size_t)L"test3");
+		//LPCWSTR class_list = L"listview";
+		//EXHANDLE listview = Ex_ObjCreateEx(-1, (void*)class_list, (void*)title, EOS_VISIBLE | 列表风格_横向列表, 130, 30, 500, 500, hExDui, 0, DT_VCENTER, 0, 0, &list_proc);
+		//Ex_ObjSendMessage(listview, LVM_SETITEMCOUNT, 100, 100);
 		//信息框
 		//Ex_MessageBoxEx(hExDui, (void*)title, (void*)title, 0, 0, 0, 0, 0, 0);
 		Ex_DUIShowWindow(hExDui, 5, 0, 0, 0);
