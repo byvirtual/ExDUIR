@@ -123,7 +123,7 @@ void 测试RC4()
 }
 
 
-size_t msgProc(HWND, EXHANDLE handle, int, size_t, void*, void*)
+size_t msgProc(HWND, EXHANDLE handle, UINT, size_t, size_t, void*)
 {
 	return 0;
 }
@@ -137,7 +137,7 @@ BOOL list_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam
 		//调试输出(L"列表回调");
 		if (hObj == ni.hObjFrom)
 		{
-			//调试输出(L"列表回调2222");
+			调试输出(L"列表回调2222:",ni.nCode,ni.idFrom);
 			if (ni.nCode == NM_CALCSIZE)
 			{
 				__set_int((void*)ni.lParam, 4, 25);
@@ -196,11 +196,11 @@ void 测试窗口()
 		Ex_DUISetLong(hExDui, EWL_CRBKG, -100630528);//-97900239
 		//单选框选择框
 		LPCWSTR class_checkbutton = L"checkbutton";
-		EXHANDLE checkbutton = Ex_ObjCreateEx(-1, (void*)class_checkbutton, (void*)title, -1, 10, 30, 50, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
+		EXHANDLE checkbutton = Ex_ObjCreateEx(-1, (void*)class_checkbutton, (void*)title, -1, 10, 30, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
 
 		LPCWSTR class_radiobutton = L"radiobutton";
-		EXHANDLE radiobuttona = Ex_ObjCreateEx(-1, (void*)class_radiobutton, (void*)title, -1, 10, 60, 50, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
-		EXHANDLE radiobuttonb = Ex_ObjCreateEx(-1, (void*)class_radiobutton, (void*)title, -1, 70, 60, 50, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
+		EXHANDLE radiobuttona = Ex_ObjCreateEx(-1, (void*)class_radiobutton, (void*)title, -1, 10, 60, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
+		EXHANDLE radiobuttonb = Ex_ObjCreateEx(-1, (void*)class_radiobutton, (void*)title, -1, 80, 60, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
 		//标签
 		LPCWSTR class_label = L"static";
 		EXHANDLE label = Ex_ObjCreateEx(-1, (void*)class_label, NULL, -1, 10, 90, 100, 30, hExDui, 0, DT_VCENTER, 0, 0, NULL);
@@ -209,13 +209,20 @@ void 测试窗口()
 		Ex_ObjSetBackgroundImage(label, imgdata.data(), imgdata.size(), 0, 0, 0, 0, 0, 255, true);
 		调试输出(L"测试:", label);
 		//编辑框
-		//LPCWSTR class_edit = L"edit";
-		//EXHANDLE edit = Ex_ObjCreateEx(EOS_EX_FOCUSABLE, (void*)class_edit, (void*)title, EOS_VISIBLE | 编辑框风格_密码输入, 10, 130, 100, 30, hExDui, 0, DT_VCENTER, 0, 0, NULL);
+		LPCWSTR class_edit = L"edit";
+		EXHANDLE edit = Ex_ObjCreateEx(EOS_EX_FOCUSABLE, (void*)class_edit, (void*)title, EOS_VISIBLE | 编辑框风格_显示选择文本, 10, 130, 100, 30, hExDui, 0, DT_VCENTER, 0, 0, NULL);
 
 		//列表框
 		LPCWSTR class_list = L"listview";
 		EXHANDLE listview = Ex_ObjCreateEx(-1, (void*)class_list, (void*)title, EOS_VISIBLE | 列表风格_横向列表, 130, 30, 500, 500, hExDui, 0, DT_VCENTER, 0, 0, &list_proc);
 		Ex_ObjSendMessage(listview, LVM_SETITEMCOUNT, 100, 100);
+
+		//组合框
+		LPCWSTR class_combobox = L"combobox";
+		EXHANDLE combobox = Ex_ObjCreateEx(-1, (void*)class_combobox, (void*)title, -1, 10, 170, 100, 30, hExDui, 0, DT_VCENTER, 0, 0, &list_proc);
+		Ex_ObjSendMessage(combobox, CB_ADDSTRING, 0, (size_t)L"test1");
+		Ex_ObjSendMessage(combobox, CB_ADDSTRING, 0, (size_t)L"test2");
+		Ex_ObjSendMessage(combobox, CB_ADDSTRING, 0, (size_t)L"test3");
 		//信息框
 		//Ex_MessageBoxEx(hExDui, (void*)title, (void*)title, 0, 0, 0, 0, 0, 0);
 		Ex_DUIShowWindow(hExDui, 5, 0, 0, 0);
@@ -226,19 +233,15 @@ void 测试窗口()
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hInstancePrev, _In_ LPWSTR wzCmd, _In_ int nCmdShow)
 {
-
 	//测试句柄池();
 	//数组遍历();
 	//测试哈希表();
-	//测试子程序();
 	//测试数组();
 	//测试RC4();
-	//测试引用(&b);
-
-
 	测试窗口();
-
 	return 0;
 }
+
+
 
 
