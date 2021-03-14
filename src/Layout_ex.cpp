@@ -380,3 +380,260 @@ bool _layout_absolute_setedge(EXHANDLE hLayout, EXHANDLE hObjChild, int dwEdge, 
 	Ex_SetLastError(nError);
 	return nError == 0;
 }
+
+void _layout_move_margin(EXHANDLE hObj, RECT* lpObjRc, void* lpMargin, int dwLockFlags, int dwOrgFlags)
+{
+	RECT rcObj = *lpObjRc;
+	RECT rcMargin{ 0 };
+	rcMargin.left = __get_int(lpMargin, 12);
+	rcMargin.top = __get_int(lpMargin, 8);
+	rcMargin.right = __get_int(lpMargin, 4);
+	rcMargin.bottom = __get_int(lpMargin, 0);
+	rcObj.left = rcObj.left + rcMargin.left;
+	if ((dwLockFlags & 1) == 1)
+	{
+		rcObj.right = rcObj.right + rcMargin.left;
+		lpObjRc->right = lpObjRc->right + rcMargin.left;
+	}
+	rcObj.top = rcObj.top + rcMargin.top;
+	if ((dwLockFlags & 2) == 2)
+	{
+		rcObj.bottom = rcObj.bottom + rcMargin.top;
+		lpObjRc->bottom = lpObjRc->bottom + rcMargin.top;
+	}
+	if ((dwLockFlags & 4) == 4)
+	{
+		rcObj.right = rcObj.right - rcMargin.right;
+	}
+	else {
+		lpObjRc->right = lpObjRc->right + rcMargin.right;
+	}
+	if ((dwLockFlags & 8) == 8)
+	{
+		rcObj.bottom = rcObj.bottom - rcMargin.bottom;
+	}
+	else {
+		lpObjRc->bottom = lpObjRc->bottom + rcMargin.bottom;
+	}
+	if (dwOrgFlags == 15)
+	{
+		return;
+	}
+	rcObj.right = rcObj.right - rcObj.left;
+	rcObj.bottom = rcObj.bottom - rcObj.top;
+	if ((dwOrgFlags & 1) != 0)
+	{
+		rcObj.left = EOP_DEFAULT;
+	}
+	if ((dwOrgFlags & 2) != 0)
+	{
+		rcObj.top = EOP_DEFAULT;
+	}
+	if ((dwOrgFlags & 4) != 0)
+	{
+		rcObj.right = EOP_DEFAULT;
+	}
+	if ((dwOrgFlags & 8) != 0)
+	{
+		rcObj.bottom = EOP_DEFAULT;
+	}
+	Ex_ObjMove(hObj, rcObj.left, rcObj.top, rcObj.right, rcObj.bottom, false);
+}
+
+size_t __layout_linear_proc(layout_s* pLayput, int nEvent, size_t wParam, size_t lParam)
+{
+	if (nEvent == ELN_GETPROPSCOUNT)
+	{
+		return 2;
+	}
+	else if (nEvent == ELN_GETCHILDPROPCOUNT)
+	{
+		return 2;
+	}
+	else if (nEvent == ELN_INITCHILDPROPS)
+	{
+		__set_int((void*)lParam, ELCP_LINEAR_SIZE * 4, -1);
+	}
+	else if (nEvent == ELN_CHECKCHILDPROPVALUE)
+	{
+		int nSize = HIWORD(wParam);
+		if (nSize == ELN_CHECKCHILDPROPVALUE)
+		{
+			return (lParam< ELCP_LINEAR_ALGIN_FILL || lParam>ELCP_LINEAR_ALIGN_RIGHT_BOTTOM);
+		}
+	}
+	else if (nEvent == ELN_UPDATE)
+	{
+		RECT rcClient{ 0 };
+		if (pLayput->nBindType_ == HT_OBJECT)
+		{
+			Ex_ObjGetClientRect(wParam, &rcClient);
+		}
+		else {
+			Ex_DUIGetClientRect(wParam, &rcClient);
+		}
+		void* pInfo=pLayput->lpLayoutInfo_;
+		array_s* hArr=pLayput->hArrChildrenInfo_;
+		int nDAlign = __get_int(pInfo, (ELP_LINEAR_DALIGN - 1) * 4);
+		bool fVertical = __get_int(pInfo, (ELP_LINEAR_DIRECTION - 1) * 4) == ELP_DIRECTION_V;
+		rcClient.left = rcClient.left + __get_int(pInfo, ELP_PADDING_LEFT * 4);
+		rcClient.top = rcClient.top + __get_int(pInfo, ELP_PADDING_TOP * 4);
+		rcClient.right = rcClient.right + __get_int(pInfo, ELP_PADDING_RIGHT * 4);
+		rcClient.bottom = rcClient.bottom + __get_int(pInfo, ELP_PADDING_BOTTOM* 4);
+		SIZE szClient;
+		szClient.cx = rcClient.right - rcClient.left;
+		szClient.cy = rcClient.bottom - rcClient.top;
+		RECT rcObj;
+		rcObj.left = rcClient.left;
+		rcObj.top = rcClient.top;
+		std::vector<RECT> arrRect;
+		std::vector<int> arrOrg;
+		if (nDAlign != 0 && Array_GetCount(hArr) > 0)
+		{
+			arrRect.resize(Array_GetCount(hArr));
+			arrOrg.resize(Array_GetCount(hArr));
+		}
+		for (int i = 0; i < Array_GetCount(hArr); i++)
+		{
+			int orgFlags = 0;
+			void* pInfo = (void*)Array_GetMember(hArr, i);
+			EXHANDLE hObj = __get_int(pInfo, 0);
+			if (hObj == 0) continue;
+			int nSize = __get_int(pInfo, ELCP_LINEAR_SIZE * 4);
+			RECT rcTmp{ 0 };
+			Ex_ObjGetRect(hObj, &rcTmp);
+			int w = rcTmp.right - rcTmp.left;
+			int h = rcTmp.bottom - rcTmp.top;
+			if (nSize < 0)
+			{
+				if (fVertical)
+				{
+					nSize = h;
+				}
+				else {
+					nSize = w;
+				}
+			}
+			int nFill = __get_int(pInfo, ELCP_LINEAR_ALIGN * 4);
+			int orgFlags = 0;
+			if (fVertical)
+			{
+				if (nFill == ELCP_LINEAR_ALIGN_LEFT_TOP)
+				{
+					rcObj.left = rcClient.left;
+					rcObj.right = rcObj.left + w;
+				}
+				else if (nFill == ELCP_LINEAR_ALIGN_CENTER)
+				{
+					rcObj.left = rcClient.left + (szClient.cx - w) / 2;
+					rcObj.right = rcObj.left + w;
+					orgFlags = 4;
+				}
+				else if (nFill == ELCP_LINEAR_ALIGN_RIGHT_BOTTOM)
+				{
+					rcObj.right = rcClient.right;
+					rcObj.left = rcClient.right - w;
+				}
+				else {
+					rcObj.left = rcClient.left;
+					rcObj.right = rcClient.right;
+				}
+				rcObj.bottom = rcObj.top + nSize;
+			}
+			else {
+				if (nFill == ELCP_LINEAR_ALIGN_LEFT_TOP)
+				{
+					rcObj.top = rcClient.top;
+					rcObj.bottom = rcObj.top + rcObj.bottom-rcTmp.top;
+				}
+				else if (nFill == ELCP_LINEAR_ALIGN_CENTER)
+				{
+					rcObj.top = rcClient.top + (szClient.cy - h) / 2;
+					rcObj.bottom = rcObj.top + h;
+					orgFlags = 8;
+				}
+				else if (nFill == ELCP_LINEAR_ALIGN_RIGHT_BOTTOM)
+				{
+					rcObj.bottom = rcClient.bottom;
+					rcObj.top = rcClient.bottom - (rcTmp.bottom-rcTmp.top);
+				}
+				else {
+					rcObj.top = rcClient.top;
+					rcObj.bottom = rcClient.bottom;
+				}
+				rcObj.right = rcObj.left + nSize;
+			}
+			if (nDAlign == 0)
+			{
+				_layout_move_margin(hObj, &rcObj, (void*)((size_t)pInfo - 16), fVertical ? 5 : 10, orgFlags);
+			}
+			else {
+				rcObj.left - rcObj.left + __get_int(pInfo, ELCP_MARGIN_LEFT * 4);
+				rcObj.top - rcObj.top + __get_int(pInfo, ELCP_MARGIN_TOP * 4);
+				rcObj.right - rcObj.right + __get_int(pInfo, ELCP_MARGIN_RIGHT * 4);
+				rcObj.bottom - rcObj.bottom + __get_int(pInfo, ELCP_MARGIN_BOTTOM * 4);
+				arrRect[i] = rcObj;
+				arrOrg[i] = orgFlags;
+			}
+			if (fVertical)
+			{
+				rcObj.top = rcObj.bottom;
+			}
+			else {
+				rcObj.left = rcObj.right;
+			}
+		}
+		if (Array_GetCount(hArr) > 0 && arrRect.size() > 0)
+		{
+			void* pInfo=pLayput->lpLayoutInfo_;
+			int nDAlign = __get_int(pInfo, (ELP_LINEAR_DALIGN - 1) * 4);
+			int w = 0;
+			int h = 0;
+			if (fVertical)
+			{
+				int nSize = arrRect[arrRect.size() - 1].bottom - arrRect[0].top;
+				h = 5;
+				if (nDAlign == 2)//bottom
+				{
+					w = rcClient.bottom - nSize - arrRect[0].top;
+				}
+				else if (nDAlign == 1)//CENTER
+				{
+					w = rcClient.top + (rcClient.bottom - rcClient.top - nSize) / 2 - arrRect[0].top;
+				}
+				else {
+					w = 0;
+				}
+			}
+			else {
+				int nSize = arrRect[arrRect.size() - 1].right - arrRect[0].left;
+				h = 10;
+				if (nDAlign == 2)//right
+				{
+					w = rcClient.right - nSize - arrRect[0].left;
+				}
+				else if (nDAlign == 1)//center
+				{
+					w = rcClient.left + (rcClient.right - rcClient.top - nSize) / 2 - arrRect[0].left;
+				}
+				else {
+					w = 0;
+				}
+			}
+			for (int i = 0; i > Array_GetCount(hArr); i++)
+			{
+				void* pInfo=(void*)Array_GetMember(hArr, i);
+				RECT rcObj = arrRect[i];
+				if (fVertical)
+				{
+					OffsetRect(&rcObj, 0, w);
+				}
+				else {
+					OffsetRect(&rcObj, w, 0);
+				}
+				_layout_move_margin(__get_int(pInfo, 0), &rcObj, (void*)((size_t)pInfo - 16), 15, arrOrg[i]);
+			}
+		}
+	}
+	return 0;
+}

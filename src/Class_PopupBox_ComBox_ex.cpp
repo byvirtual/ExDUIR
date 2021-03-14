@@ -15,7 +15,7 @@ size_t _pb_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lPara
 		mi.fMask = MIM_MENUDATA;
 		mi.dwMenuData = (ULONG_PTR)pObj;
 		SetMenuInfo(hMenu, &mi);
-		RECT rc;
+		RECT rc{ 0 };
 		GetWindowRect(hWnd, &rc);
 		Ex_TrackPopupMenu(hMenu, 0, rc.left + pObj->w_left_, rc.top + pObj->w_bottom_, 0, hObj, 0, &_pbm_proc, 0);
 		DestroyMenu(hMenu);

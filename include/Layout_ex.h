@@ -135,3 +135,5 @@ bool _layout_getchildprop(EXHANDLE hLayout, EXHANDLE hObj, int dwPropID, size_t*
 bool _layout_setprop(EXHANDLE hLayout, int dwPropID, size_t pvValue);
 size_t _layout_getprop(EXHANDLE hLayout, int dwPropID);
 bool _layout_absolute_setedge(EXHANDLE hLayout, EXHANDLE hObjChild, int dwEdge, int dwType, size_t nValue);
+void _layout_move_margin(EXHANDLE hObj, RECT* lpObjRc, void* lpMargin, int dwLockFlags, int dwOrgFlags);
+size_t __layout_linear_proc(layout_s* pLayput, int nEvent, size_t wParam, size_t lParam);

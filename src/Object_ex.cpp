@@ -37,6 +37,27 @@ void _obj_register(int atomClass, int dwStyle, int dwStyleEx, int dwTextFormat, 
 	}
 }
 
+bool Ex_ObjLayoutSet(EXHANDLE handle, EXHANDLE hLayout, bool fUpdate)
+{
+	HWND hWnd = 0;
+	wnd_s* pWnd = nullptr;
+	obj_s* pObj = nullptr;
+	if (_wnd_getfromhandle(handle, &hWnd, &pWnd, &pObj))
+	{
+		EXHANDLE hOld = pObj->hLayout_;
+		pObj->hLayout_ = hLayout;
+		if (hOld != hLayout)
+		{
+			_layout_destory(hOld);
+		}
+		if (fUpdate)
+		{
+			SendMessageW(hWnd, g_Li.dwMessage, hLayout, MAKELONG(EMT_LAYOUT_UPDATE, 0));
+		}
+	}
+	return pObj != 0;
+}
+
 EXHANDLE Ex_ObjLayoutGet(EXHANDLE handle)
 {
 	obj_s* pObj = nullptr;
