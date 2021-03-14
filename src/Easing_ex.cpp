@@ -1,4 +1,5 @@
 #include "Easing_ex.h"
+#pragma comment(lib, "winmm.lib ")
 
 void _easing_curve_free(void* pCurveInfo)
 {
