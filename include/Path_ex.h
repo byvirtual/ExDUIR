@@ -7,21 +7,21 @@
 
 struct path_s
 {
-	int dwFlags_;
-	void* pObj_;
-	void* pGeometry_;
+	UINT dwFlags_;
+	ID2D1GeometrySink* pObj_;
+	ID2D1PathGeometry* pGeometry_;
 };
 
-bool _path_destroy(EXHANDLE hPath);
-bool _path_reset(EXHANDLE hPath);
-bool _path_create(int dwFlags, EXHANDLE* hPath);
-bool _path_getbounds(EXHANDLE hPath, void* lpBounds);
-bool _path_open(EXHANDLE hPath);
-bool _path_close(EXHANDLE hPath);
-bool _path_beginfigure(EXHANDLE hPath);
-bool _path_endfigure(EXHANDLE hPath, bool fCloseFigure);
+int _path_destroy(EXHANDLE hPath);
+int _path_reset(EXHANDLE hPath);
+int _path_create(int dwFlags, EXHANDLE* hPath);
+int _path_getbounds(EXHANDLE hPath, void* lpBounds);
+int _path_open(EXHANDLE hPath);
+int _path_close(EXHANDLE hPath);
+int _path_beginfigure(EXHANDLE hPath);
+int _path_endfigure(EXHANDLE hPath, bool fCloseFigure);
 bool _path_hittest(EXHANDLE hPath, float x, float y);
-bool _path_addline(EXHANDLE hPath, float x1, float y1, float x2, float y2);
-bool _path_addarc(EXHANDLE hPath, float x1, float y1, float x2, float y2, float radiusX, float radiusY, bool fClockwise);
-bool _path_addrect(EXHANDLE hPath, float left, float top, float right, float bottom);
-bool _path_addroundedrect(EXHANDLE hPath, float left, float top, float right, float bottom, float radiusTopLeft, float radiusTopRight, float radiusBottomLeft, float radiusBottomRight);
+int _path_addline(EXHANDLE hPath, float x1, float y1, float x2, float y2);
+int _path_addarc(EXHANDLE hPath, float x1, float y1, float x2, float y2, float radiusX, float radiusY, bool fClockwise);
+int _path_addrect(EXHANDLE hPath, float left, float top, float right, float bottom);
+int _path_addroundedrect(EXHANDLE hPath, float left, float top, float right, float bottom, float radiusTopLeft, float radiusTopRight, float radiusBottomLeft, float radiusBottomRight);

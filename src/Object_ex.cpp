@@ -1109,7 +1109,7 @@ void _obj_setpos_org(obj_s* pObj, EXHANDLE hObj, EXHANDLE hObjInsertAfter, int x
 		flags = flags - (flags & SWP_NOSIZE);
 		flags = flags | SWP_EX_NODPISCALE;
 	}
-	NCCALCSIZE_PARAMS np;
+	NCCALCSIZE_PARAMS np = { 0 };
 	if ((flags & SWP_NOMOVE) == 0 || (flags & SWP_NOSIZE) == 0 || (flags & SWP_DRAWFRAME) != 0)
 	{
 		bool fScale = (flags & SWP_EX_NODPISCALE) == 0;
@@ -2837,16 +2837,15 @@ void _obj_setradius(EXHANDLE hObj, obj_s* pObj, float topleft, float topright, f
 			bottomright = bottomright * g_Li.DpiX;
 			bottomleft = bottomleft * g_Li.DpiX;
 		}
-		RECTF rc = { topleft,topright,bottomright,bottomleft };
-		pObj->radius_topleft_ = rc.left;
-		pObj->radius_topright_ = rc.top;
-		pObj->radius_bottomright_ = rc.right;
-		pObj->radius_bottomleft_ = rc.bottom;
-		pObj->dwFlags_ = pObj->dwFlags_ | (eof_bPath | eof_bPathByRoundedrect);
-		int flags = SWP_NOZORDER | SWP_NOCOPYBITS | SWP_NOSENDCHANGING | SWP_ASYNCWINDOWPOS | SWP_EX_UPDATEPATH | SWP_NOSENDCHANGING;
+		pObj->radius_topleft_ = topleft;
+		pObj->radius_topright_ = topright;
+		pObj->radius_bottomright_ = bottomright;
+		pObj->radius_bottomleft_ = bottomleft;
+		pObj->dwFlags_ |= (eof_bPath | eof_bPathByRoundedrect);
+		int flags = SWP_NOZORDER | SWP_NOCOPYBITS | SWP_NOSENDCHANGING | SWP_ASYNCWINDOWPOS | SWP_EX_UPDATEPATH;
 		if (fUpdate)
 		{
-			flags = flags | SWP_EX_UPDATEOBJECT;
+			flags |= SWP_EX_UPDATEOBJECT;
 		}
 		_obj_setpos_org(pObj, hObj, 0, EOP_DEFAULT, EOP_DEFAULT, EOP_DEFAULT, EOP_DEFAULT, flags, nError);
 	}

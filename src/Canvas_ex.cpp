@@ -1,4 +1,5 @@
 #include "Canvas_ex.h"
+using namespace DllExports; //使用 gdiplus flat api
 
 bool _canvas_destroy(EXHANDLE hCanvas)
 {
@@ -122,13 +123,11 @@ void _canvas_init(int* nError)
 
 	//加载GdiplusDLL();
 
-#if defined(_M_IX86)
-	char iid[16] = { 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-#elif defined(_M_AMD64)
-	char iid[32] = { 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-#endif
-	//GdiplusStartup(&g_Ri.hToken, iid, NULL);
-	//GdipCreateMatrix(&g_Ri.pMatrix);
+	Gdiplus::GdiplusStartupInput input;
+	input.GdiplusVersion = 1;
+	GdiplusStartup((ULONG_PTR *)&g_Ri.hToken, &input, NULL);
+	GdipCreateMatrix((Gdiplus::GpMatrix **)&g_Ri.pMatrix);
+
 	*nError = CoCreateInstance(CLSID_WICImagingFactory1, NULL, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, &g_Ri.pWICFactory);
 	if (*nError == 0)
 	{
@@ -147,8 +146,8 @@ void _canvas_uninit()
 {
 	_dx_uninit();
 	((IWICImagingFactory*)g_Ri.pWICFactory)->Release();
-	//GdipDeleteMatrix(g_Ri.pMatrix);
-	//GdiplusShutdown(g_Ri.hToken);
+	GdipDeleteMatrix((Gdiplus::GpMatrix *)g_Ri.pMatrix);
+	GdiplusShutdown((ULONG_PTR)g_Ri.hToken);
 }
 
 void* _cv_dx_bmp(canvas_s* pCanvas)

@@ -660,7 +660,7 @@ size_t _edit_paint(EXHANDLE hObj, obj_s *pObj) {
                 bDrawBanner = false;
                 if (!((ps.dwState_ & 状态_焦点) != 0 && (ps.dwStyle_ & 编辑框风格_总是显示提示文本) == 0)) {
                     void *mDc = (void *) __get(ps.dwOwnerData_, offsetof(edit_s, prctext_));
-                    int dt;
+                    int dt = 0;
                     if ((pObj->dwTextFormat_ & DT_SINGLELINE) == DT_SINGLELINE) {
                         dt = DT_VCENTER;
                     }

@@ -1,13 +1,11 @@
-#include "Resource_ex.h"
 
+#include "Resource_ex.h"
 
 void _bin_uncompress(void* lpData, size_t dwSize, void* lpKey, size_t dwLen, void** retPtr, size_t* retLen)
 {
 	int i = 1263556677;
 	int nError = 0;
 	void* hImg = nullptr;
-	Gdiplus::GdiplusStartupInput StartupInput;
-	GdiplusStartup((ULONG_PTR*)&g_Li.hToken, &StartupInput, NULL);
 	if (__get_int(lpData, 0) == i)
 	{
 		void* pData = Ex_MemAlloc(dwSize);
