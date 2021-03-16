@@ -56,6 +56,7 @@ size_t _menu_proc(void* pData, UINT uMsg, size_t wParam, size_t lParam)
 	LONG64 pOld = (LONG64)__get(pData, 30);
 	wnd_s* pWnd = (wnd_s*)__get(pData, 38);
 #endif
+
 	if (uMsg == WM_DESTROY)
 	{
 		SetWindowLongPtrW(hWnd, -4, pOld);

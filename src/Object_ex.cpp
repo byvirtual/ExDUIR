@@ -3678,8 +3678,8 @@ void Ex_ObjPointTransform(EXHANDLE hObjSrc, EXHANDLE hObjDst, int* ptX, int* ptY
 			obj_s* pObjDst = nullptr;
 			if (_handle_validate(hObjDst, HT_OBJECT, (void**)&pObjDst, &nError))
 			{
-				int nOffsetX = nOffsetX- pObjDst->w_left_;
-				int nOffsetY = nOffsetY-pObjDst->w_top_;
+				nOffsetX = nOffsetX - pObjDst->w_left_;
+				nOffsetY = nOffsetY - pObjDst->w_top_;
 			}
 			*ptX = *ptX - nOffsetX;
 			*ptY = *ptY = nOffsetY;

@@ -108,7 +108,7 @@ BOOL Ex_Init(HINSTANCE hInstance, int dwGlobalFlags, HCURSOR hDefaultCursor, LPC
 
 	g_Li.aryThemes.clear();
 	Ex_ThemeLoadFromMemory(lpDefaultTheme, dwDefaultThemeLen, 0, 0, true);
-	//_layout_init();
+	_layout_init();
 	g_Li.atomSysShadow = Ex_WndRegisterClass(L"SysShadow", 0, 0, 0);
 
 	g_Li.hHookMsgBox = SetWindowsHookEx(WH_CBT, (HOOKPROC)_hook_proc, 0, GetCurrentThreadId());
