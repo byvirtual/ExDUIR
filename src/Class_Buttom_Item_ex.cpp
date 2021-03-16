@@ -281,7 +281,7 @@ void _item_draw(obj_s* pObj, paintstruct_s ps, int crColor, void* lpText)
 			if (lpPadding != 0)
 			{
 				RtlMoveMemory(&rcPadding, lpPadding, 16);
-				tmp=Ex_Scale(HIWORD(HIWORD(pWnd->szItemSeparator_)) - (rcPadding.top + rcPadding.bottom));
+				tmp=Ex_Scale(HIBYTE(HIWORD(pWnd->szItemSeparator_)) - (rcPadding.top + rcPadding.bottom));
 			}
 			rcItem.left = Ex_Scale(rcPadding.left);
 			rcItem.top = (rcItem.bottom - tmp) / 2;

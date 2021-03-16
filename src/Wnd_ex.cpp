@@ -2061,7 +2061,7 @@ void _wnd_menu_setpos(HWND hWnd, wnd_s* pWnd, tagWINDOWPOS* pos)
 			GetWindowRect(pMenuPrevWnd->hWnd_, &rcParent);
 		}
 	}
-	auto offset = LOWORD(HIWORD(pWnd->szItemSeparator_));
+	auto offset = LOBYTE(HIWORD(pWnd->szItemSeparator_));
 	int x = pos->x;
 	int y = pos->y;
 	POINT pt;

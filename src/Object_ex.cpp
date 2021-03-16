@@ -1423,10 +1423,10 @@ void _obj_scroll_repostion(HWND hWnd, EXHANDLE hObj, bool fDispatch)
 					
 					if (((pVSB->dwStyle_ & 滚动条风格_右底对齐) == 滚动条风格_右底对齐))
 					{
-						rcClient.right = rcClient.right - LOWORD(xyz);
+						rcClient.right = rcClient.right - LOBYTE(xyz);
 					}
 					else {
-						rcClient.left = rcClient.left + LOWORD(xyz);
+						rcClient.left = rcClient.left + LOBYTE(xyz);
 					}
 				}
 			}
@@ -1448,10 +1448,10 @@ void _obj_scroll_repostion(HWND hWnd, EXHANDLE hObj, bool fDispatch)
 					
 					if (((pHSB->dwStyle_ & 滚动条风格_右底对齐) == 滚动条风格_右底对齐))
 					{
-						rcClient.bottom = rcClient.bottom - LOWORD(xyz);
+						rcClient.bottom = rcClient.bottom - LOBYTE(xyz);
 					}
 					else {
-						rcClient.top = rcClient.top + LOWORD(xyz);
+						rcClient.top = rcClient.top + LOBYTE(xyz);
 					}
 				}
 			}

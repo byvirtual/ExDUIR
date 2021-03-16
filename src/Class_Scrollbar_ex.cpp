@@ -82,7 +82,7 @@ EXHANDLE _sb_getscroll(obj_s* pObj, int nBar)
 
 void _sb_calcthumb(HWND hWnd, obj_s* pObj, si_s* psi, bool bVScroll)
 {
-	int cxy;
+	int cxy = 0;
 	int point = _sb_pos2point(hWnd, pObj, psi, &(psi->nPos_), bVScroll, &cxy);
 	if (bVScroll)
 	{
@@ -177,14 +177,14 @@ void _sb_nccalcsize(HWND hWnd, EXHANDLE hObj, obj_s* pObj)
 	si_s* psi = (si_s*)_obj_pOwner(pObj);
 	bool bVScroll = ((pObj->dwStyle_ & 滚动条风格_垂直滚动条) == 滚动条风格_垂直滚动条);
 	int xyz = psi->xyz_;
-	auto hcxy = HIWORD(xyz);
-	auto lcxy = LOBYTE(hcxy);
-	auto lcxy1 = LOWORD(lcxy);
+	auto cxy = HIWORD(xyz);
+	//auto cxy = LOBYTE(cxy);
+	xyz = LOWORD(xyz);
 	int cx = 0, cy = 0;
 	if (((pObj->dwStyle_ & 滚动条风格_控制按钮) == 滚动条风格_控制按钮))
 	{
-		cx = LOBYTE(lcxy1);
-		cy = HIBYTE(lcxy1);
+		cx = LOBYTE(xyz);
+		cy = HIBYTE(xyz);
 	}
 	RECT rcClient{ 0 };
 	rcClient.left = pObj->c_left_;
