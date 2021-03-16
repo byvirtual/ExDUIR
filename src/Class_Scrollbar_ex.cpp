@@ -58,7 +58,7 @@ int _sb_pos2point(HWND hWnd, obj_s* pObj, si_s* psi, int* nPos, bool bVert, int*
 		}
 		point = (*nPos - nMin) * (sizeRegin - *cxy) / maxPos;
 	}
-	point = point + bVert ? t : l;
+	point = point + (bVert ? t : l);
 	return point;
 }
 
@@ -443,7 +443,7 @@ void _sb_lbuttondown(HWND hWnd, EXHANDLE hObj, obj_s* pObj, size_t lParam)
 			nTrack = SB_PAGEDOWN;
 		}
 
-		if (nTrack == -1)
+		if (nTrack != -1)
 		{
 			_sb_parentnotify(hWnd, pObj, MAKELONG(nTrack, 0), hObj, 0, true);
 		}
