@@ -3400,21 +3400,22 @@ size_t Ex_ObjDefProc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t 
 		else if (uMsg == WM_MOUSEWHEEL)
 		{
 			auto pCls = pObj->pCls_;
+			short zDelta = (short)HIWORD(wParam);
 			if (pCls->atomName_ == ATOM_SCROLLBAR)
 			{
-				_sb_parentnotify(hWnd, pObj, wParam > 0 ? SB_LINEUP : SB_LINEDOWN, hObj, 0, true);
+				_sb_parentnotify(hWnd, pObj, zDelta > 0 ? SB_LINEUP : SB_LINEDOWN, hObj, 0, true);
 				return 1;
 			}
 			
 			if (((pObj->dwStyle_ & EOS_VSCROLL) == EOS_VSCROLL))
 			{
-				_obj_baseproc(hWnd, hObj, pObj, WM_VSCROLL, wParam > 0 ? SB_LINEUP : SB_LINEDOWN, 0);
+				_obj_baseproc(hWnd, hObj, pObj, WM_VSCROLL, zDelta > 0 ? SB_LINEUP : SB_LINEDOWN, 0);
 				return 1;
 			}
 			
 			if (((pObj->dwStyle_ & EOS_HSCROLL) == EOS_HSCROLL))
 			{
-				_obj_baseproc(hWnd, hObj, pObj, WM_HSCROLL, wParam > 0 ? SB_LINEUP : SB_LINEDOWN, 0);
+				_obj_baseproc(hWnd, hObj, pObj, WM_HSCROLL, zDelta > 0 ? SB_LINEUP : SB_LINEDOWN, 0);
 				return 1;
 			}
 		}
