@@ -367,7 +367,7 @@ size_t _lv_setitemcount(HWND hWnd, EXHANDLE hObj, obj_s* pObj, int nCount, size_
 void _lv_onvscrollbar(HWND hWnd, EXHANDLE hObj, obj_s* pObj, UINT uMsg, size_t wParam, size_t lParam)
 {
 	listview_s* pOwner = (listview_s*)_obj_pOwner(pObj);
-	int nCode = LODWORD(wParam);
+	int nCode = LOWORD(wParam);
 	bool bHView = (pObj->dwStyle_ & 列表风格_横向列表) == 列表风格_横向列表;
 	bool bHScoll = uMsg == WM_HSCROLL;
 	EXHANDLE hSB = 0;
