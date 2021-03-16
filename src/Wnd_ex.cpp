@@ -974,7 +974,7 @@ int _wnd_create(EXHANDLE hExDui, wnd_s* pWnd, HWND hWnd, int dwStyle, theme_s* h
 		int offsetY = 0;
 		if (Flag_Query(EXGF_DPI_ENABLE))
 		{
-			size.cx = Ex_Scale(size.cy);
+			size.cx = Ex_Scale(size.cx);
 			size.cy = Ex_Scale(size.cy);
 			offsetX = (size.cx - (rcWindow.right - rcWindow.left)) / 2;
 			offsetY = (size.cy - (rcWindow.bottom - rcWindow.top)) / 2;
