@@ -802,7 +802,11 @@ size_t CALLBACK _wnd_proc(void* pData, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			return 0;
 		}
 	}
-	else if (uMsg >= WM_MOUSEFIRST && uMsg <= WM_MOUSELAST)//512,521
+	else if (uMsg == WM_MOUSEWHEEL)//522  WM_MOUSEFIRST到WM_MOUSELAST包含了WM_MOUSEWHEEL，因此要在下一个判断之前拦截。
+	{
+		_wnd_wm_mousewheel(hWnd, pWnd, uMsg, wParam, lParam);
+	}
+	else if (uMsg >= WM_MOUSEFIRST && uMsg < WM_MOUSELAST)//512 - ???
 	{
 		_wnd_wm_mouse(pWnd, hWnd, uMsg, wParam, lParam);
 	}
@@ -817,10 +821,6 @@ size_t CALLBACK _wnd_proc(void* pData, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	else if (uMsg == WM_CONTEXTMENU)//被动接受消息123
 	{
 		_wnd_wm_menucontext(hWnd, pWnd, uMsg, wParam, lParam);
-	}
-	else if (uMsg == WM_MOUSEWHEEL)//522
-	{
-		_wnd_wm_mousewheel(hWnd, pWnd, uMsg, wParam, lParam);
 	}
 	else if (uMsg == WM_SYSCOMMAND || uMsg == WM_COMMAND)//274,273
 	{
@@ -2061,7 +2061,7 @@ void _wnd_menu_setpos(HWND hWnd, wnd_s* pWnd, tagWINDOWPOS* pos)
 			GetWindowRect(pMenuPrevWnd->hWnd_, &rcParent);
 		}
 	}
-	auto offset = LOWORD(HIWORD(pWnd->szItemSeparator_));
+	auto offset = LOBYTE(HIWORD(pWnd->szItemSeparator_));
 	int x = pos->x;
 	int y = pos->y;
 	POINT pt;

@@ -41,7 +41,7 @@ void _lv_updatesbvalue(EXHANDLE hObj, obj_s* pObj, listview_s* pOwner, void* lpR
 	int vHeight = 0;
 	if (bHView)//横向排列
 	{
-		vWidth = (nCount / nVS + (nCount % nVS == 0 ? 0 : 1) * iWidth);
+		vWidth = (nCount / nVS + (nCount % nVS == 0 ? 0 : 1)) * iWidth;
 		if (hHSB != 0)
 		{
 			if (vWidth > width)
@@ -52,7 +52,7 @@ void _lv_updatesbvalue(EXHANDLE hObj, obj_s* pObj, listview_s* pOwner, void* lpR
 					{
 						nVS = nVS - 1;
 					}
-					vWidth = (nCount / nVS + (nCount % nVS == 0 ? 0 : 1) * iWidth);
+					vWidth = (nCount / nVS + (nCount % nVS == 0 ? 0 : 1)) * iWidth;
 				}
 			}
 		}
@@ -62,7 +62,7 @@ void _lv_updatesbvalue(EXHANDLE hObj, obj_s* pObj, listview_s* pOwner, void* lpR
 		}
 	}
 	else {
-		vHeight = (nCount / nHS + (nCount % nHS == 0 ? 0 : 1) * iHeight);
+		vHeight = (nCount / nHS + (nCount % nHS == 0 ? 0 : 1)) * iHeight;
 		if (vHeight > height)
 		{
 			//横向数量大于1时，不管有没纵向滚动条都需要加上判断，超过的话强行-1
@@ -72,7 +72,7 @@ void _lv_updatesbvalue(EXHANDLE hObj, obj_s* pObj, listview_s* pOwner, void* lpR
 				{
 					nHS = nHS - 1;
 				}
-				vHeight = (nCount / nHS + (nCount % nHS == 0 ? 0 : 1) * iHeight);
+				vHeight = (nCount / nHS + (nCount % nHS == 0 ? 0 : 1)) * iHeight;
 			}
 		}
 		vWidth = nHS * iWidth;
@@ -367,7 +367,7 @@ size_t _lv_setitemcount(HWND hWnd, EXHANDLE hObj, obj_s* pObj, int nCount, size_
 void _lv_onvscrollbar(HWND hWnd, EXHANDLE hObj, obj_s* pObj, UINT uMsg, size_t wParam, size_t lParam)
 {
 	listview_s* pOwner = (listview_s*)_obj_pOwner(pObj);
-	int nCode = LODWORD(wParam);
+	int nCode = LOWORD(wParam);
 	bool bHView = (pObj->dwStyle_ & 列表风格_横向列表) == 列表风格_横向列表;
 	bool bHScoll = uMsg == WM_HSCROLL;
 	EXHANDLE hSB = 0;

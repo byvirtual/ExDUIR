@@ -1422,10 +1422,10 @@ void _obj_scroll_repostion(HWND hWnd, EXHANDLE hObj, bool fDispatch)
 
 					if (((pVSB->dwStyle_ & 滚动条风格_右底对齐) == 滚动条风格_右底对齐))
 					{
-						rcClient.right = rcClient.right - LOWORD(xyz);
+						rcClient.right = rcClient.right - LOBYTE(xyz);
 					}
 					else {
-						rcClient.left = rcClient.left + LOWORD(xyz);
+						rcClient.left = rcClient.left + LOBYTE(xyz);
 					}
 				}
 			}
@@ -1447,10 +1447,10 @@ void _obj_scroll_repostion(HWND hWnd, EXHANDLE hObj, bool fDispatch)
 
 					if (((pHSB->dwStyle_ & 滚动条风格_右底对齐) == 滚动条风格_右底对齐))
 					{
-						rcClient.bottom = rcClient.bottom - LOWORD(xyz);
+						rcClient.bottom = rcClient.bottom - LOBYTE(xyz);
 					}
 					else {
-						rcClient.top = rcClient.top + LOWORD(xyz);
+						rcClient.top = rcClient.top + LOBYTE(xyz);
 					}
 				}
 			}
@@ -3407,21 +3407,22 @@ size_t Ex_ObjDefProc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t 
 		else if (uMsg == WM_MOUSEWHEEL)
 		{
 			auto pCls = pObj->pCls_;
+			short zDelta = (short)HIWORD(wParam);
 			if (pCls->atomName_ == ATOM_SCROLLBAR)
 			{
-				_sb_parentnotify(hWnd, pObj, wParam > 0 ? SB_LINEUP : SB_LINEDOWN, hObj, 0, true);
+				_sb_parentnotify(hWnd, pObj, zDelta > 0 ? SB_LINEUP : SB_LINEDOWN, hObj, 0, true);
 				return 1;
 			}
 
 			if (((pObj->dwStyle_ & EOS_VSCROLL) == EOS_VSCROLL))
 			{
-				_obj_baseproc(hWnd, hObj, pObj, WM_VSCROLL, wParam > 0 ? SB_LINEUP : SB_LINEDOWN, 0);
+				_obj_baseproc(hWnd, hObj, pObj, WM_VSCROLL, zDelta > 0 ? SB_LINEUP : SB_LINEDOWN, 0);
 				return 1;
 			}
 
 			if (((pObj->dwStyle_ & EOS_HSCROLL) == EOS_HSCROLL))
 			{
-				_obj_baseproc(hWnd, hObj, pObj, WM_HSCROLL, wParam > 0 ? SB_LINEUP : SB_LINEDOWN, 0);
+				_obj_baseproc(hWnd, hObj, pObj, WM_HSCROLL, zDelta > 0 ? SB_LINEUP : SB_LINEDOWN, 0);
 				return 1;
 			}
 		}

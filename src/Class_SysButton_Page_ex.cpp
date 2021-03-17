@@ -286,11 +286,11 @@ void _page_onvscrollbar(HWND hWnd, EXHANDLE hObj, obj_s* pObj, UINT uMsg, size_t
 	}
 	else if (nCode == SB_LINEUP)
 	{
-		nPos = oPos - HIWORD(LOWORD(pObj->pWnd_->szItemSeparator_));
+		nPos = oPos - HIBYTE(LOWORD(pObj->pWnd_->szItemSeparator_));
 	}
 	else if (nCode == SB_LINEDOWN)
 	{
-		nPos = oPos + HIWORD(LOWORD(pObj->pWnd_->szItemSeparator_));
+		nPos = oPos + HIBYTE(LOWORD(pObj->pWnd_->szItemSeparator_));
 	}
 	else if (nCode == SB_TOP)
 	{

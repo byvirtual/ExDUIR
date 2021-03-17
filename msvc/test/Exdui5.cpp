@@ -126,7 +126,7 @@ size_t msgProc(HWND, EXHANDLE handle, UINT, size_t, size_t, void*)
 	return 0;
 }
 
-BOOL list_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, int* lpResult)
+int list_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, int* lpResult)
 {
 	if (uMsg == WM_NOTIFY)
 	{
@@ -135,20 +135,23 @@ BOOL list_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam
 		//调试输出(L"列表回调");
 		if (hObj == ni.hObjFrom)
 		{
-			调试输出(L"列表回调2222:",ni.nCode,ni.idFrom);
+			
 			if (ni.nCode == NM_CALCSIZE)
 			{
+				调试输出(L"改变高度",__get_int((void*)ni.lParam, 4));
 				__set_int((void*)ni.lParam, 4, 25);
-				调试输出(L"改变高度");
+				
 				*lpResult = 1;
-				return true;
+				return 1;
 			}
 			else if (ni.nCode == NM_CUSTOMDRAW)
 			{
+				
 				EX_CUSTOMDRAW cd{ 0 };
 				RtlMoveMemory(&cd, (void*)ni.lParam, sizeof(EX_CUSTOMDRAW));
 				if (cd.iItem > 0 && cd.iItem <= 100)
 				{
+					
 					int crItemBkg = 0;
 					if ((cd.dwState & 状态_选择) != 0)
 					{
@@ -167,7 +170,7 @@ BOOL list_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam
 					_canvas_drawtext(cd.hCanvas, Ex_ObjGetFont(hObj), ExRGB2ARGB(0, 180), L"你好123", -1, DT_SINGLELINE | DT_VCENTER, cd.rcDraw.left + 10, cd.rcDraw.top, cd.rcDraw.right, cd.rcDraw.bottom);
 				}
 				*lpResult = 1;
-				return true;
+				return 1;
 			}
 			else if (ni.nCode == LVN_ITEMCHANGED)
 			{
@@ -176,7 +179,7 @@ BOOL list_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam
 		}
 	}
 
-	return false;
+	return 0;
 }
 
 void 测试窗口()
@@ -208,7 +211,7 @@ void 测试窗口()
 		
 		//按钮
 		LPCWSTR class_button = L"button";
-		EXHANDLE button = Ex_ObjCreateEx(-1, (void*)class_button, NULL, -1, 10, 130, 100, 30, hExDui, 0, DT_VCENTER, 0, 0, NULL);
+		EXHANDLE button = Ex_ObjCreateEx(-1, (void*)class_button, (void*)title, -1, 10, 130, 100, 30, hExDui, 0, DT_VCENTER | DT_CENTER, 0, 0, NULL);
 		
 
 		//编辑框
@@ -216,9 +219,10 @@ void 测试窗口()
 		EXHANDLE edit = Ex_ObjCreateEx(EOS_EX_FOCUSABLE, (void*)class_edit, (void*)title, EOS_VISIBLE | 编辑框风格_显示选择文本, 10, 170, 100, 30, hExDui, 0, DT_VCENTER, 0, 0, NULL);
 
 		//列表框
-		//LPCWSTR class_list = L"listview";
-		//EXHANDLE listview = Ex_ObjCreateEx(-1, (void*)class_list, (void*)title, EOS_VISIBLE | 列表风格_横向列表, 130, 30, 500, 500, hExDui, 0, DT_VCENTER, 0, 0, &list_proc);
-		//Ex_ObjSendMessage(listview, LVM_SETITEMCOUNT, 100, 100);
+		LPCWSTR class_list = L"listview";
+		EXHANDLE listview = Ex_ObjCreateEx(-1, (void*)class_list, (void*)title, EOS_VISIBLE  | 列表风格_纵向列表 | EOS_VSCROLL, 130, 30, 150, 200, hExDui, 0, -1, 0, 0, &list_proc);
+		Ex_ObjSetColor(listview, COLOR_EX_BACKGROUND, ExRGB2ARGB(16711680, 50), true);
+		Ex_ObjSendMessage(listview, LVM_SETITEMCOUNT, 100, 100);
 		//信息框
 		//Ex_MessageBoxEx(hExDui, (void*)title, (void*)title, 0, 0, 0, 0, 0, 0);
 		Ex_DUIShowWindow(hExDui, 5, 0, 0, 0);
