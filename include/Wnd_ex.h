@@ -12,6 +12,11 @@
 #define EMT_LAYOUT_UPDATE -3
 #define EMT_EASING -4
 
+struct EX_THUNK_DATA {
+	HWND hWnd;
+	WNDPROC Proc;
+	void* dwData;
+};
 
 struct wnd_s
 {
@@ -138,7 +143,7 @@ bool 窗口_查询风格(HWND hWnd, int dwStyle, bool bExStyle);
 bool 窗口_删除风格(HWND hWnd, int dwStyle, bool bExStyle);
 bool 窗口_添加风格(HWND hWnd, int dwStyle, bool bExStyle);
 size_t 窗口_取图标句柄(HWND hWnd, bool 大图标);
-void* Thunkwindow(HWND hWnd, void* pfnProc, void* dwData, int* nError);
+void* Thunkwindow(HWND hWnd, ThunkPROC pfnProc, void* dwData, int* nError);
 bool 窗口_取屏幕矩形(HWND hWnd, RECT *rcMonitor = NULL, RECT *rcDesk = NULL);
 std::wstring 窗口_取标题(HWND hWnd);
 int Wnd_ClassToAtom(HWND hWnd);
@@ -155,8 +160,8 @@ int _wnd_create(EXHANDLE hExDui, wnd_s* pWnd, HWND hWnd, int dwStyle, theme_s* h
 void CALLBACK _wnd_backgroundimage_timer_inherit(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 int _wnd_dispatch_msg(HWND hWnd, wnd_s* pWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 int _wnd_dispatch_msg_obj(HWND hWnd, mempoolmsg_s* lpData, obj_s* pObj, UINT uMsg, WPARAM wParam, LPARAM lParam);
-size_t CALLBACK _wnd_tooltips_proc(void* pData, UINT uMsg, WPARAM wParam, LPARAM lParam);
-size_t CALLBACK _wnd_shadow_proc(void* pData, UINT uMsg, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK _wnd_tooltips_proc(EX_THUNK_DATA* pData, UINT uMsg, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK _wnd_shadow_proc(EX_THUNK_DATA* pData, UINT uMsg, WPARAM wParam, LPARAM lParam);
 void _wnd_dx_unint(wnd_s* pWnd);
 void _wnd_dx_init(wnd_s* pWnd);
 EXHANDLE _wnd_wm_nchittest_obj(HWND hWnd, wnd_s* pWnd, EXHANDLE objLast, int x, int y, int* hitCode, obj_s** pObjMouse);
@@ -193,7 +198,7 @@ bool _wnd_obj_childtabstop(EXHANDLE objEntry, EXHANDLE* objFocusable, void** pOb
 void _wnd_wm_ime_composition(HWND hWnd, wnd_s* pWnd);
 bool _wnd_wm_measureitem_host(wnd_s* pWnd, WPARAM wParam, LPARAM lParam);
 void _wnd_menu_updatecurrent(wnd_s* pWnd);
-size_t CALLBACK _wnd_proc(void* pData, UINT uMsg, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK _wnd_proc(EX_THUNK_DATA* pData, UINT uMsg, WPARAM wParam, LPARAM lParam);
 bool _wnd_menu_mouse(HWND hWnd, wnd_s* pWnd, UINT uMsg, WPARAM wParam, size_t* iItem);
 bool _wnd_menu_item_callback(HWND hWnd, EXHANDLE hObj, UINT uMsg, WPARAM wParam, LPARAM lParam, void** lpResult);
 bool _wnd_menu_callback_test(HWND hWnd, EXHANDLE hExDui, UINT uMsg, WPARAM wParam, LPARAM lParam, void** lpResult);

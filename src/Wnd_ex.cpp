@@ -131,63 +131,44 @@ size_t 窗口_取图标句柄(HWND hWnd, bool 大图标)
 	return ret;
 }
 
-void* Thunkwindow(HWND hWnd, void* pfnProc, void* dwData, int* nError)
+void* Thunkwindow(HWND hWnd, ThunkPROC pfnProc, void* dwData, int* nError)
 {
 #ifdef _WIN64
-	void* lpData = VirtualAlloc(0, 46, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
-#else
-	void* lpData = VirtualAlloc(0, 25, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
-#endif
-
-	if (lpData != NULL)
-	{
-#ifdef _WIN64
-		char c[] = "\x48\xB9\x00\x00\x00\x00\x00\x00\x00\x00\x48\xB8\x00\x00\x00\x00\x00\x00\x00\x00\xFF\xE0\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
-		PDWORD64 p1 = (PDWORD64)&c[2];
-		*p1 = (DWORD64)lpData;
-		p1 = (PDWORD64)&c[0xc];
-		*p1 = (DWORD64)pfnProc;
-		p1 = (PDWORD64)&c[0x16];
-		*p1 = (DWORD64)hWnd;
-		p1 = (PDWORD64)&c[0x1e];
-		*p1 = (DWORD64)GetWindowLongPtr(hWnd, GWLP_WNDPROC);
-		p1 = (PDWORD64)&c[0x26];
-		*p1 = (DWORD64)dwData;
-		RtlMoveMemory(lpData, c, 46);
-		FlushInstructionCache(GetCurrentProcess(), lpData, 46);
-		SetWindowLongPtrW(hWnd, GWLP_WNDPROC, (LONG_PTR)lpData);
+	char shellcode[] = "\x48\xB9\x00\x00\x00\x00\x00\x00\x00\x00\x48\xB8\x00\x00\x00\x00\x00\x00\x00\x00\xFF\xE0";
 		/*
 16970E90000 - 48 B9 0000000000000000 - mov rcx,0000000000000000
 16970E9000A - 48 B8 0000000000000000 - mov rax,0000000000000000
 16970E90014 - FF E0                 - jmp rax
 		*/
 #else
-		char c[] = "\xC7\x44\x24\x04\x00\x00\xC4\x0E\xE9\x73\x47\x09\xF2\x5E\x08\x02\x00\x10\x19\xCD\x00\x01\x00\x00\x00";
-		PDWORD p1 = (PDWORD)&c[4];
-		*p1 = (DWORD)lpData;
-		p1 = (PDWORD)&c[0x9];
-		*p1 = (ULONG)(ULONG)((ULONG)pfnProc - (ULONG)lpData - 13);
-		p1 = (PDWORD)&c[0xd];
-		*p1 = (DWORD)hWnd;
-		p1 = (PDWORD)&c[0x11];
-		*p1 = GetWindowLongPtr(hWnd, GWL_WNDPROC);
-		p1 = (PDWORD)&c[0x15];
-		*p1 = (DWORD)dwData;
-		RtlMoveMemory(lpData, c, 25);
-		FlushInstructionCache(GetCurrentProcess(), lpData, 25);
-		SetWindowLongPtrW(hWnd, GWL_WNDPROC, (LONG)lpData);
+	char shellcode[] = "\xC7\x44\x24\x04\x00\x00\xC4\x0E\xE9\x73\x47\x09\xF2";
 		/*
 00970000 - C7 44 24 04 0000C40E  - mov [esp+04],0EC40000
 00970008 - E9 734709F2           - jmp F2A04780
-0097000D - 00 00                 - add [eax],al
-0097000F - 00 00                 - add [eax],al
-00970011 - 00 00                 - add [eax],al
-00970013 - 00 00                 - add [eax],al
-00970015 - 00 00                 - add [eax],al
-00970017 - 00 00                 - add [eax],al
-
 		*/
+#endif
+
+	size_t len = sizeof(shellcode) + sizeof(EX_THUNK_DATA);
+	EX_THUNK_DATA* lpData = (EX_THUNK_DATA*)VirtualAlloc(0, len, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+
+	if (lpData != NULL)
+	{
+		lpData->hWnd = hWnd;
+		lpData->Proc = (WNDPROC)GetWindowLongPtr(hWnd, GWLP_WNDPROC);
+		lpData->dwData = dwData;
+
+		char* lpCode = (char*)(lpData + 1);// lpData + 1 是指向结构体末尾
+		RtlMoveMemory(lpCode, shellcode, sizeof(shellcode));
+#ifdef _WIN64
+		*((PUINT64)(lpCode + 2)) = (UINT64)lpData;
+		*((PUINT64)(lpCode + 12)) = (UINT64)pfnProc;
+#else
+		* ((PUINT32)(lpCode + 4)) = (UINT32)lpData;
+		*((PUINT32)(lpCode + 9)) = (UINT32)((UINT32)pfnProc - (UINT32)lpCode - 13);
 #endif // _WIN64
+
+		FlushInstructionCache(GetCurrentProcess(), lpData, len);
+		SetWindowLongPtrW(hWnd, GWLP_WNDPROC, (size_t)lpCode);
 	}
 	else
 		*nError = GetLastError();
@@ -617,18 +598,11 @@ int _wnd_dispatch_msg_obj(HWND hWnd, mempoolmsg_s* lpData, obj_s* pObj, UINT uMs
 	return ret;
 }
 
-size_t CALLBACK _wnd_proc(void* pData, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK _wnd_proc(EX_THUNK_DATA* pData, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-#ifdef _WIN64
-	HWND hWnd = (HWND)__get(pData, 22);
-	LONG64 pOld = (LONG64)__get(pData, 30);
-	wnd_s* pWnd = (wnd_s*)__get(pData, 38);
-#else
-	HWND hWnd = (HWND)__get_int(pData, 13);
-	LONG pOld = (LONG)__get_int(pData, 17);
-	wnd_s* pWnd = (wnd_s*)__get_int(pData, 21);
-#endif
-
+	HWND hWnd = pData->hWnd;
+	WNDPROC pOld = pData->Proc;
+	wnd_s* pWnd = (wnd_s*)pData->dwData;
 	MsgPROC pfnMsgProc = pWnd->pfnMsgProc_;
 	if (pfnMsgProc != 0)
 	{
@@ -656,7 +630,7 @@ size_t CALLBACK _wnd_proc(void* pData, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	else if (uMsg == WM_DESTROY)//2
 	{
-		SetWindowLongPtrW(hWnd, GWLP_WNDPROC, pOld);
+		SetWindowLongPtrW(hWnd, GWLP_WNDPROC, (size_t)pOld);
 		if (_wnd_destroy(hWnd, pWnd) != 0)
 		{
 			PostQuitMessage(0);
@@ -846,7 +820,7 @@ size_t CALLBACK _wnd_proc(void* pData, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		if (((pWnd->dwStyle_ & EWS_MESSAGEBOX) == EWS_MESSAGEBOX))
 		{
 			_msgbox_initdialog(hWnd, pWnd, wParam, lParam);
-			auto ret = CallWindowProcW((WNDPROC)pOld, hWnd, uMsg, wParam, lParam);
+			auto ret = CallWindowProcW(pOld, hWnd, uMsg, wParam, lParam);
 			SetFocus(hWnd);
 			return ret;
 		}
@@ -926,7 +900,7 @@ size_t CALLBACK _wnd_proc(void* pData, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				if (((pMenuTrackWnd->dwFlags_ & EWF_bTrackObject) == EWF_bTrackObject))
 				{
 					_wnd_obj_untrack(pMenuTrackWnd->hWnd_, pMenuTrackWnd, true);
-					return CallWindowProcW((WNDPROC)pOld, hWnd, 495, -1, 0);
+					return CallWindowProcW(pOld, hWnd, 495, -1, 0);
 				}
 			}
 		}
@@ -935,12 +909,12 @@ size_t CALLBACK _wnd_proc(void* pData, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		if (!_wnd_menu_mouse(hWnd, pWnd, WM_LBUTTONDOWN, 1, &wParam))
 		{
-			return CallWindowProcW((WNDPROC)pOld, hWnd, uMsg, -1, lParam);
+			return CallWindowProcW(pOld, hWnd, uMsg, -1, lParam);
 		}
 		
 		if (!((pWnd->dwFlags_ & EWF_bTrackObject) == EWF_bTrackObject))
 		{
-			return CallWindowProcW((WNDPROC)pOld, hWnd, uMsg, -1, lParam);
+			return CallWindowProcW(pOld, hWnd, uMsg, -1, lParam);
 		}
 	}
 	else if (uMsg == 495)//MN_BUTTONUP
@@ -948,14 +922,14 @@ size_t CALLBACK _wnd_proc(void* pData, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		_wnd_menu_mouse(hWnd, pWnd, WM_LBUTTONUP, 0, &wParam);
 		if (pWnd->objTrackPrev_ != pWnd->objHittest_)
 		{
-			return CallWindowProcW((WNDPROC)pOld, hWnd, uMsg, -1, lParam);
+			return CallWindowProcW(pOld, hWnd, uMsg, -1, lParam);
 		}
 	}
 	else if (uMsg == 497)//MN_BUTTONUP
 	{
 		return 0;
 	}
-	return CallWindowProcW((WNDPROC)pOld, hWnd, uMsg, wParam, lParam);
+	return CallWindowProcW(pOld, hWnd, uMsg, wParam, lParam);
 }
 
 int _wnd_create(EXHANDLE hExDui, wnd_s* pWnd, HWND hWnd, int dwStyle, theme_s* hTheme, LPARAM lParam, MsgPROC lpfnMsgProc)
@@ -1062,7 +1036,7 @@ int _wnd_create(EXHANDLE hExDui, wnd_s* pWnd, HWND hWnd, int dwStyle, theme_s* h
 
 	pWnd->hWndShadow_ = tmp3;
 	int nError = 0;
-	Thunkwindow(tmp3, _wnd_shadow_proc, (void*)(size_t)1, &nError);
+	Thunkwindow(tmp3, _wnd_shadow_proc, (void*)1, &nError);
 	//tips
 	HWND hWndTips = CreateWindowExW(WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_TOPMOST, L"tooltips_class32", 0, WS_POPUP, 0, 0, 0, 0, 0, 0, 0, 0);
 	SendMessageW(hWndTips, 1048, 0, 2048);//TTM_SETMAXTIPWIDTH 支持多行
@@ -1119,69 +1093,45 @@ int _wnd_create(EXHANDLE hExDui, wnd_s* pWnd, HWND hWnd, int dwStyle, theme_s* h
 	return nError;
 }
 
-size_t CALLBACK _wnd_tooltips_proc(void* pData, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK _wnd_tooltips_proc(EX_THUNK_DATA* pData, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-#ifdef _WIN64
-	HWND hWnd = (HWND)__get(pData, 22);
-	LONG64 pOld = (LONG64)__get(pData, 30);
-	wnd_s* pWnd = (wnd_s*)__get(pData, 38);
-#else
-	HWND hWnd = (HWND)__get_int(pData, 13);
-	LONG pOld = (LONG)__get_int(pData, 17);
-	wnd_s* pWnd = (wnd_s*)__get_int(pData, 21);
-#endif
+	HWND hWnd = pData->hWnd;
+	WNDPROC pOld = pData->Proc;
+	wnd_s* pWnd = (wnd_s*)pData->dwData;
 	if (uMsg == WM_DESTROY)
 	{
-		SetWindowLongPtrW(hWnd, GWLP_WNDPROC, pOld);
+		SetWindowLongPtrW(hWnd, GWLP_WNDPROC, (size_t)pOld);
 		VirtualFree(pData, 0, MEM_RELEASE);
 	}
 	else if (uMsg == WM_LBUTTONDOWN || uMsg == WM_RBUTTONDOWN)
 	{
-		lParam = CallWindowProcW((WNDPROC)pOld, hWnd, uMsg, wParam, lParam);
+		lParam = CallWindowProcW(pOld, hWnd, uMsg, wParam, lParam);
 		SendMessageW(hWnd, 1041, 0, (size_t)pWnd + offsetof(wnd_s, ti_track_));
 		return lParam;
 	}
-	return CallWindowProcW((WNDPROC)pOld, hWnd, uMsg, wParam, lParam);
+	return CallWindowProcW(pOld, hWnd, uMsg, wParam, lParam);
 }
 
-size_t CALLBACK _wnd_shadow_proc(void* pData, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK _wnd_shadow_proc(EX_THUNK_DATA* pData, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-#ifdef _WIN64
-	HWND hWnd = (HWND)__get(pData, 22);
-	LONG64 pOld = (LONG64)__get(pData, 30);
-	wnd_s* pWnd = (wnd_s*)__get(pData, 38);
-#else
-	HWND hWnd = (HWND)__get_int(pData, 13);
-	LONG pOld = (LONG)__get_int(pData, 17);
-	wnd_s* pWnd = (wnd_s*)__get_int(pData, 21);
-#endif
+
+	HWND hWnd = pData->hWnd;
+	size_t pOld = (size_t)pData->Proc;
+
 	if (uMsg == WM_NCACTIVATE)
 	{
-
 		size_t hWndParent = GetWindowLongPtrW(hWnd, GWLP_HWNDPARENT);
 		if (!(wParam == 0 && lParam == hWndParent))
 		{
-#if defined(_M_IX86)
-			if (__get_int(pData, 21) == wParam && lParam == 0)
+			if ((WPARAM)pData->dwData == wParam && lParam == 0)
 			{
 				SendMessageW((HWND)hWndParent, uMsg, 1, lParam);
 				SetFocus((HWND)hWndParent);
-				__set_int(pData, 21, 1);
+				pData->dwData = (void*)1;
 				return 0;
 			}
 			SendMessageW((HWND)hWndParent, uMsg, wParam, lParam);
-			__set_int(pData, 21, wParam);
-#elif defined(_M_AMD64)
-			if (__get(pData, 38) == wParam && lParam == 0)
-			{
-				SendMessageW((HWND)hWndParent, uMsg, 1, lParam);
-				SetFocus((HWND)hWndParent);
-				__set(pData, 38, 1);
-				return 0;
-			}
-			SendMessageW((HWND)hWndParent, uMsg, wParam, lParam);
-			__set(pData, 38, wParam);
-#endif
+			pData->dwData = (void*)wParam;
 		}
 	}
 	else if (uMsg == WM_DESTROY)

@@ -40,32 +40,26 @@ LRESULT _hook_oncreate(int code, HWND hWnd, size_t lParam)
 	}
 	else if (atomClass == 32768)
 	{
-		Thunkwindow(hWnd, &_menu_proc, 0, 0);
+		Thunkwindow(hWnd, _menu_proc, 0, 0);
 	}
 	return CallNextHookEx((HHOOK)g_Li.hHookMsgBox, code, (WPARAM)hWnd, lParam);
 }
 
-size_t _menu_proc(void* pData, UINT uMsg, size_t wParam, size_t lParam)
+LRESULT CALLBACK _menu_proc(EX_THUNK_DATA* pData, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-#if defined(_M_IX86)
-	HWND hWnd = (HWND)__get_int(pData, 13);
-	LONG pOld = (LONG)__get_int(pData, 17);
-	wnd_s* pWnd = (wnd_s*)__get_int(pData, 21);
-#elif defined(_M_AMD64)
-	HWND hWnd = (HWND)__get(pData, 22);
-	LONG64 pOld = (LONG64)__get(pData, 30);
-	wnd_s* pWnd = (wnd_s*)__get(pData, 38);
-#endif
+	HWND hWnd = pData->hWnd;
+	WNDPROC pOld = pData->Proc;
+	wnd_s* pWnd = (wnd_s *)pData->dwData;
 	if (uMsg == WM_DESTROY)
 	{
-		SetWindowLongPtrW(hWnd, -4, pOld);
+		SetWindowLongPtrW(hWnd, GWLP_WNDPROC, (size_t)pOld);
 		VirtualFree(pData, 0, MEM_RELEASE);
 	}
 	else if (uMsg == 482)//MN_SIZEWINDOW
 	{
 		_menu_init(hWnd);
 	}
-	return CallWindowProcW((WNDPROC)pOld, hWnd, uMsg, wParam, lParam);
+	return CallWindowProcW(pOld, hWnd, uMsg, wParam, lParam);
 }
 
 void _menu_init(HWND hWnd)

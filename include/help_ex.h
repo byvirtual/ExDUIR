@@ -63,6 +63,8 @@ struct slb_s;
 struct paintstruct_s;
 struct mempoolmsg_s;
 
+struct EX_THUNK_DATA;
+
 struct obj_base {
 	union {
 		EXHANDLE hexdui_;
@@ -76,8 +78,9 @@ struct obj_base {
 	theme_s* hTheme_;
 };
 
-typedef BOOL(*UpdateLayeredWindowIndirectPROC)(HWND, UPDATELAYEREDWINDOWINFO*);
-typedef size_t(*MsgPROC)(HWND, EXHANDLE, UINT, size_t, size_t, void*);
+typedef BOOL(CALLBACK* UpdateLayeredWindowIndirectPROC)(HWND, UPDATELAYEREDWINDOWINFO*);
+typedef size_t(CALLBACK* MsgPROC)(HWND, EXHANDLE, UINT, size_t, size_t, void*);
+typedef LRESULT(CALLBACK* ThunkPROC)(EX_THUNK_DATA* pData, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 #include "Array_ex.h"
 #include "Thread_ex.h"
