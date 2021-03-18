@@ -109,7 +109,7 @@ public:
     BOOL TxSetCaretPos(INT x, INT y) {
         obj_s* pObj = m_pOwner->pObj_;
         OffsetRect((LPRECT)&m_pOwner->rcCaret_left_, x, y);
-        if (FLAGS_CHECK(pObj->dwState_, 状态_焦点)) {
+        if (FLAGS_CHECK(pObj->dwState_, STATE_FOCUS)) {
             FLAGS_ADD(m_pOwner->flags_, eef_bCaretContext | eef_bShowCaret);
             FLAGS_DEL(m_pOwner->flags_, eef_bCaretShowed);
             _obj_invalidaterect(pObj, (LPRECT)&m_pOwner->rcCaret_left_, 0);
@@ -456,25 +456,25 @@ void _edit_setpropbits(obj_s *pObj, edit_s *pOwner) {
             }
         }
     }
-    if ((dwStyle & 编辑框风格_允许拖拽) == 0) {
+    if ((dwStyle & EES_DISABLEDRAG) == 0) {
         dwProperty = dwProperty | TXTBIT_DISABLEDRAG;
     }
-    if ((dwStyle & 编辑框风格_只读) != 0) {
+    if ((dwStyle & EES_READONLY) != 0) {
         dwProperty = dwProperty | TXTBIT_READONLY;
     }
-    if ((dwStyle & 编辑框风格_密码输入) != 0) {
+    if ((dwStyle & EES_USEPASSWORD) != 0) {
         dwProperty = dwProperty | TXTBIT_USEPASSWORD;
     }
-    if ((dwStyle & 编辑框风格_显示选择文本) == 0) {
+    if ((dwStyle & EES_HIDESELECTION) == 0) {
         dwProperty = dwProperty | TXTBIT_HIDESELECTION;
     }
-    if ((dwStyle & 编辑框风格_允许鸣叫) != 0) {
+    if ((dwStyle & EES_ALLOWBEEP) != 0) {
         dwProperty = dwProperty | TXTBIT_ALLOWBEEP;
     }
-    if ((dwStyle & 编辑框风格_丰富文本) != 0) {
+    if ((dwStyle & EES_RICHTEXT) != 0) {
         dwProperty = dwProperty | TXTBIT_RICHTEXT;
     }
-    if ((dwStyle & 编辑框风格_自动选择字符) != 0) {
+    if ((dwStyle & EES_AUTOWORDSEL) != 0) {
         dwProperty = dwProperty | TXTBIT_AUTOWORDSEL;
     }
     pOwner->dwPropBits_ = dwProperty;
@@ -578,10 +578,10 @@ void *_edit_its(obj_s *pObj) {
 }
 
 void _edit_contextmenu(HWND hWnd, wnd_s *pWnd, EXHANDLE hObj, obj_s *pObj, size_t wParam, int x, int y) {
-    if ((pObj->dwStyle_ & 编辑框风格_禁用右键默认菜单) == 编辑框风格_禁用右键默认菜单) {
+    if ((pObj->dwStyle_ & EES_DISABLEMENU) == EES_DISABLEMENU) {
         return;
     }
-    if ((pObj->dwStyle_ & 编辑框风格_密码输入) == 编辑框风格_密码输入) {
+    if ((pObj->dwStyle_ & EES_USEPASSWORD) == EES_USEPASSWORD) {
         return;
     }
     if (_obj_setfocus(hWnd, pWnd, hObj, pObj, true)) {
@@ -636,9 +636,9 @@ size_t _edit_paint(EXHANDLE hObj, obj_s *pObj) {
     if (Ex_ObjBeginPaint(hObj, &ps)) {
         int atom;
         void *pITS = (void *) __get(ps.dwOwnerData_, offsetof(edit_s, its_));
-        if ((ps.dwState_ & 状态_焦点) != 0) {
+        if ((ps.dwState_ & STATE_FOCUS) != 0) {
             atom = ATOM_FOCUS;
-        } else if ((ps.dwState_ & 状态_点燃) != 0) {
+        } else if ((ps.dwState_ & STATE_HOVER) != 0) {
             atom = ATOM_HOVER;
         } else {
             atom = ATOM_NORMAL;
@@ -658,7 +658,7 @@ size_t _edit_paint(EXHANDLE hObj, obj_s *pObj) {
             }
             if (bDrawBanner) {
                 bDrawBanner = false;
-                if (!((ps.dwState_ & 状态_焦点) != 0 && (ps.dwStyle_ & 编辑框风格_总是显示提示文本) == 0)) {
+                if (!((ps.dwState_ & STATE_FOCUS) != 0 && (ps.dwStyle_ & EES_SHOWTIPSALWAYS) == 0)) {
                     void *mDc = (void *) __get(ps.dwOwnerData_, offsetof(edit_s, prctext_));
                     int dt = 0;
                     if ((pObj->dwTextFormat_ & DT_SINGLELINE) == DT_SINGLELINE) {
@@ -685,7 +685,7 @@ size_t _edit_paint(EXHANDLE hObj, obj_s *pObj) {
                        0, 0, SRCPAINT);
                 _canvas_releasedc(ps.hCanvas_);
             }
-            if (!((pObj->dwStyle_ & 编辑框风格_隐藏插入符) == 编辑框风格_隐藏插入符)) {
+            if (!((pObj->dwStyle_ & EES_HIDDENCARET) == EES_HIDDENCARET)) {
                 if (!((((edit_s *) ps.dwOwnerData_)->flags_ & eef_bSelected) == eef_bSelected)) {
                     if ((((edit_s *) ps.dwOwnerData_)->flags_ & eef_bCaretContext) == eef_bCaretContext) {
                         if (!((((edit_s *) ps.dwOwnerData_)->flags_ & eef_bCaretShowed) == eef_bCaretShowed)) {
@@ -743,20 +743,20 @@ size_t _edit_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lPa
             return 1;
         }
     } else if (uMsg == WM_MOUSEHOVER) {
-        _obj_setuistate(pObj, 状态_点燃, false, 0, true, 0);
+        _obj_setuistate(pObj, STATE_HOVER, false, 0, true, 0);
     } else if (uMsg == WM_MOUSELEAVE) {
-        _obj_setuistate(pObj, 状态_点燃, true, 0, true, 0);
+        _obj_setuistate(pObj, STATE_HOVER, true, 0, true, 0);
     } else if (uMsg == WM_SETFOCUS) {
-        IME_Control(hWnd, pObj->pWnd_, !((pObj->dwStyle_ & 编辑框风格_密码输入) == 编辑框风格_密码输入));
+        IME_Control(hWnd, pObj->pWnd_, !((pObj->dwStyle_ & EES_USEPASSWORD) == EES_USEPASSWORD));
         ((ITextServices *) _edit_its(pObj))->OnTxUIActivate();
         bool ret;
         _edit_sendmessage(pObj, uMsg, 0, 0, &ret);
-        _obj_setuistate(pObj, 状态_焦点, false, 0, true, 0);
-        if (!((pObj->dwStyle_ & 编辑框风格_隐藏插入符) == 编辑框风格_隐藏插入符)) {
+        _obj_setuistate(pObj, STATE_FOCUS, false, 0, true, 0);
+        if (!((pObj->dwStyle_ & EES_HIDDENCARET) == EES_HIDDENCARET)) {
             SetTimer(hWnd, (size_t) pObj + TIMER_EDIT_CARET, 500, &_edit_timer_caret);
         }
     } else if (uMsg == WM_KILLFOCUS) {
-        if (!((pObj->dwStyle_ & 编辑框风格_隐藏插入符) == 编辑框风格_隐藏插入符)) {
+        if (!((pObj->dwStyle_ & EES_HIDDENCARET) == EES_HIDDENCARET)) {
             KillTimer(hWnd, (size_t) pObj + TIMER_EDIT_CARET);
             edit_s *pOwner = (edit_s *) _obj_pOwner(pObj);
             if ((pOwner->flags_ & (eef_bShowCaret | eef_bCaretContext)) == (eef_bShowCaret | eef_bCaretContext)) {
@@ -767,17 +767,17 @@ size_t _edit_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lPa
         bool ret;
         _edit_sendmessage(pObj, uMsg, 0, 0, &ret);
         ((ITextServices *) _edit_its(pObj))->OnTxUIDeactivate();
-        _obj_setuistate(pObj, 状态_焦点, true, 0, true, 0);
+        _obj_setuistate(pObj, STATE_FOCUS, true, 0, true, 0);
         DestroyCaret();
         IME_Control(hWnd, pObj->pWnd_, false);
     } else if (uMsg == WM_CHAR) {
-        if ((pObj->dwStyle_ & 编辑框风格_数值输入) == 编辑框风格_数值输入) {
+        if ((pObj->dwStyle_ & EES_NUMERICINPUT) == EES_NUMERICINPUT) {
             if (!(wParam > 44 && wParam < 58 && wParam != 47)) {
                 return 1;
             }
         }
         if (wParam == VK_TAB) {
-            if (!((pObj->dwStyle_ & 编辑框风格_允许TAB字符) == 编辑框风格_允许TAB字符)) {
+            if (!((pObj->dwStyle_ & EES_ALLOWTAB) == EES_ALLOWTAB)) {
                 return 1;
             }
         }

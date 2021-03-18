@@ -87,12 +87,12 @@ void _wnd_redraw_bkg(HWND hWnd, wnd_s* pWnd, void* lpRect, bool bRedrawBkg, bool
 	}
 }
 
-bool 窗口_查询风格(HWND hWnd, int dwStyle, bool bExStyle)
+bool _wnd_querystyle(HWND hWnd, int dwStyle, bool bExStyle)
 {
 	return (GetWindowLongPtrW(hWnd, bExStyle ? GWL_EXSTYLE : GWL_STYLE) & dwStyle) != 0;
 }
 
-bool 窗口_删除风格(HWND hWnd, int dwStyle, bool bExStyle)
+bool _wnd_delstyle(HWND hWnd, int dwStyle, bool bExStyle)
 {
 	auto ret = GetWindowLongPtrW(hWnd, bExStyle ? GWL_EXSTYLE : GWL_STYLE);
 	if ((ret & dwStyle) != 0)
@@ -104,7 +104,7 @@ bool 窗口_删除风格(HWND hWnd, int dwStyle, bool bExStyle)
 	return false;
 }
 
-bool 窗口_添加风格(HWND hWnd, int dwStyle, bool bExStyle)
+bool _wnd_addstyle(HWND hWnd, int dwStyle, bool bExStyle)
 {
 	auto ret = GetWindowLongPtrW(hWnd, bExStyle ? GWL_EXSTYLE : GWL_STYLE);
 	if ((ret & dwStyle) == 0)
@@ -115,12 +115,12 @@ bool 窗口_添加风格(HWND hWnd, int dwStyle, bool bExStyle)
 	return false;
 }
 
-LRESULT 窗口_默认回调(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT _wnd_defaultproc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	return DefWindowProcW(hWnd, uMsg, wParam, lParam);
 }
 
-size_t 窗口_取图标句柄(HWND hWnd, bool 大图标)
+size_t _wnd_geticonhandle(HWND hWnd, bool 大图标)
 {
 	size_t ret = SendMessageW(hWnd, 127, (大图标 ? 1 : 0), 0);
 	if (ret == 0)
@@ -175,7 +175,7 @@ void* Thunkwindow(HWND hWnd, ThunkPROC pfnProc, void* dwData, int* nError)
 	return lpData;
 }
 
-bool 窗口_取屏幕矩形(HWND hWnd, RECT* rcMonitor, RECT* rcDesk)
+bool _wnd_getscreenrect(HWND hWnd, RECT* rcMonitor, RECT* rcDesk)
 {
 	bool ret = false;
 	auto hMonitor = MonitorFromWindow(hWnd, 2);
@@ -201,7 +201,7 @@ bool 窗口_取屏幕矩形(HWND hWnd, RECT* rcMonitor, RECT* rcDesk)
 	return ret;
 }
 
-std::wstring 窗口_取标题(HWND hWnd)//OK
+std::wstring _wnd_gettitle(HWND hWnd)//OK
 {
 	auto len = SendMessageW(hWnd, WM_GETTEXTLENGTH, 0, 0);
 	len = (len + 1) * 2;
@@ -219,7 +219,7 @@ int Wnd_ClassToAtom(HWND hWnd)//OK
 	return Ex_Atom(ret.data());
 }
 
-int 窗口_取功能键() //OK
+int _wnd_getfunctionkeys() //OK
 {
 	int ret = 0;
 	if ((GetAsyncKeyState(VK_CONTROL) & 32768) != 0)
@@ -250,10 +250,10 @@ void Ex_WndCenterFrom(HWND hWnd, HWND hWndFrom, bool bFullScreen)
 	{
 		if (bFullScreen)
 		{
-			窗口_取屏幕矩形(hWnd, &rcParent);
+			_wnd_getscreenrect(hWnd, &rcParent);
 		}
 		else {
-			窗口_取屏幕矩形(hWnd, NULL, &rcParent);
+			_wnd_getscreenrect(hWnd, NULL, &rcParent);
 		}
 	}
 	else {
@@ -753,7 +753,7 @@ LRESULT CALLBACK _wnd_proc(EX_THUNK_DATA* pData, UINT uMsg, WPARAM wParam, LPARA
 			}
 		}
 		HWND hWndShadow = pWnd->hWndShadow_;
-		if (!窗口_查询风格(hWnd, WS_EX_TOPMOST, true))
+		if (!_wnd_querystyle(hWnd, WS_EX_TOPMOST, true))
 		{
 
 			SetWindowPos(hWndShadow, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW | SWP_NOSENDCHANGING | SWP_NOACTIVATE);
@@ -976,7 +976,7 @@ int _wnd_create(EXHANDLE hExDui, wnd_s* pWnd, HWND hWnd, int dwStyle, theme_s* h
 	size.cy = rcWindow.bottom - rcWindow.top;
 	int dwFlags = 0;
 
-	if (窗口_查询风格(hWnd, WS_EX_LAYERED, true) || (dwStyle & EWS_MESSAGEBOX) != 0)
+	if (_wnd_querystyle(hWnd, WS_EX_LAYERED, true) || (dwStyle & EWS_MESSAGEBOX) != 0)
 	{
 
 		dwFlags = EWF_bLayered;
@@ -1084,9 +1084,9 @@ int _wnd_create(EXHANDLE hExDui, wnd_s* pWnd, HWND hWnd, int dwStyle, theme_s* h
 
 		}
 
-		窗口_添加风格(hWnd, WS_THICKFRAME, false);//强制触发样式被修改事件
+		_wnd_addstyle(hWnd, WS_THICKFRAME, false);//强制触发样式被修改事件
 		Thunkwindow(hWnd, _wnd_proc, pWnd, &nError);
-		窗口_删除风格(hWnd, WS_THICKFRAME, false);
+		_wnd_delstyle(hWnd, WS_THICKFRAME, false);
 		IME_Control(hWnd, pWnd, false);
 	}
 
@@ -1407,7 +1407,7 @@ void _wnd_sysbutton_create(HWND hWnd, wnd_s* pWnd, int dwStyle)
 		}
 		else {
 
-			title = 窗口_取标题(hWnd);
+			title = _wnd_gettitle(hWnd);
 			lpTitle = (void*)title.data();
 		}
 
@@ -1967,7 +1967,7 @@ void _wnd_wm_size(wnd_s* pWnd, HWND hWnd, WPARAM wParam, int width, int height)
 		
 		if (((pWnd->dwStyle_ & EWS_MESSAGEBOX) == EWS_MESSAGEBOX))
 		{
-			窗口_添加风格(hWnd, WS_EX_LAYERED, true);
+			_wnd_addstyle(hWnd, WS_EX_LAYERED, true);
 		}
 		
 		if (((pWnd->dwStyle_ & EWS_MENU) == EWS_MENU))
@@ -2039,7 +2039,7 @@ void _wnd_menu_setpos(HWND hWnd, wnd_s* pWnd, tagWINDOWPOS* pos)
 			y = pObj->w_top_ + pMenuPrevWnd->top_ - __get_int(padding_client, 4);
 			GetWindowRect(hWnd, &rcParent);
 			int height = rcParent.bottom - rcParent.top - GetSystemMetrics(SM_CYFIXEDFRAME) * 2;
-			窗口_取屏幕矩形(hWnd, &rcParent);
+			_wnd_getscreenrect(hWnd, &rcParent);
 			if (y + height > rcParent.bottom)
 			{
 				y = pObj->w_bottom_ - height + __get_int(padding_client, 12);
@@ -2080,7 +2080,7 @@ void _wnd_menu_createitems(HWND hWnd, wnd_s* pWnd)
 	{
 		int width = pWnd->width_ - (rcPaddingClient.left + rcPaddingClient.right);
 		int height = pWnd->height_ - (rcPaddingClient.top + rcPaddingClient.bottom);
-		_obj_create_proc(NULL, false, hTheme, pParnet, EOS_EX_FOCUSABLE, ATOM_PAGE, 0, EOS_VISIBLE | EOS_VSCROLL | 条目风格_子菜单, rcPaddingClient.left, rcPaddingClient.top, width, height, 0, 0, 0, 0, 0);
+		_obj_create_proc(NULL, false, hTheme, pParnet, EOS_EX_FOCUSABLE, ATOM_PAGE, 0, EOS_VISIBLE | EOS_VSCROLL | EMIS_SUBMENU, rcPaddingClient.left, rcPaddingClient.top, width, height, 0, 0, 0, 0, 0);
 		_obj_create_done(hWnd, pWnd, objParent, pParnet);
 		EXHANDLE objPP = objParent;
 		EXHANDLE hLayout = _layout_create(ELT_ABSOLUTE, pWnd->hexdui_);
@@ -2115,12 +2115,12 @@ void _wnd_menu_createitems(HWND hWnd, wnd_s* pWnd)
 					{
 						if ((mii.fType & MFT_SEPARATOR) != 0)//分隔符
 						{
-							eos = eos | 条目风格_分隔符;
+							eos = eos | EMIS_SEPARATOR;
 						}
 						else {
 							if (mii.hSubMenu != 0)
 							{
-								eos = eos | 条目风格_子菜单;
+								eos = eos | EMIS_SUBMENU;
 							}
 						}
 					}
@@ -2315,7 +2315,7 @@ bool _wnd_wm_getminmaxinfo(wnd_s* pWnd, HWND hWnd, LPARAM lParam)
 {
 	RECT rcMonitor{ 0 }, rcDesk{ 0 };
 	bool ret = false;
-	if (窗口_取屏幕矩形(hWnd, &rcMonitor, &rcDesk))
+	if (_wnd_getscreenrect(hWnd, &rcMonitor, &rcDesk))
 	{
 		int width = pWnd->width_;
 		int height = pWnd->height_;
@@ -2650,7 +2650,7 @@ void _wnd_wm_keyboard(wnd_s* pWnd, HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 		}
 		else if (wParam == VK_SPACE)
 		{
-			if (窗口_取功能键() == 0)
+			if (_wnd_getfunctionkeys() == 0)
 			{
 				if (pObj != 0)
 				{
@@ -2660,7 +2660,7 @@ void _wnd_wm_keyboard(wnd_s* pWnd, HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 		}
 		else if (wParam == VK_RETURN)
 		{
-			if (窗口_取功能键() == 0)
+			if (_wnd_getfunctionkeys() == 0)
 			{
 				if (pObj != 0)
 				{
@@ -3086,7 +3086,7 @@ bool Ex_DUITrayIconSet(EXHANDLE hExDui, size_t hIcon, void* lpwzTips)
 		{
 			if (hIcon == 0)
 			{
-				hIcon = 窗口_取图标句柄(hWnd, false);
+				hIcon = _wnd_geticonhandle(hWnd, false);
 			}
 			void* lpNid = Ex_MemAlloc(sizeof(NOTIFYICONDATAW));
 			((NOTIFYICONDATAW*)lpNid)->cbSize = sizeof(NOTIFYICONDATAW);

@@ -36,9 +36,13 @@ struct edit_s
 	int rcCaret_bottom_;
 };
 
+//编辑框标识_显示光标
 #define eef_bShowCaret 1
+//编辑框标识_已显示光标
 #define eef_bCaretShowed 2
+//编辑框标识_上下文
 #define eef_bCaretContext 4
+//编辑框标识_选中
 #define eef_bSelected 8
 
 void _edit_init(HWND hWnd, EXHANDLE hObj, obj_s* pObj);

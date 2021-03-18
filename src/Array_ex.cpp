@@ -37,7 +37,7 @@ bool Array_Resize(array_s* pArray, int nCount, bool fGrowCount)
 	int nSize = pArray->nSize_;
 	if (nSize <= 0) nSize = 1;
 	float flGrow = pArray->flGrow_;
-	if (flGrow <= 数组默认增长系数) flGrow = (float)数组默认增长系数;
+	if (flGrow <= eaf_growthfactor) flGrow = (float)eaf_growthfactor;
 	while (nSize >= (int)(flGrow*nSize))
 	{
 		flGrow = flGrow + (float)0.1;
@@ -95,11 +95,11 @@ size_t Array_SetEvent(array_s* pArray, int nEvent, size_t index1, size_t pvValue
 	void* lpfnCbk = (void*)__get(pArray, offsetof(array_s, event_onAppend_) + (nEvent - 1) * sizeof(void*));
 
 	if (lpfnCbk == 0) return 0;
-	if (pArray->fDisableEvent_ != 0 && nEvent != 数组事件_比对成员) return 0;
+	if (pArray->fDisableEvent_ != 0 && nEvent != eae_comparemember) return 0;
 	int nCount = pArray->nCount_;
 	if (index1 <= 0 || index1 > nCount)
 	{
-		if (nEvent == 数组事件_添加成员 && index1 != nCount + 1 || nEvent == 数组事件_比对成员 && index1 != 0) return 0;
+		if (nEvent == eae_addmember && index1 != nCount + 1 || nEvent == eae_comparemember && index1 != 0) return 0;
 	}
 	auto pData = pArray->lpData_;
 	auto nType = pArray->nType_;
@@ -107,7 +107,7 @@ size_t Array_SetEvent(array_s* pArray, int nEvent, size_t index1, size_t pvValue
 	{
 		pvValue = __get(pData, index1 * sizeof(void*));
 	}
-	if (nEvent == 数组事件_比对成员)
+	if (nEvent == eae_comparemember)
 	{
 		if (index2 <= 0 || index2 > nCount) return 0;
 		return ((ArrayComparePROC)lpfnCbk)(pArray, index1, pvValue, index2, __get(pData, index2 * sizeof(void*)), nType, reasen);
@@ -120,7 +120,7 @@ size_t Array_SetEvent(array_s* pArray, int nEvent, size_t index1, size_t pvValue
 array_s* Array_Create(int count)
 {
 	array_s* pArray = (array_s *)Ex_MemAlloc(sizeof(array_s));
-	pArray->flGrow_ = (float)数组默认增长系数;
+	pArray->flGrow_ = (float)eaf_growthfactor;
 	pArray->event_onCompare_ = &Array_Compare;
 	void* pData = Ex_MemAlloc(8 + sizeof(void*));
 	pArray->lpData_ = (void*)((size_t)pData + 8);
@@ -134,7 +134,7 @@ bool Array_Destroy(array_s* pArray)
 	if (Array_IsLegal(pArray) == false) return false;
 	for (int index = 0; index < pArray->nCount_; index++)
 	{
-		Array_SetEvent(pArray, 数组事件_删除成员, index);
+		Array_SetEvent(pArray, eae_delmember, index);
 	}
 	auto pData = pArray->lpData_;
 	if (pData != 0) Ex_MemFree((void*)((size_t)pData - 8));
@@ -151,7 +151,7 @@ size_t Array_AddMember(array_s* pArray, size_t value, size_t index)
 	Array_Resize(pArray, 1, true);
 	auto pData = pArray->lpData_;
 	if (nCount > 0) RtlMoveMemory((void*)((size_t)pData + index * sizeof(void*)), (void*)((size_t)pData + index * sizeof(void*)), (nCount - index) * sizeof(void*));
-	auto pRet = Array_SetEvent(pArray, 数组事件_添加成员, index, value);
+	auto pRet = Array_SetEvent(pArray, eae_addmember, index, value);
 	if (pRet == 0) pRet = value;
 	__set(pData, index * sizeof(void*), pRet);
 	return index;
@@ -160,7 +160,7 @@ size_t Array_AddMember(array_s* pArray, size_t value, size_t index)
 bool Array_DelMember(array_s* pArray, size_t index)
 {
 	if (Array_IsLegal(pArray) == false) return false;
-	Array_SetEvent(pArray, 数组事件_删除成员, index);
+	Array_SetEvent(pArray, eae_delmember, index);
 	auto pData = pArray->lpData_;
 	auto nCount = pArray->nCount_;
 	RtlMoveMemory((void*)((size_t)pData + index * sizeof(void*)), (void*)((size_t)pData + index * sizeof(void*)), (nCount - index) * sizeof(void*));
@@ -177,7 +177,7 @@ bool Array_Redefine(array_s* pArray, int size, bool beKeep)
 	{
 		for (int index = nStart; index < nCount; index++)
 		{
-			Array_SetEvent(pArray, 数组事件_删除成员, index);
+			Array_SetEvent(pArray, eae_delmember, index);
 		}
 	}
 	Array_Resize(pArray, size, false);
@@ -199,7 +199,7 @@ int Array_GetCount(array_s* pArray)
 bool Array_SetMember(array_s* pArray, size_t index, size_t value)
 {
 	if (Array_IsLegal(pArray) == false) return false;
-	auto pvItem = Array_SetEvent(pArray, 数组事件_设置成员, index, value);
+	auto pvItem = Array_SetEvent(pArray, eae_setmember, index, value);
 	if (pvItem == 0) pvItem = value;
 	__set(pArray->lpData_, index * sizeof(void*), pvItem);
 	return true;
@@ -208,7 +208,7 @@ bool Array_SetMember(array_s* pArray, size_t index, size_t value)
 size_t Array_GetMember(array_s* pArray, size_t index)
 {
 	if (Array_IsLegal(pArray) == false) return false;
-	auto pvItem = Array_SetEvent(pArray, 数组事件_获取成员, index);
+	auto pvItem = Array_SetEvent(pArray, eae_getmember, index);
 
 	if (pvItem == 0) pvItem = __get(pArray->lpData_, index * sizeof(void*));
 	return pvItem;
@@ -219,7 +219,7 @@ void* Array_BindEvent(array_s* pArray, int event, void* fun)
 	if (Array_IsLegal(pArray) == false) return 0;
 	if (event <= 0 || event > 5) return 0;
 	auto lpfnOld = __get(pArray, offsetof(array_s, event_onAppend_) + (event - 1) * sizeof(void*));
-	if (fun == 0 && event == 数组事件_比对成员) fun = &Array_Compare;
+	if (fun == 0 && event == eae_comparemember) fun = &Array_Compare;
 	__set(pArray, offsetof(array_s, event_onAppend_) + (event - 1) * sizeof(void*), (size_t)fun);
 	return (void*)lpfnOld;
 }

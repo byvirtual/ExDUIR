@@ -170,9 +170,9 @@ void _msgbox_initdialog(HWND hWnd, wnd_s* pWnd, size_t wParam, size_t lParam)
 
 		}
 		else {
-			aryText.push_back(窗口_取标题(hWndChild));
+			aryText.push_back(_wnd_gettitle(hWndChild));
 			aryID.push_back(i);
-			if (窗口_查询风格(hWndChild, BS_DEFPUSHBUTTON, false))  iDef = i;
+			if (_wnd_querystyle(hWndChild, BS_DEFPUSHBUTTON, false))  iDef = i;
 		}
 		DestroyWindow(hWndChild);
 		hWndChild = GetWindow(hWnd, GW_CHILD);

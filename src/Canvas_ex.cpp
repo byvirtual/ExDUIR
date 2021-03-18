@@ -802,7 +802,7 @@ bool _canvas_calctextsize_ex(canvas_s* pCanvas, font_s* pFont, LPCWSTR lpwzText,
 		((IDWriteTextLayout*)pLayout)->SetParagraphAlignment(PALIGNMENT);
 		if (nPreFix != 0)
 		{
-			DWRITE_TEXT_RANGE rangea = { nPreFix / 2,1 };
+			DWRITE_TEXT_RANGE rangea = { (UINT32)nPreFix / 2,1 };
 			((IDWriteTextLayout*)pLayout)->SetUnderline(true, rangea);
 		}
 	}

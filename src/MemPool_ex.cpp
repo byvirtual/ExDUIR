@@ -40,7 +40,7 @@ BOOL MemPool_Destroy(mempool_s* hMemPool)
 	if (LocalSize(hMemPool) == sizeof(mempool_s))
 	{
 		void* hHeap = hMemPool->hHeap;
-		if (hHeap > 0)
+		if (hHeap)
 		{
 			HeapDestroy(hHeap);
 		}
@@ -78,7 +78,7 @@ void* MemPool_GetNextEntry(mempool_s* hMemPool, entry_s* pEntry)
 size_t MemPool_GetIndexFromAddrsss(mempool_s* hMemPool, void* lpAddress)
 {
 	size_t ret = 0;
-	if (hMemPool > 0 && lpAddress > 0)
+	if (hMemPool  && lpAddress )
 	{
 		if ((hMemPool->dwFlags & 1) == 1)
 		{
@@ -91,7 +91,7 @@ size_t MemPool_GetIndexFromAddrsss(mempool_s* hMemPool, void* lpAddress)
 void* MemPool_GetAddressFromIndex(mempool_s* hMemPool, size_t nIndex)
 {
 	void* ret = nullptr;
-	if (hMemPool > 0 && nIndex > 0)
+	if (hMemPool  && nIndex > 0)
 	{
 		if ((hMemPool->dwFlags & 1) == 1)
 		{
@@ -108,7 +108,7 @@ void* MemPool_GetAddressFromIndex(mempool_s* hMemPool, size_t nIndex)
 BOOL MemPool_AddressIsUsed(void* lpAddress)
 {
 	BOOL ret = false;
-	if (lpAddress > 0)
+	if (lpAddress)
 	{
 		mempoolheader_s* pEntry = (mempoolheader_s*)((size_t)lpAddress - sizeof(mempoolheader_s));
 		ret = ((((mempoolheader_s*)pEntry)->dwFlags & mpbf_used) == mpbf_used);
@@ -119,7 +119,7 @@ BOOL MemPool_AddressIsUsed(void* lpAddress)
 void* MemPool_Alloc(mempool_s* hMemPool, BOOL fZero)
 {
 	void* ret = nullptr;
-	if (hMemPool > 0)
+	if (hMemPool)
 	{
 		void* cs = hMemPool->cs;
 		Thread_EnterCriticalSection(cs);
@@ -127,7 +127,7 @@ void* MemPool_Alloc(mempool_s* hMemPool, BOOL fZero)
 		mempoolheader_s* pEntry = hMemPool->pEntry;
 		if (pEntry == 0)
 		{
-			if (!((hMemPool->dwFlags & 内存池标记_禁止超出最大数量) == 内存池标记_禁止超出最大数量))
+			if (!((hMemPool->dwFlags & mpbs_maximum) == mpbs_maximum))
 			{
 				ret = HeapAlloc(hMemPool->hHeap, fZero ? HEAP_ZERO_MEMORY : 0, nBlock);
 				if (ret != nullptr)
@@ -159,12 +159,12 @@ void* MemPool_Alloc(mempool_s* hMemPool, BOOL fZero)
 BOOL MemPool_Free(mempool_s* hMemPool, void* lpAddress)
 {
 	BOOL ret = false;
-	if (hMemPool > 0 && lpAddress > 0)
+	if (hMemPool && lpAddress)
 	{
 		void* cs = hMemPool->cs;
 		Thread_EnterCriticalSection(cs);
 		mempoolheader_s* pEntry = (mempoolheader_s*)((size_t)lpAddress - sizeof(mempoolheader_s));
-		if (pEntry > 0)
+		if (pEntry)
 		{
 			if ((((mempoolheader_s*)pEntry)->dwFlags & mpbf_used) == mpbf_used)
 			{

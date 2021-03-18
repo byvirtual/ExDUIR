@@ -19,14 +19,14 @@ size_t _button_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t l
 			{
 				_obj_dispatchnotify(hWnd, pObj, hObj, 0, NM_CLICK, wParam, lParam);
 			}
-			if ((pObj->dwStyle_ & (按钮风格_复选按钮 | 按钮风格_单选按钮)) != 0)
+			if ((pObj->dwStyle_ & (EBS_CHECKBUTTON | EBS_RADIOBUTTON)) != 0)
 			{
-				if ((pObj->dwStyle_ & 按钮风格_复选按钮) == 按钮风格_复选按钮)
+				if ((pObj->dwStyle_ & EBS_CHECKBUTTON) == EBS_CHECKBUTTON)
 				{
-					_obj_baseproc(hWnd, hObj, pObj, BM_SETCHECK, !((pObj->dwState_ & 状态_选中) == 状态_选中), 0);
+					_obj_baseproc(hWnd, hObj, pObj, BM_SETCHECK, !((pObj->dwState_ & STATE_CHECKED) == STATE_CHECKED), 0);
 				}
 				else {
-					if (!((pObj->dwState_ & 状态_选中) == 状态_选中))
+					if (!((pObj->dwState_ & STATE_CHECKED) == STATE_CHECKED))
 					{
 						_obj_baseproc(hWnd, hObj, pObj, BM_SETCHECK, 1, 0);
 					}
@@ -40,22 +40,22 @@ size_t _button_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t l
 	else if (uMsg == WM_MOUSEHOVER)
 	{
 		int nError = 0;
-		_obj_setuistate(pObj, 状态_点燃, false, 0, true, &nError);
+		_obj_setuistate(pObj, STATE_HOVER, false, 0, true, &nError);
 	}
 	else if (uMsg == WM_MOUSELEAVE)
 	{
 		int nError = 0;
-		_obj_setuistate(pObj, 状态_点燃 | 状态_按下, true, 0, true, &nError);
+		_obj_setuistate(pObj, STATE_HOVER | STATE_DOWN, true, 0, true, &nError);
 	}
 	else if (uMsg == WM_LBUTTONDOWN)
 	{
 		int nError = 0;
-		_obj_setuistate(pObj, 状态_按下, false, 0, true, &nError);
+		_obj_setuistate(pObj, STATE_DOWN, false, 0, true, &nError);
 	}
 	else if (uMsg == WM_LBUTTONUP)
 	{
 		int nError = 0;
-		_obj_setuistate(pObj, 状态_按下, true, 0, true, &nError);
+		_obj_setuistate(pObj, STATE_DOWN, true, 0, true, &nError);
 	}
 	else if (uMsg == WM_SETFOCUS)
 	{
@@ -69,13 +69,13 @@ size_t _button_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t l
 	}
 	else if (uMsg == BM_SETCHECK)
 	{
-		if ((pObj->dwStyle_ & (按钮风格_单选按钮 | 按钮风格_复选按钮)) != 0)
+		if ((pObj->dwStyle_ & (EBS_RADIOBUTTON | EBS_CHECKBUTTON)) != 0)
 		{
-			if ((pObj->dwStyle_ & 按钮风格_单选按钮) == 按钮风格_单选按钮)
+			if ((pObj->dwStyle_ & EBS_RADIOBUTTON) == EBS_RADIOBUTTON)
 			{
 				if (wParam == 0)
 				{
-					if (!((pObj->dwState_ & 状态_选中) == 状态_选中))
+					if (!((pObj->dwState_ & STATE_CHECKED) == STATE_CHECKED))
 					{
 						return 0;
 					}
@@ -87,27 +87,27 @@ size_t _button_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t l
 			}
 			else
 			{
-				if ((pObj->dwStyle_ & 按钮风格_复选按钮) == 按钮风格_复选按钮)
+				if ((pObj->dwStyle_ & EBS_CHECKBUTTON) == EBS_CHECKBUTTON)
 				{
-					_obj_setuistate(pObj, 状态_半选中 | 状态_选择, true, 0, false, 0);
+					_obj_setuistate(pObj, STATE_HALFSELECT | STATE_SELECT, true, 0, false, 0);
 					if (wParam == 2)
 					{
-						_obj_setuistate(pObj, 状态_半选中, false, 0, true, 0);
+						_obj_setuistate(pObj, STATE_HALFSELECT, false, 0, true, 0);
 						return 0;
 					}
 				}
 			}
-			_obj_setuistate(pObj, 状态_选中, wParam == 0, 0, true, 0);
+			_obj_setuistate(pObj, STATE_CHECKED, wParam == 0, 0, true, 0);
 			_obj_dispatchnotify(hWnd, pObj, hObj, 0, NM_CHECK, wParam, lParam);
 		}
 	}
 	else if (uMsg == BM_GETCHECK)
 	{
-		if ((pObj->dwState_ & 状态_半选中) == 状态_半选中)
+		if ((pObj->dwState_ & STATE_HALFSELECT) == STATE_HALFSELECT)
 		{
 			return 2;
 		}
-		else if ((pObj->dwState_ & 状态_选中) == 状态_选中)
+		else if ((pObj->dwState_ & STATE_CHECKED) == STATE_CHECKED)
 		{
 			return 1;
 		}
@@ -123,19 +123,19 @@ void _button_paint(EXHANDLE hObj, obj_s* pObj)
 	paintstruct_s ps = { 0 };
 	if (Ex_ObjBeginPaint(hObj, &ps))
 	{
-		bool fButton = (ps.dwStyle_ & (按钮风格_单选按钮 | 按钮风格_复选按钮)) == 0;
+		bool fButton = (ps.dwStyle_ & (EBS_RADIOBUTTON | EBS_CHECKBUTTON)) == 0;
 		int atomClass;
 		int atomProp;
 		int nIndex;
 		if (fButton)
 		{
 			atomClass = ATOM_BUTTON;
-			if ((ps.dwState_ & 状态_按下) != 0)
+			if ((ps.dwState_ & STATE_DOWN) != 0)
 			{
 				atomProp = ATOM_DOWN;
 				nIndex = COLOR_EX_TEXT_DOWN;
 			}
-			else if ((ps.dwState_ & 状态_点燃) != 0)
+			else if ((ps.dwState_ & STATE_HOVER) != 0)
 			{
 				atomProp = ATOM_HOVER;
 				nIndex = COLOR_EX_TEXT_HOVER;
@@ -148,7 +148,7 @@ void _button_paint(EXHANDLE hObj, obj_s* pObj)
 			if ((ps.dwStyleEx_ & EOS_EX_CUSTOMDRAW) == 0)
 			{
 				Ex_ThemeDrawControl(ps.hTheme_, ps.hCanvas_, 0, 0, ps.width_, ps.height_, atomClass, atomProp, 255);
-				if ((ps.dwState_ & 状态_焦点) != 0)
+				if ((ps.dwState_ & STATE_FOCUS) != 0)
 				{
 					Ex_ThemeDrawControl(ps.hTheme_, ps.hCanvas_, 0, 0, ps.width_, ps.height_, atomClass, ATOM_FOCUS, 255);
 				}
@@ -156,19 +156,19 @@ void _button_paint(EXHANDLE hObj, obj_s* pObj)
 		}
 		else
 		{
-			fButton = (ps.dwStyle_ & 按钮风格_单选按钮) != 0;
+			fButton = (ps.dwStyle_ & EBS_RADIOBUTTON) != 0;
 			atomClass = fButton ? ATOM_RADIOBUTTON : ATOM_CHECKBUTTON;
-			if ((ps.dwState_ & 状态_按下) != 0)
+			if ((ps.dwState_ & STATE_DOWN) != 0)
 			{
 				atomProp = _button_getprop(ps.dwState_, fButton, ATOM_DOWN, ATOM_CHECK_DOWN, ATOM_HALF_DOWN);
 				nIndex = COLOR_EX_TEXT_DOWN;
 			}
-			else if ((ps.dwState_ & 状态_点燃) != 0)
+			else if ((ps.dwState_ & STATE_HOVER) != 0)
 			{
 				atomProp = _button_getprop(ps.dwState_, fButton, ATOM_HOVER, ATOM_CHECK_HOVER, ATOM_HALF_HOVER);
 				nIndex = COLOR_EX_TEXT_HOVER;
 			}
-			else if ((ps.dwState_ & 状态_焦点) != 0)
+			else if ((ps.dwState_ & STATE_FOCUS) != 0)
 			{
 				atomProp = _button_getprop(ps.dwState_, fButton, ATOM_FOCUS, ATOM_CHECK_FOCUS, ATOM_HALF_FOCUS);
 				nIndex = COLOR_EX_TEXT_NORMAL;
@@ -179,7 +179,7 @@ void _button_paint(EXHANDLE hObj, obj_s* pObj)
 				nIndex = COLOR_EX_TEXT_NORMAL;
 			}
 
-			if ((ps.dwState_ & 状态_选中) != 0)
+			if ((ps.dwState_ & STATE_CHECKED) != 0)
 			{
 				nIndex = COLOR_EX_TEXT_CHECKED;
 			}
@@ -192,7 +192,7 @@ void _button_paint(EXHANDLE hObj, obj_s* pObj)
 		void* lptext = pObj->pstrTitle_;
 		if (lptext != 0)
 		{
-			if ((ps.dwState_ & 状态_按下) != 0 && (ps.dwStyle_ & 按钮风格_文本偏移) != 0)
+			if ((ps.dwState_ & STATE_DOWN) != 0 && (ps.dwStyle_ & EBS_TEXTOFFSET) != 0)
 			{
 				OffsetRect((LPRECT)&ps.t_left_, Ex_Scale(1), Ex_Scale(1));
 			}
@@ -207,15 +207,15 @@ int _button_getprop(int state, bool fRadio, int atom_src, int atom_check, int at
 	int atomProp;
 	if (fRadio)
 	{
-		atomProp = (state & 状态_选中) != 0 ? atom_check : atom_src;
+		atomProp = (state & STATE_CHECKED) != 0 ? atom_check : atom_src;
 	}
 	else
 	{
-		if ((state & 状态_半选中) != 0)
+		if ((state & STATE_HALFSELECT) != 0)
 		{
 			atomProp = atom_half;
 		}
-		else if ((state & 状态_选中) != 0)
+		else if ((state & STATE_CHECKED) != 0)
 		{
 			atomProp = atom_check;
 		}
@@ -231,11 +231,11 @@ void _item_click(HWND hWnd, obj_s* pObj)
 {
 	if ((pObj->dwFlags_ & eof_bMenuItem) == eof_bMenuItem)
 	{
-		if ((pObj->dwStyle_ & 条目风格_分隔符) == 条目风格_分隔符)
+		if ((pObj->dwStyle_ & EMIS_SEPARATOR) == EMIS_SEPARATOR)
 		{
 
 		}
-		else if ((pObj->dwStyle_ & 条目风格_子菜单) == 条目风格_子菜单)
+		else if ((pObj->dwStyle_ & EMIS_SUBMENU) == EMIS_SUBMENU)
 		{
 
 		}
@@ -290,12 +290,12 @@ void _item_draw(obj_s* pObj, paintstruct_s ps, int crColor, void* lpText)
 			Ex_ThemeDrawControlEx(ps.hTheme_, ps.hCanvas_, rcItem.left, rcItem.top, rcItem.right, rcItem.bottom, ATOM_ITEM, ATOM_SEPARATOR, 0, 0, 0, 0, 255);
 		}
 		else {
-			bool fHover = ((ps.dwState_ & 状态_点燃) != 0 && (mii.fState & MFS_GRAYED) == 0) || ((mii.fState & MFS_HILITE) != 0 && mii.hSubMenu != 0);
+			bool fHover = ((ps.dwState_ & STATE_HOVER) != 0 && (mii.fState & MFS_GRAYED) == 0) || ((mii.fState & MFS_HILITE) != 0 && mii.hSubMenu != 0);
 
 			int alpha = 255;
 			if (fHover)
 			{
-				pObj->dwState_ = pObj->dwState_ | 状态_点燃;
+				pObj->dwState_ = pObj->dwState_ | STATE_HOVER;
 			}
 			if ((mii.fState & MFS_GRAYED) == 0)
 			{
@@ -394,17 +394,17 @@ void _item_paint(EXHANDLE hObj, obj_s* pObj)
 		int nIndex = COLOR_EX_TEXT_NORMAL;
 		int atomProp = 0;
 		
-		if ((ps.dwState_ & 状态_点燃) != 0)
+		if ((ps.dwState_ & STATE_HOVER) != 0)
 		{
 			atomProp = ATOM_HOVER;
 			nIndex = COLOR_EX_TEXT_HOVER;
 		}
 		else {
-			if ((ps.dwState_ & 状态_选中) != 0)
+			if ((ps.dwState_ & STATE_CHECKED) != 0)
 			{
 				nIndex = COLOR_EX_TEXT_CHECKED;
 			}
-			if ((ps.dwState_ & 状态_选择) != 0)
+			if ((ps.dwState_ & STATE_SELECT) != 0)
 			{
 				atomProp = ATOM_SELECT;
 			}
@@ -453,27 +453,27 @@ size_t _item_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lPa
 	}
 	else if (uMsg == WM_MOUSELEAVE)
 	{
-		if ((pObj->dwState_ & 状态_点燃) == 状态_点燃)
+		if ((pObj->dwState_ & STATE_HOVER) == STATE_HOVER)
 		{
 			_obj_killfocus(hObj, pObj, true);
-			_obj_setuistate(pObj, 状态_点燃 | 状态_按下, true, 0, true, 0);
+			_obj_setuistate(pObj, STATE_HOVER | STATE_DOWN, true, 0, true, 0);
 		}
 	}
 	else if (uMsg == WM_LBUTTONDOWN)
 	{
-		_obj_setuistate(pObj, 状态_按下, false, 0, true, 0);
+		_obj_setuistate(pObj, STATE_DOWN, false, 0, true, 0);
 	}
 	else if (uMsg == WM_LBUTTONUP)
 	{
-		_obj_setuistate(pObj, 状态_按下, true, 0, true, 0);
+		_obj_setuistate(pObj, STATE_HOVER, true, 0, true, 0);
 	}
 	else if (uMsg == WM_SETFOCUS)
 	{
-		_obj_setuistate(pObj, 状态_点燃, false, 0, true, 0);
+		_obj_setuistate(pObj, STATE_HOVER, false, 0, true, 0);
 	}
 	else if (uMsg == WM_KILLFOCUS)
 	{
-		_obj_setuistate(pObj, 状态_点燃 | 状态_按下, true, 0, true, 0);
+		_obj_setuistate(pObj, STATE_HOVER | STATE_DOWN, true, 0, true, 0);
 	}
 	return Ex_ObjDefProc(hWnd, hObj, uMsg, wParam, lParam);
 }

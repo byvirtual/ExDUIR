@@ -138,7 +138,7 @@ int list_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam,
 			
 			if (ni.nCode == NM_CALCSIZE)
 			{
-				调试输出(L"改变高度",__get_int((void*)ni.lParam, 4));
+				output(L"改变高度",__get_int((void*)ni.lParam, 4));
 				__set_int((void*)ni.lParam, 4, 25);
 				
 				*lpResult = 1;
@@ -153,11 +153,11 @@ int list_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam,
 				{
 					
 					int crItemBkg = 0;
-					if ((cd.dwState & 状态_选择) != 0)
+					if ((cd.dwState & STATE_SELECT) != 0)
 					{
 						crItemBkg = ExRGB2ARGB(16777215, 255);
 					}
-					else if ((cd.dwState & 状态_点燃) != 0)
+					else if ((cd.dwState & STATE_HOVER) != 0)
 					{
 						crItemBkg = ExRGB2ARGB(16777215, 150);
 					}
@@ -174,7 +174,8 @@ int list_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam,
 			}
 			else if (ni.nCode == LVN_ITEMCHANGED)
 			{
-				调试输出(L"改变选中");
+				//wParam 新选中项,lParam 旧选中项
+				output(L"改变选中",  ni.idFrom, ni.wParam, ni.lParam);
 			}
 		}
 	}
@@ -216,11 +217,11 @@ void 测试窗口()
 
 		//编辑框
 		LPCWSTR class_edit = L"edit";
-		EXHANDLE edit = Ex_ObjCreateEx(EOS_EX_FOCUSABLE, (void*)class_edit, (void*)title, EOS_VISIBLE | 编辑框风格_显示选择文本, 10, 170, 100, 30, hExDui, 0, DT_VCENTER, 0, 0, NULL);
+		EXHANDLE edit = Ex_ObjCreateEx(EOS_EX_FOCUSABLE, (void*)class_edit, (void*)title, EOS_VISIBLE | EES_HIDESELECTION, 10, 170, 100, 30, hExDui, 0, DT_VCENTER, 0, 0, NULL);
 
 		//列表框
 		LPCWSTR class_list = L"listview";
-		EXHANDLE listview = Ex_ObjCreateEx(-1, (void*)class_list, (void*)title, EOS_VISIBLE  | 列表风格_纵向列表 | EOS_VSCROLL, 130, 30, 150, 200, hExDui, 0, -1, 0, 0, &list_proc);
+		EXHANDLE listview = Ex_ObjCreateEx(-1, (void*)class_list, (void*)title, EOS_VISIBLE  | ELS_VERTICALLIST | EOS_VSCROLL, 130, 30, 150, 200, hExDui, 0, -1, 0, 0, &list_proc);
 		Ex_ObjSetColor(listview, COLOR_EX_BACKGROUND, ExRGB2ARGB(16711680, 50), true);
 		Ex_ObjSendMessage(listview, LVM_SETITEMCOUNT, 100, 100);
 		//信息框

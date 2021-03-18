@@ -65,7 +65,7 @@ EXHANDLE _layout_create(int nType, EXHANDLE hObjBind)
 					nCount = ((LayoutPROC)lpfnProc)(NULL, ELN_GETCHILDPROPCOUNT, NULL, NULL);
 					pLayout->cbInfoLen_ = (nCount + 5) * 4;
 					array_s* hArr = Array_Create(0);
-					Array_BindEvent(hArr, 数组事件_删除成员, &_layout_free_info);
+					Array_BindEvent(hArr, eae_delmember, &_layout_free_info);
 					Array_SetExtra(hArr, (size_t)pLayout);
 					pLayout->hArrChildrenInfo_ = hArr;
 					hLayout = _handle_create(HT_LAYOUT, pLayout, &nError);

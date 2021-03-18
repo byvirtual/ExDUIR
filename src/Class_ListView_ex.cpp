@@ -20,7 +20,7 @@ void _lv_updatesbvalue(EXHANDLE hObj, obj_s* pObj, listview_s* pOwner, void* lpR
 	RtlMoveMemory(&rcClient, lpRcClient, 16);
 	int width = rcClient.right - rcClient.left;
 	int height = rcClient.bottom - rcClient.top;
-	bool bHView = ((pObj->dwStyle_ & 列表风格_横向列表) == 列表风格_横向列表);
+	bool bHView = ((pObj->dwStyle_ & ELS_HORIZONTALLIST) == ELS_HORIZONTALLIST);
 	int nCount = pOwner->count_items_;
 	int iWidth = pOwner->width_item_ + pOwner->width_split_;
 	int iHeight = pOwner->height_item_ + pOwner->height_split_;
@@ -202,7 +202,7 @@ int _lv_itemfrompos(obj_s* pObj, listview_s* pOwner, int x, int y, int* offsetPo
 		int offsety = 0;
 		int offsetx = 0;
 		int realtop = 0;
-		if ((pObj->dwStyle_ & 列表风格_横向列表) == 列表风格_横向列表)
+		if ((pObj->dwStyle_ & ELS_HORIZONTALLIST) == ELS_HORIZONTALLIST)
 		{
 			realleft = x - rcClient.left + lv.nOffsetX_;
 			offsetx = realleft % nWidth;
@@ -215,7 +215,7 @@ int _lv_itemfrompos(obj_s* pObj, listview_s* pOwner, int x, int y, int* offsetPo
 					int tmp = realtop / nHeight;
 					if (tmp < lv.count_view_v_)
 					{
-						uItem = (realleft / nWidth) * lv.count_view_v_ + tmp + 1;
+						uItem = (realleft / nWidth) * lv.count_view_v_ + tmp +1;
 						if (uItem > lv.count_items_)
 						{
 							uItem = 0;
@@ -240,7 +240,7 @@ int _lv_itemfrompos(obj_s* pObj, listview_s* pOwner, int x, int y, int* offsetPo
 					int tmp = realleft / nWidth;
 					if (tmp < lv.count_view_h_)
 					{
-						uItem = (realtop / nHeight) * lv.count_view_h_ + tmp + 1;
+						uItem = (realtop / nHeight) * lv.count_view_h_ + tmp +1;
 						if (uItem > lv.count_items_)
 						{
 							uItem = 0;
@@ -314,7 +314,7 @@ void _lv_redrawitem(obj_s* pObj, listview_s* pOwner, int iItem)
 	{
 		RECT rcItem{ 0 };
 		int nError = 0;
-		_lv_rectfromiitem(pObj, pOwner, iItem, (pObj->dwStyle_ & 列表风格_横向列表) == 列表风格_横向列表, &rcItem);
+		_lv_rectfromiitem(pObj, pOwner, iItem, (pObj->dwStyle_ & ELS_HORIZONTALLIST) == ELS_HORIZONTALLIST, &rcItem);
 		_obj_invalidaterect(pObj, &rcItem, &nError);
 	}
 }
@@ -322,7 +322,7 @@ void _lv_redrawitem(obj_s* pObj, listview_s* pOwner, int iItem)
 size_t _lv_setitemcount(HWND hWnd, EXHANDLE hObj, obj_s* pObj, int nCount, size_t lParam)
 {
 	listview_s* pOwner = (listview_s*)_obj_pOwner(pObj);
-	bool bHView = (pObj->dwStyle_ & 列表风格_横向列表) == 列表风格_横向列表;
+	bool bHView = (pObj->dwStyle_ & ELS_HORIZONTALLIST) == ELS_HORIZONTALLIST;
 	void* pOld=pOwner->lpItems_;
 	if (pOld != 0)
 	{
@@ -368,7 +368,7 @@ void _lv_onvscrollbar(HWND hWnd, EXHANDLE hObj, obj_s* pObj, UINT uMsg, size_t w
 {
 	listview_s* pOwner = (listview_s*)_obj_pOwner(pObj);
 	int nCode = LOWORD(wParam);
-	bool bHView = (pObj->dwStyle_ & 列表风格_横向列表) == 列表风格_横向列表;
+	bool bHView = (pObj->dwStyle_ & ELS_HORIZONTALLIST) == ELS_HORIZONTALLIST;
 	bool bHScoll = uMsg == WM_HSCROLL;
 	EXHANDLE hSB = 0;
 	int oPos = 0;
@@ -439,10 +439,11 @@ void _lv_btndown(HWND hWnd, EXHANDLE hObj, obj_s* pObj, UINT uMsg, size_t wParra
 	int ox = 0;
 	int oy = 0;
 	int iCur = _lv_itemfrompos(pObj, pOwner, x, y, &ox, &oy);
+	
 	bool vCur = _lv_checkitem(pOwner, iCur);
 	if (vCur)
 	{
-		if (_lv_queryitemstate(lpItems, iCur, 状态_禁止))
+		if (_lv_queryitemstate(lpItems, iCur, STATE_DISABLE))
 		{
 			return;
 		}
@@ -450,9 +451,9 @@ void _lv_btndown(HWND hWnd, EXHANDLE hObj, obj_s* pObj, UINT uMsg, size_t wParra
 	int iSelect = pOwner->index_select_;
 	bool vSelect = _lv_checkitem(pOwner, iSelect);
 	int nCount = pOwner->count_items_;
-	bool bSingleSel = !((pObj->dwStyle_ & 列表风格_允许多选) == 列表风格_允许多选);
-	bool bShowAllwasy = ((pObj->dwStyle_ & 列表风格_始终显示选择项) == 列表风格_始终显示选择项);
-	int iKey = 窗口_取功能键();
+	bool bSingleSel = !((pObj->dwStyle_ & ELS_ALLOWMULTIPLE) == ELS_ALLOWMULTIPLE);
+	bool bShowAllwasy = ((pObj->dwStyle_ & ELS_SHOWSELALWAYS) == ELS_SHOWSELALWAYS);
+	int iKey = _wnd_getfunctionkeys();
 	if (!bSingleSel && uMsg == WM_RBUTTONDOWN)
 	{
 		if ((iKey & 1) != 0 || (iKey & 2) != 0)
@@ -462,7 +463,7 @@ void _lv_btndown(HWND hWnd, EXHANDLE hObj, obj_s* pObj, UINT uMsg, size_t wParra
 	}
 	if (vCur && iCur == iSelect)
 	{
-		if ((pObj->dwStyle_ & 列表风格_表项跟踪) == 列表风格_表项跟踪)
+		if ((pObj->dwStyle_ & ELS_ITEMTRACKING) == ELS_ITEMTRACKING)
 		{
 			return;
 		}
@@ -474,9 +475,9 @@ void _lv_btndown(HWND hWnd, EXHANDLE hObj, obj_s* pObj, UINT uMsg, size_t wParra
 		{
 			if (vSelect)
 			{
-				if (!((pObj->dwStyle_ & 列表风格_始终显示选择项) == 列表风格_始终显示选择项) || vCur)
+				if (!((pObj->dwStyle_ & ELS_SHOWSELALWAYS) == ELS_SHOWSELALWAYS) || vCur)
 				{
-					_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, iSelect, 状态_选择, true, 0, 0, 0);
+					_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, iSelect, STATE_SELECT, true, 0, 0, 0);
 					nSelects = nSelects - 1;
 					return;
 				}
@@ -493,7 +494,7 @@ void _lv_btndown(HWND hWnd, EXHANDLE hObj, obj_s* pObj, UINT uMsg, size_t wParra
 		{
 			if (bSingleSel && !vSelect)
 			{
-				_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, iCur, 状态_选择, false, uMsg, iCur, iSelect);
+				_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, iCur, STATE_SELECT, false, uMsg, iCur, iSelect);
 				nSelects = nSelects + 1;
 			}
 			else {
@@ -503,11 +504,11 @@ void _lv_btndown(HWND hWnd, EXHANDLE hObj, obj_s* pObj, UINT uMsg, size_t wParra
 					int nStep = iCur > iSelect ? 1 : -1;
 					for (int i = iSelect; i != iCur; i = i + nStep)
 					{
-						if (!_lv_queryitemstate(lpItems, i, 状态_选择))
+						if (!_lv_queryitemstate(lpItems, i, STATE_SELECT))
 						{
-							if (!_lv_queryitemstate(lpItems, i, 状态_禁止))
+							if (!_lv_queryitemstate(lpItems, i, STATE_DISABLE))
 							{
-								_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, i, 状态_选择, false,i == iCur ? uMsg : 0, i, iSelect);
+								_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, i, STATE_SELECT, false,i == iCur ? uMsg : 0, i, iSelect);
 								nSelects = nSelects + 1;
 							}
 						}
@@ -516,7 +517,7 @@ void _lv_btndown(HWND hWnd, EXHANDLE hObj, obj_s* pObj, UINT uMsg, size_t wParra
 					return;
 				}
 				else {
-					_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, iCur, 状态_选择, false, uMsg, iCur, iSelect);
+					_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, iCur, STATE_SELECT, false, uMsg, iCur, iSelect);
 				}
 			}
 		}
@@ -538,21 +539,21 @@ size_t _lv_reselect(HWND hWnd, EXHANDLE hObj, obj_s* pObj, listview_s* pOwner, i
 		int nSelect = pOwner->count_items_;
 		for (int i = 1; i < nCount + 1; i++)
 		{
-			if (_lv_queryitemstate(lpItems, i, 状态_选择))
+			if (_lv_queryitemstate(lpItems, i, STATE_SELECT))
 			{
-				_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, i, 状态_选择, true, 0, 0, 0);
+				_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, i, STATE_SELECT, true, 0, 0, 0);
 			}
 		}
 		pOwner->count_selects_ = 0;
 	}
-	if (iItem != 0)
+	if (iItem >= 0)
 	{
 		if (_lv_checkitem(pOwner, iItem))
 		{
 			nCount = pOwner->index_select_;
 			pOwner->index_select_ = iItem;
 			pOwner->count_selects_ = 1;
-			_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, iItem, 状态_选择, false, LVN_ITEMCHANGED, iItem, nCount);
+			_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, iItem, STATE_SELECT, false, LVN_ITEMCHANGED, iItem, nCount);
 			if (bShow)
 			{
 				_lv_showitem(hWnd, hObj, pObj, iItem, false);
@@ -573,7 +574,7 @@ size_t _lv_showitem(HWND hWnd, EXHANDLE hObj, obj_s* pObj, int iItem, bool bChec
 		}
 	}
 	void* lprc =(void*) ((size_t)pObj + offsetof(obj_s, c_left_));
-	bool bHView = ((pObj->dwStyle_ & 列表风格_横向列表) == 列表风格_横向列表);
+	bool bHView = ((pObj->dwStyle_ & ELS_HORIZONTALLIST) == ELS_HORIZONTALLIST);
 	RECT rcItem{ 0 };
 	_lv_rectfromiitem(pObj, pOwner, iItem, bHView, &rcItem);
 	OffsetRect(&rcItem, -__get_int(lprc, 0), -__get_int(lprc, 4));
@@ -640,7 +641,7 @@ void _lv_mouseleave(HWND hWnd, EXHANDLE hObj, obj_s* pObj)
 	int iLast = pOwner->index_mouse_;
 	if (_lv_checkitem(pOwner, iLast))
 	{
-		_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, iLast, 状态_点燃, true, 0, 0, 0);
+		_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, iLast, STATE_HOVER, true, 0, 0, 0);
 		pOwner->index_mouse_ = 0;
 	}
 }
@@ -666,12 +667,12 @@ void _lv_mousemove(HWND hWnd, EXHANDLE hObj, obj_s* pObj, size_t wParam, size_t 
 		iHitTest = tmp == 0 ? LVHT_ONITEM : tmp;
 	}
 	pOwner->nHittest_ = iHitTest;
-	bool bSingelSelect = !((pObj->dwStyle_ & 列表风格_允许多选) == 列表风格_允许多选);
+	bool bSingelSelect = !((pObj->dwStyle_ & ELS_ALLOWMULTIPLE) == ELS_ALLOWMULTIPLE);
 	bool bDragdrop = ((pObj->dwStyleEx_ & EOS_EX_DRAGDROP) == EOS_EX_DRAGDROP);
-	bool bShowAllwasy = ((pObj->dwStyle_ & 列表风格_始终显示选择项) == 列表风格_始终显示选择项);
+	bool bShowAllwasy = ((pObj->dwStyle_ & ELS_SHOWSELALWAYS) == ELS_SHOWSELALWAYS);
 	if (wParam != 1 || bSingelSelect)
 	{
-		if ((pObj->dwStyle_ & 列表风格_表项跟踪) == 列表风格_表项跟踪)
+		if ((pObj->dwStyle_ & ELS_ITEMTRACKING) == ELS_ITEMTRACKING)
 		{
 			if (iCur != iSelect)
 			{
@@ -679,18 +680,18 @@ void _lv_mousemove(HWND hWnd, EXHANDLE hObj, obj_s* pObj, size_t wParam, size_t 
 				{
 					if (iSelect != 0)
 					{
-						_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, iSelect, 状态_选择, true, 0, 0, 0);
+						_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, iSelect, STATE_SELECT, true, 0, 0, 0);
 					}
 					pOwner->index_select_ = iCur;
 				}
 				if (vCur)
 				{
-					if (_lv_queryitemstate(lpItems, iCur, 状态_禁止))
+					if (_lv_queryitemstate(lpItems, iCur, STATE_DISABLE))
 					{
 						iCur = 0;
 					}
 					else {
-						_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, iCur, 状态_选择, false, LVN_HOTTRACK, iCur, iSelect);
+						_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, iCur, STATE_SELECT, false, LVN_HOTTRACK, iCur, iSelect);
 					}
 				}
 				_obj_dispatchnotify(hWnd, pObj, hObj, 0, LVN_ITEMCHANGED, iCur, iSelect);
@@ -702,16 +703,16 @@ void _lv_mousemove(HWND hWnd, EXHANDLE hObj, obj_s* pObj, size_t wParam, size_t 
 			{
 				if (vLast)
 				{
-					_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, iLast, 状态_点燃, true, 0, 0, 0);
+					_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, iLast, STATE_HOVER, true, 0, 0, 0);
 				}
 				if (vCur)
 				{
-					if (_lv_queryitemstate(lpItems, iCur, 状态_禁止))
+					if (_lv_queryitemstate(lpItems, iCur, STATE_DISABLE))
 					{
 						iCur = 0;
 					}
 					else {
-						_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, iCur, 状态_点燃, false, 0, 0, 0);
+						_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, iCur, STATE_HOVER, false, 0, 0, 0);
 					}
 				}
 			}
@@ -738,16 +739,16 @@ void _lv_drawitem(HWND hWnd, EXHANDLE hObj, obj_s* pObj, listview_s* pOwner, pai
 		void* hBrush = _brush_create(ExRGB2ARGB(0, 51));
 		if (hBrush != 0)
 		{
-			if ((ecd.dwState & 状态_点燃) != 0)
+			if ((ecd.dwState & STATE_HOVER) != 0)
 			{
 				_canvas_fillrect(ps.hCanvas_, hBrush, rcItem.left, rcItem.top, rcItem.right, rcItem.bottom);
 			}
 			else {
-				if ((ecd.dwState & 状态_选择) != 0)
+				if ((ecd.dwState & STATE_SELECT) != 0)
 				{
 
 				}
-				if ((ecd.dwState & 状态_点燃) != 0)
+				if ((ecd.dwState & STATE_HOVER) != 0)
 				{
 
 				}
@@ -767,7 +768,7 @@ size_t _lv_paint(HWND hWnd, EXHANDLE hObj, obj_s* pObj)
 		listview_s* pOwner = (listview_s*)_obj_pOwner(pObj);
 		int iStart = pOwner->index_start_;
 		int iEnd = pOwner->index_end_;
-		bool bHView = (pObj->dwStyle_ & 列表风格_横向列表) == 列表风格_横向列表;
+		bool bHView = (pObj->dwStyle_ & ELS_HORIZONTALLIST) == ELS_HORIZONTALLIST;
 		for (int i = iStart; i < iEnd; i++)
 		{
 			if (_lv_checkitem_view(pOwner, i))
@@ -789,7 +790,7 @@ size_t _lv_paint(HWND hWnd, EXHANDLE hObj, obj_s* pObj)
 size_t _lv_size(HWND hWnd, EXHANDLE hObj, obj_s* pObj)
 {
 	listview_s* pOwner = (listview_s*)_obj_pOwner(pObj);
-	bool bHView = (pObj->dwStyle_ & 列表风格_横向列表) == 列表风格_横向列表;
+	bool bHView = (pObj->dwStyle_ & ELS_HORIZONTALLIST) == ELS_HORIZONTALLIST;
 	void* lpRcClient = &pObj->c_left_;
 	RECT rcClient{  };
 	RtlMoveMemory(&rcClient, lpRcClient, sizeof(RECT));
@@ -903,7 +904,7 @@ size_t _lv_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lPara
 	{
 		if (_lv_checkitem((listview_s*)_obj_pOwner(pObj), wParam))
 		{
-			_lv_lprectfromiitem(pObj, (listview_s*)_obj_pOwner(pObj), wParam, (pObj->dwStyle_ & 列表风格_横向列表) == 列表风格_横向列表, (void*)lParam);
+			_lv_lprectfromiitem(pObj, (listview_s*)_obj_pOwner(pObj), wParam, (pObj->dwStyle_ & ELS_HORIZONTALLIST) == ELS_HORIZONTALLIST, (void*)lParam);
 		}
 	}
 	else if (uMsg == LVM_GETSELECTEDCOUNT)
@@ -943,7 +944,7 @@ void _lv_lvm_setitemstate(obj_s* pObj, listview_s* pOwner, int iItem, int dwStat
 	{
 		if (iItem == pOwner->index_select_)
 		{
-			if ((dwState & 状态_选择) == 0)
+			if ((dwState & STATE_SELECT) == 0)
 			{
 				pOwner->index_select_ = 0;
 			}

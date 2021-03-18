@@ -380,7 +380,7 @@ bool _obj_setfocus(HWND hWnd, wnd_s* pWnd, EXHANDLE hObj, obj_s* pObj, bool bDis
 {
 	bool ret = false;
 
-	if (((pObj->dwState_ & 状态_允许焦点) == 状态_允许焦点))
+	if (((pObj->dwState_ & STATE_ALLOWFOCUS) == STATE_ALLOWFOCUS))
 	{
 		size_t objFocus = pWnd->objFocus_;
 		if (objFocus != hObj)
@@ -407,7 +407,7 @@ void _obj_setfocus_real(HWND hWnd, obj_s* pObj, EXHANDLE hObj, EXHANDLE lstObj)
 		_obj_baseproc(hWnd, lstObj, pLast, WM_KILLFOCUS, hObj, 0);
 	}
 	pObj->pWnd_->objFocus_ = hObj;
-	pObj->dwState_ = pObj->dwState_ | 状态_焦点;
+	pObj->dwState_ = pObj->dwState_ | STATE_FOCUS;
 }
 
 bool Ex_ObjSetFocus(EXHANDLE hObj)
@@ -480,7 +480,7 @@ void _obj_killfocus_real(obj_s* pObj, EXHANDLE hObj, EXHANDLE objFocus)
 	if (pWnd->objFocus_ == hObj)
 	{
 		pWnd->objFocus_ = objFocus;
-		pObj->dwState_ = pObj->dwState_ - (pObj->dwState_ & 状态_焦点);
+		pObj->dwState_ = pObj->dwState_ - (pObj->dwState_ & STATE_FOCUS);
 		if (pWnd->objTrack_ == hObj)
 		{
 			ReleaseCapture();
@@ -1054,7 +1054,7 @@ void _obj_scroll_updatepostion(EXHANDLE hSB, obj_s* pSB, bool bVScroll, int cLef
 	auto xyz2 = LOBYTE(xyz1);
 	int l, t, r, b;
 
-	if (((pSB->dwStyle_ & 滚动条风格_右底对齐) == 滚动条风格_右底对齐))
+	if (((pSB->dwStyle_ & ESS_RIGHTBOTTOMALIGN) == ESS_RIGHTBOTTOMALIGN))
 	{
 		if (bVScroll)
 		{
@@ -1441,7 +1441,7 @@ void _obj_scroll_repostion(HWND hWnd, EXHANDLE hObj, bool fDispatch)
 				if (((pVSB->dwStyle_ & EOS_VISIBLE) == EOS_VISIBLE))
 				{
 
-					if (((pVSB->dwStyle_ & 滚动条风格_右底对齐) == 滚动条风格_右底对齐))
+					if (((pVSB->dwStyle_ & ESS_RIGHTBOTTOMALIGN) == ESS_RIGHTBOTTOMALIGN))
 					{
 						rcClient.right = rcClient.right - LOBYTE(xyz);
 					}
@@ -1466,7 +1466,7 @@ void _obj_scroll_repostion(HWND hWnd, EXHANDLE hObj, bool fDispatch)
 				if (((pHSB->dwStyle_ & EOS_VISIBLE) == EOS_VISIBLE))
 				{
 
-					if (((pHSB->dwStyle_ & 滚动条风格_右底对齐) == 滚动条风格_右底对齐))
+					if (((pHSB->dwStyle_ & ESS_RIGHTBOTTOMALIGN) == ESS_RIGHTBOTTOMALIGN))
 					{
 						rcClient.bottom = rcClient.bottom - LOBYTE(xyz);
 					}
@@ -1900,22 +1900,22 @@ void _obj_create_done(HWND hWnd, wnd_s* pWnd, EXHANDLE hObj, obj_s* pObj)
 
 	if (!((pObj->dwStyle_ & EOS_VISIBLE) == EOS_VISIBLE))
 	{
-		pObj->dwState_ = pObj->dwState_ | 状态_隐藏;
+		pObj->dwState_ = pObj->dwState_ | STATE_HIDDEN;
 	}
 
 	if (((pObj->dwStyle_ & EOS_DISABLED) == EOS_DISABLED))
 	{
-		pObj->dwState_ = pObj->dwState_ | 状态_禁止;
+		pObj->dwState_ = pObj->dwState_ | STATE_DISABLE;
 	}
 
 	if (((pObj->dwStyle_ & EOS_SIZEBOX) == EOS_SIZEBOX))
 	{
-		pObj->dwState_ = pObj->dwState_ | 状态_允许修改尺寸;
+		pObj->dwState_ = pObj->dwState_ | STATE_ALLOWSIZE;
 	}
 
 	if (((pObj->dwStyleEx_ & EOS_EX_FOCUSABLE) == EOS_EX_FOCUSABLE))
 	{
-		pObj->dwState_ = pObj->dwState_ | 状态_允许焦点;
+		pObj->dwState_ = pObj->dwState_ | STATE_ALLOWFOCUS;
 	}
 
 	int flags = SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOCOPYBITS | SWP_DRAWFRAME;
@@ -1950,7 +1950,7 @@ void _obj_create_scrollbar(HWND hWnd, wnd_s* pWnd, obj_s* pObj, EXHANDLE hObj, t
 		if (hSb != 0)
 		{
 			pObj->objVScroll_ = hSb;
-			style = 滚动条风格_右底对齐 | 滚动条风格_控制按钮 | 滚动条风格_垂直滚动条;
+			style = ESS_RIGHTBOTTOMALIGN | ESS_CONTROLBUTTON | ESS_VERTICALSCROLL;
 
 			if (((pObj->dwStyle_ & EOS_DISABLENOSCROLL) == EOS_DISABLENOSCROLL))
 			{
@@ -1967,7 +1967,7 @@ void _obj_create_scrollbar(HWND hWnd, wnd_s* pWnd, obj_s* pObj, EXHANDLE hObj, t
 		if (hSb != 0)
 		{
 			pObj->objHScroll_ = hSb;
-			style = 滚动条风格_右底对齐 | 滚动条风格_控制按钮 | 滚动条风格_水平滚动条;
+			style = ESS_RIGHTBOTTOMALIGN | ESS_CONTROLBUTTON | ESS_HORIZONTALSCROLL;
 
 			if (((pObj->dwStyle_ & EOS_DISABLENOSCROLL) == EOS_DISABLENOSCROLL))
 			{
@@ -2117,14 +2117,14 @@ void _obj_visable(HWND hWnd, EXHANDLE hObj, obj_s* pObj, bool fVisable)
 	if (((pObj->dwStyle_ & EOS_VISIBLE) == EOS_VISIBLE) != fVisable)
 	{
 		_obj_killfocus(hObj, pObj, true);
-		pObj->dwState_ = pObj->dwState_ - (pObj->dwState_ & (状态_点燃 | 状态_按下));
+		pObj->dwState_ = pObj->dwState_ - (pObj->dwState_ & (STATE_HOVER | STATE_DOWN));
 		if (fVisable)
 		{
-			pObj->dwState_ = pObj->dwState_ - (pObj->dwState_ & 状态_隐藏);
+			pObj->dwState_ = pObj->dwState_ - (pObj->dwState_ & STATE_HIDDEN);
 			pObj->dwStyle_ = pObj->dwStyle_ | EOS_VISIBLE;
 		}
 		else {
-			pObj->dwState_ = pObj->dwState_ | 状态_隐藏;
+			pObj->dwState_ = pObj->dwState_ | STATE_HIDDEN;
 			pObj->dwStyle_ = pObj->dwStyle_ - (pObj->dwStyle_ & EOS_VISIBLE);
 		}
 		_obj_baseproc(hWnd, hObj, pObj, WM_STYLECHANGED, EOL_STYLE, pObj->dwStyle_);
@@ -2137,14 +2137,14 @@ void _obj_disable(HWND hWnd, EXHANDLE hObj, obj_s* pObj, bool fDisable)
 	if (((pObj->dwStyle_ & EOS_DISABLED) == EOS_DISABLED) != fDisable)
 	{
 		_obj_killfocus(hObj, pObj, true);
-		pObj->dwState_ = pObj->dwState_ - (pObj->dwState_ & (状态_点燃 | 状态_按下));
+		pObj->dwState_ = pObj->dwState_ - (pObj->dwState_ & (STATE_HOVER | STATE_DOWN));
 		if (fDisable)
 		{
-			pObj->dwState_ = pObj->dwState_ - (pObj->dwState_ & 状态_禁止);
+			pObj->dwState_ = pObj->dwState_ - (pObj->dwState_ & STATE_DISABLE);
 			pObj->dwStyle_ = pObj->dwStyle_ | EOS_DISABLED;
 		}
 		else {
-			pObj->dwState_ = pObj->dwState_ | 状态_禁止;
+			pObj->dwState_ = pObj->dwState_ | STATE_DISABLE;
 			pObj->dwStyle_ = pObj->dwStyle_ - (pObj->dwStyle_ & EOS_DISABLED);
 		}
 		_obj_baseproc(hWnd, hObj, pObj, WM_STYLECHANGED, EOL_STYLE, pObj->dwStyle_);

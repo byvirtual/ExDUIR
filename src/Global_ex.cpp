@@ -141,11 +141,11 @@ void _object_init()
 	_obj_register(ATOM_SYSBUTTON, EOS_VISIBLE, EOS_EX_TOPMOST, 0, 0, 0, &_sysbutton_proc, 0, &nError);
 	_obj_register(ATOM_PAGE, EOS_VISIBLE, EOS_EX_TRANSPARENT, 0, 0, 0, &_page_proc, 0, &nError);
 	_obj_register(ATOM_STATIC, EOS_VISIBLE, EOS_EX_TRANSPARENT, DT_VCENTER | DT_NOPREFIX | DT_SINGLELINE, 0, 0, &_static_proc, 0, &nError);
-	_obj_register(ATOM_SCROLLBAR, 滚动条风格_右底对齐 | 滚动条风格_控制按钮 | EOS_VISIBLE, 0, 0, 0, 0, &_sb_proc, 0, &nError);
+	_obj_register(ATOM_SCROLLBAR, ESS_RIGHTBOTTOMALIGN | ESS_CONTROLBUTTON | EOS_VISIBLE, 0, 0, 0, 0, &_sb_proc, 0, &nError);
 	_obj_register(ATOM_EDIT, EOS_VISIBLE, EOS_EX_COMPOSITED | EOS_EX_FOCUSABLE | EOS_EX_TABSTOP, DT_NOPREFIX | DT_SINGLELINE, 0, LoadCursorW(0, MAKEINTRESOURCEW(32513)), &_edit_proc, ECF_D2D_GDI_COMPATIBLE, &nError);
-	_obj_register(ATOM_BUTTON, EOS_VISIBLE | 按钮风格_文本偏移, EOS_EX_FOCUSABLE | EOS_EX_TABSTOP, DT_VCENTER | DT_CENTER | DT_SINGLELINE, 0, 0, &_button_proc, 0, &nError);
-	_obj_register(ATOM_CHECKBUTTON, EOS_VISIBLE | 按钮风格_复选按钮, EOS_EX_FOCUSABLE | EOS_EX_TABSTOP, DT_VCENTER | DT_SINGLELINE, 0, 0, &_button_proc, 0, &nError);
-	_obj_register(ATOM_RADIOBUTTON, EOS_VISIBLE | 按钮风格_单选按钮, EOS_EX_FOCUSABLE | EOS_EX_TABSTOP, DT_VCENTER | DT_SINGLELINE, 0, 0, &_button_proc, 0, &nError);
+	_obj_register(ATOM_BUTTON, EOS_VISIBLE | EBS_TEXTOFFSET, EOS_EX_FOCUSABLE | EOS_EX_TABSTOP, DT_VCENTER | DT_CENTER | DT_SINGLELINE, 0, 0, &_button_proc, 0, &nError);
+	_obj_register(ATOM_CHECKBUTTON, EOS_VISIBLE | EBS_CHECKBUTTON, EOS_EX_FOCUSABLE | EOS_EX_TABSTOP, DT_VCENTER | DT_SINGLELINE, 0, 0, &_button_proc, 0, &nError);
+	_obj_register(ATOM_RADIOBUTTON, EOS_VISIBLE | EBS_RADIOBUTTON, EOS_EX_FOCUSABLE | EOS_EX_TABSTOP, DT_VCENTER | DT_SINGLELINE, 0, 0, &_button_proc, 0, &nError);
 	_obj_register(ATOM_LISTVIEW, EOS_VISIBLE | EOS_HSCROLL | EOS_VSCROLL, EOS_EX_FOCUSABLE | EOS_EX_TABSTOP, DT_NOPREFIX | DT_SINGLELINE, 0, 0, &_lv_proc, 0, &nError);
 	_obj_register(ATOM_ITEM, EOS_VISIBLE, EOS_EX_FOCUSABLE | EOS_EX_TABSTOP, DT_VCENTER | DT_SINGLELINE, 0, 0, &_item_proc, 0, &nError);
 

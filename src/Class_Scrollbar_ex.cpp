@@ -10,7 +10,7 @@ size_t _sb_parentnotify(HWND hWnd, obj_s* pObj, size_t wParam, size_t lParam, UI
 	{
 		if (uMsg == 0)
 		{
-			uMsg = ((pObj->dwStyle_ & 滚动条风格_垂直滚动条) == 滚动条风格_垂直滚动条) ? WM_VSCROLL : WM_HSCROLL;
+			uMsg = ((pObj->dwStyle_ & ESS_VERTICALSCROLL) == ESS_VERTICALSCROLL) ? WM_VSCROLL : WM_HSCROLL;
 		}
 		if (bDispatch)
 		{
@@ -116,7 +116,7 @@ int _sb_realsetinfo(HWND hWnd, EXHANDLE hObj, obj_s* pObj, int Mask, int nMin, i
 		psi->nMax_ = nMax;
 	}
 	int nPosOrg = psi->nPos_;
-	_sb_calcthumb(hWnd, pObj, psi, ((pObj->dwStyle_ & 滚动条风格_垂直滚动条) == 滚动条风格_垂直滚动条));
+	_sb_calcthumb(hWnd, pObj, psi, ((pObj->dwStyle_ & ESS_VERTICALSCROLL) == ESS_VERTICALSCROLL));
 	nPos = psi->nPos_;
 	if (nPos != nPosOrg)
 	{
@@ -136,7 +136,7 @@ void _sb_init(obj_s* pObj)
 	bool bVS = false;
 	if (psi)
 	{
-		bVS = ((pObj->dwStyle_ & 滚动条风格_垂直滚动条) == 滚动条风格_垂直滚动条);
+		bVS = ((pObj->dwStyle_ & ESS_VERTICALSCROLL) == ESS_VERTICALSCROLL);
 		theme_s* hTheme = pObj->hTheme_;
 		int atom = bVS ? ATOM_VSCROLL : ATOM_HSCROLL;
 		void* pValue = Ex_ThemeGetValuePtr(hTheme, atom, ATOM_SIZE);
@@ -175,13 +175,13 @@ void _sb_uninit(obj_s* pObj)
 void _sb_nccalcsize(HWND hWnd, EXHANDLE hObj, obj_s* pObj)
 {
 	si_s* psi = (si_s*)_obj_pOwner(pObj);
-	bool bVScroll = ((pObj->dwStyle_ & 滚动条风格_垂直滚动条) == 滚动条风格_垂直滚动条);
+	bool bVScroll = ((pObj->dwStyle_ & ESS_VERTICALSCROLL) == ESS_VERTICALSCROLL);
 	int xyz = psi->xyz_;
 	auto cxy = HIWORD(xyz);
 	//auto cxy = LOBYTE(cxy);
 	xyz = LOWORD(xyz);
 	int cx = 0, cy = 0;
-	if (((pObj->dwStyle_ & 滚动条风格_控制按钮) == 滚动条风格_控制按钮))
+	if (((pObj->dwStyle_ & ESS_CONTROLBUTTON) == ESS_CONTROLBUTTON))
 	{
 		cx = LOBYTE(xyz);
 		cy = HIBYTE(xyz);
@@ -285,7 +285,7 @@ void _sb_nchittest(obj_s* pObj, int x, int y)
 	{
 		if (!((psi->wArrows_ & ESB_DISABLE_LEFT) == ESB_DISABLE_LEFT))
 		{
-			httype = 滚动条点击类型_调节按钮1;
+			httype = SBCT_ADJUSTBUTTON1;
 		}
 	}
 	else {
@@ -298,7 +298,7 @@ void _sb_nchittest(obj_s* pObj, int x, int y)
 		{
 			if (!((psi->wArrows_ & ESB_DISABLE_RIGHT) == ESB_DISABLE_RIGHT))
 			{
-				httype = 滚动条点击类型_调节按钮2;
+				httype = SBCT_ADJUSTBUTTON2;
 			}
 		}
 		else {
@@ -311,7 +311,7 @@ void _sb_nchittest(obj_s* pObj, int x, int y)
 				rcThumb.bottom = psi->rcThumb_bottom_;
 				if (PtInRect(&rcThumb, pt))
 				{
-					httype = 滚动条点击类型_滚动条;
+					httype = SBCT_CONTROL;
 				}
 				else {
 					RECT rcRegion{ 0 };
@@ -321,23 +321,23 @@ void _sb_nchittest(obj_s* pObj, int x, int y)
 					rcRegion.bottom = psi->rcRegion_bottom_;
 					if (PtInRect(&rcRegion, pt))
 					{
-						if (((pObj->dwStyle_ & 滚动条风格_垂直滚动条) == 滚动条风格_垂直滚动条))
+						if (((pObj->dwStyle_ & ESS_VERTICALSCROLL) == ESS_VERTICALSCROLL))
 						{
 							if (y <= psi->rcThumb_top_)
 							{
-								httype = 滚动条点击类型_页面区域1;
+								httype = SBCT_PAGEAREA1;
 							}
 							else {
-								httype = 滚动条点击类型_页面区域2;
+								httype = SBCT_PAGEAREA2;
 							}
 						}
 						else {
 							if (x <= psi->rcThumb_left_)
 							{
-								httype = 滚动条点击类型_页面区域1;
+								httype = SBCT_PAGEAREA1;
 							}
 							else {
-								httype = 滚动条点击类型_页面区域2;
+								httype = SBCT_PAGEAREA2;
 							}
 						}
 					}
@@ -359,10 +359,10 @@ void _sb_mousemove(HWND hWnd, EXHANDLE hObj, obj_s* pObj, size_t wParam, int x, 
 	if (wParam != 0)
 	{
 		si_s* psi = (si_s*)_obj_pOwner(pObj);
-		if (psi->httype_ == 滚动条点击类型_滚动条)
+		if (psi->httype_ == SBCT_CONTROL)
 		{
 			int lstPos = psi->nTrackPos_;
-			int curPos = _sb_point2pos(psi, x, y, ((pObj->dwStyle_ & 滚动条风格_垂直滚动条) == 滚动条风格_垂直滚动条), true);
+			int curPos = _sb_point2pos(psi, x, y, ((pObj->dwStyle_ & ESS_VERTICALSCROLL) == ESS_VERTICALSCROLL), true);
 			if (lstPos != curPos)
 			{
 				psi->nTrackPos_ = curPos;
@@ -381,7 +381,7 @@ void CALLBACK _sb_timer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 	obj_s* pObj = (obj_s*)(idEvent - TIMER_SCROLLBAR);
 	si_s* psi = (si_s*)_obj_pOwner(pObj);
 	int nTrack;
-	if (psi->httype_ == 滚动条点击类型_调节按钮1)
+	if (psi->httype_ == SBCT_ADJUSTBUTTON1)
 	{
 		nTrack = SB_LINEUP;
 	}
@@ -390,7 +390,7 @@ void CALLBACK _sb_timer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 	}
 	_sb_parentnotify(hWnd, pObj, MAKELONG(nTrack, 0), pObj->hObj_, 0, true);
 	nTrack = psi->nPos_;
-	if (psi->httype_ == 滚动条点击类型_调节按钮1)
+	if (psi->httype_ == SBCT_ADJUSTBUTTON1)
 	{
 		if (nTrack <= psi->nMin_)
 		{
@@ -411,34 +411,34 @@ void _sb_lbuttondown(HWND hWnd, EXHANDLE hObj, obj_s* pObj, size_t lParam)
 	si_s* psi = (si_s*)_obj_pOwner(pObj);
 	int httype = psi->httype_;
 	int nError = 0;
-	_obj_setuistate(pObj, 状态_按下, false, 0, true, &nError);
+	_obj_setuistate(pObj, STATE_DOWN, false, 0, true, &nError);
 	if (httype != 0)
 	{
 		int nTrack = -1;
 		int x, y;
 		bool fTimer = false;
-		if (httype == 滚动条点击类型_滚动条)
+		if (httype == SBCT_CONTROL)
 		{
 			x = LOWORD(lParam) - psi->rcThumb_left_;
 			y = HIWORD(lParam) - psi->rcThumb_top_;
-			psi->nTrackPosOffset_ = ((pObj->dwStyle_ & 滚动条风格_垂直滚动条) == 滚动条风格_垂直滚动条) ? y : x;
+			psi->nTrackPosOffset_ = ((pObj->dwStyle_ & ESS_VERTICALSCROLL) == ESS_VERTICALSCROLL) ? y : x;
 			psi->nTrackPos_ = psi->nPos_;
 		}
-		else if (httype == 滚动条点击类型_调节按钮1)
+		else if (httype == SBCT_ADJUSTBUTTON1)
 		{
 			nTrack = SB_LINEUP;
 			fTimer = true;
 		}
-		else if (httype == 滚动条点击类型_调节按钮2)
+		else if (httype == SBCT_ADJUSTBUTTON2)
 		{
 			nTrack = SB_LINEDOWN;
 			fTimer = true;
 		}
-		else if (httype == 滚动条点击类型_页面区域1)
+		else if (httype == SBCT_PAGEAREA1)
 		{
 			nTrack = SB_PAGEUP;
 		}
-		else if (httype == 滚动条点击类型_页面区域2)
+		else if (httype == SBCT_PAGEAREA2)
 		{
 			nTrack = SB_PAGEDOWN;
 		}
@@ -457,7 +457,7 @@ void _sb_lbuttondown(HWND hWnd, EXHANDLE hObj, obj_s* pObj, size_t lParam)
 void _sb_lbuttonup(HWND hWnd, EXHANDLE hObj, obj_s* pObj, size_t lParam)
 {
 	int nError = 0;
-	_obj_setuistate(pObj, 状态_按下, true, 0, true, &nError);
+	_obj_setuistate(pObj, STATE_DOWN, true, 0, true, &nError);
 	si_s* psi = (si_s*)_obj_pOwner(pObj);
 	psi->nTrackPos_ = 0;
 	KillTimer(hWnd, (size_t)pObj + TIMER_SCROLLBAR);
@@ -475,7 +475,7 @@ void _sb_oncommand(HWND hWnd, EXHANDLE hObj, obj_s* pObj, size_t wParam, size_t 
 		si_s* psi = (si_s*)_obj_pOwner(pObj);
 		int nTrackPosOffset = psi->nTrackPosOffset_;
 		psi->nTrackPosOffset_ = 0;
-		nPos = _sb_point2pos(psi, LOWORD(nTrackPosOffset) - pObj->w_left_ - pWnd->left_, HIWORD(nTrackPosOffset) - pObj->w_top_ - pWnd->top_, ((pObj->dwStyle_ & 滚动条风格_垂直滚动条) == 滚动条风格_垂直滚动条), true);
+		nPos = _sb_point2pos(psi, LOWORD(nTrackPosOffset) - pObj->w_left_ - pWnd->left_, HIWORD(nTrackPosOffset) - pObj->w_top_ - pWnd->top_, ((pObj->dwStyle_ & ESS_VERTICALSCROLL) == ESS_VERTICALSCROLL), true);
 		psi->nTrackPos_ = nPos;
 		nCode = SB_THUMBPOSITION;
 	}
@@ -514,7 +514,7 @@ void _sb_oncommand(HWND hWnd, EXHANDLE hObj, obj_s* pObj, size_t wParam, size_t 
 
 void _sb_oncontextmenu(EXHANDLE hObj, obj_s* pObj, size_t lParam)
 {
-	void* hMenu = ((pObj->dwStyle_ & 滚动条风格_垂直滚动条) == 滚动条风格_垂直滚动条) ? g_Li.hMenuVS : g_Li.hMenuHS;
+	void* hMenu = ((pObj->dwStyle_ & ESS_VERTICALSCROLL) == ESS_VERTICALSCROLL) ? g_Li.hMenuVS : g_Li.hMenuHS;
 	hMenu = GetSubMenu((HMENU)hMenu, 0);
 	si_s* psi = (si_s*)_obj_pOwner(pObj);
 	psi->nTrackPosOffset_ = lParam;
@@ -537,14 +537,14 @@ int _sb_paint(EXHANDLE hObj, obj_s* pObj)
 	if (Ex_ObjBeginPaint(hObj, (paintstruct_s*)&ps))
 	{
 		int httype = ((si_s*)ps.dwOwnerData_)->httype_;
-		bool bHover = (ps.dwState_ & 状态_点燃) != 0;
-		bool bDown = (ps.dwState_ & 状态_按下) != 0;
-		bool bVScroll = (ps.dwStyle_ & 滚动条风格_垂直滚动条) != 0;
+		bool bHover = (ps.dwState_ & STATE_HOVER) != 0;
+		bool bDown = (ps.dwState_ & STATE_DOWN) != 0;
+		bool bVScroll = (ps.dwStyle_ & ESS_VERTICALSCROLL) != 0;
 		int atomClass = bVScroll ? ATOM_VSCROLL : ATOM_HSCROLL;
 		if (bHover || (ps.dwStyle_ & EOS_DISABLENOSCROLL) != 0)
 		{
 			int atomBtn1 = ATOM_ARROW1_NORMAL;
-			if (httype == 滚动条点击类型_调节按钮1)
+			if (httype == SBCT_ADJUSTBUTTON1)
 			{
 				if (bDown)
 				{
@@ -569,7 +569,7 @@ int _sb_paint(EXHANDLE hObj, obj_s* pObj)
 		if (bHover || (ps.dwStyle_ & EOS_DISABLENOSCROLL) != 0)
 		{
 			int atomBtn2 = ATOM_ARROW2_NORMAL;
-			if (httype == 滚动条点击类型_调节按钮2)
+			if (httype == SBCT_ADJUSTBUTTON2)
 			{
 				if (bDown)
 				{
@@ -608,7 +608,7 @@ int _sb_paint(EXHANDLE hObj, obj_s* pObj)
 		if (!IsRectEmpty(&rcThumb))
 		{
 			int atomThumb = ATOM_THUMB_NORMAL;
-			if (httype == 滚动条点击类型_滚动条)
+			if (httype == SBCT_CONTROL)
 			{
 				if (bDown)
 				{
@@ -686,11 +686,11 @@ size_t _sb_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lPara
 	}
 	else if (uMsg == WM_MOUSEHOVER)
 	{
-		_obj_setuistate(pObj, 状态_点燃, false, 0, true, &nError);
+		_obj_setuistate(pObj, STATE_HOVER, false, 0, true, &nError);
 	}
 	else if (uMsg == WM_MOUSELEAVE)
 	{
-		_obj_setuistate(pObj, 状态_点燃, true, 0, true, &nError);
+		_obj_setuistate(pObj, STATE_HOVER, true, 0, true, &nError);
 	}
 	else if (uMsg == WM_LBUTTONDOWN)
 	{

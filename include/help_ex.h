@@ -28,7 +28,7 @@ static void pt(std::wstring& str, const wchar_t* s)//这个是 L""
 
 //调试输出 支持 无限参数!  任意类型!  (没有的可以在上面重载方法自定义)
 template <class... T>
-static void 调试输出(T...args) {
+static void output(T...args) {
 	std::wstring str = L"";
 	std::initializer_list<int>{ (pt(str, std::forward<T>(args)), 0)...};
 	OutputDebugString(str.c_str());
@@ -341,34 +341,10 @@ typedef LRESULT(CALLBACK* ThunkPROC)(EX_THUNK_DATA* pData, UINT uMsg, WPARAM wPa
 #define ERROR_EX_LAYOUT_UNSUPPORTED_PROP 16051 //未支持的属性
 #define ERROR_EX_LAYOUT_NOT_CHILD 16052 // 未找到布局子组件或组件不是子组件
 
-#define 状态_正常 0
-#define 状态_禁止 1
-#define 状态_选择 2
-#define 状态_焦点 4
-#define 状态_按下 8
-#define 状态_选中 16
-#define 状态_半选中 32
-#define 状态_只读 64
-#define 状态_点燃 128
-#define 状态_默认 256
-#define 状态_子项目_可视 512
-#define 状态_子项目_隐藏 1024
-#define 状态_繁忙中 2048
-#define 状态_滚动中 8192
-#define 状态_动画中 16384
-#define 状态_隐藏 32768
-
-#define 状态_允许修改尺寸 131072
-#define 状态_允许拖动 262144
-#define 状态_允许焦点 1048576
-#define 状态_允许选择 2097152
-#define 状态_超链接_点燃 4194304
-#define 状态_超链接_已访问 8388608
-#define 状态_允许多选 16777216
-#define 状态_密码模式 536870912
-
-#define 条目风格_子菜单 1
-#define 条目风格_分隔符 2
+//条目风格_子菜单
+#define EMIS_SUBMENU 1
+//条目风格_分隔符
+#define EMIS_SEPARATOR 2
 
 struct LOCALINFO
 {

@@ -2,7 +2,7 @@
 
 mempool_s* _handle_init()
 {
-	return MemPool_Create(65536, sizeof(void*), 内存池标记_禁止超出最大数量);
+	return MemPool_Create(65536, sizeof(void*), mpbs_maximum);
 }
 
 bool _handle_uninit(mempool_s* hTable)
@@ -16,7 +16,7 @@ EXHANDLE _handle_create(int nType, void* dwData, int *nError)
 {
 	EXHANDLE ret = 0;
 	void* lpAddr = MemPool_Alloc(g_Li.hHandles, false);
-	if (lpAddr > 0)
+	if (lpAddr)
 	{
 		__set(lpAddr, 0, (size_t)dwData);
 		EXHANDLE index = MemPool_GetIndexFromAddrsss(g_Li.hHandles, lpAddr);

@@ -188,54 +188,54 @@
 #define EOL_LPWZTITLE	-28
 // 光标句柄
 #define EOL_CURSOR	-17
-// 暂无注释
-#define 状态_正常	0
-// 暂无注释
-#define 状态_禁止	1
-// 暂无注释
-#define 状态_选择	2
-// 暂无注释
-#define 状态_焦点	4
-// 暂无注释
-#define 状态_按下	8
-// 暂无注释
-#define 状态_选中	16
-// 暂无注释
-#define 状态_半选中	32
-// 暂无注释
-#define 状态_只读	64
-// 暂无注释
-#define 状态_点燃	128
-// 暂无注释
-#define 状态_默认	256
-// 暂无注释
-#define 状态_子项目_可视	512
-// 暂无注释
-#define 状态_子项目_隐藏	1024
-// 暂无注释
-#define 状态_繁忙中	2048
-// 暂无注释
-#define 状态_滚动中	8192
-// 暂无注释
-#define 状态_动画中	16384
-// 暂无注释
-#define 状态_隐藏	32768
-// 暂无注释
-#define 状态_允许修改尺寸	131072
-// 暂无注释
-#define 状态_允许拖动	262144
-// 暂无注释
-#define 状态_允许焦点	1048576
-// 暂无注释
-#define 状态_允许选择	2097152
-// 暂无注释
-#define 状态_超链接_点燃	4194304
-// 暂无注释
-#define 状态_超链接_已访问	8388608
-// 暂无注释
-#define 状态_允许多选	16777216
-// 暂无注释
-#define 状态_密码模式	536870912
+// 状态_正常
+#define STATE_NORMAL	0
+// 状态_禁止
+#define STATE_DISABLE	1
+// 状态_选择
+#define STATE_SELECT	2
+// 状态_焦点
+#define STATE_FOCUS	4
+// 状态_按下
+#define STATE_DOWN	8
+// 状态_选中
+#define STATE_CHECKED	16
+// 状态_半选中
+#define STATE_HALFSELECT	32
+// 状态_只读
+#define STATE_READONLY	64
+// 状态_点燃
+#define STATE_HOVER	128
+// 状态_默认
+#define STATE_DEFAULT	256
+// 状态_子项目_可视
+#define STATE_SUBITEM_VISIABLE	512
+// 状态_子项目_隐藏
+#define STATE_SUBITEM_HIDDEN	1024
+// 状态_繁忙中
+#define STATE_BUSY	2048
+// 状态_滚动中
+#define STATE_ROLLING	8192
+// 状态_动画中
+#define STATE_ANIMATING	16384
+// 状态_隐藏
+#define STATE_HIDDEN	32768
+// 状态_允许修改尺寸
+#define STATE_ALLOWSIZE	131072
+// 状态_允许拖动
+#define STATE_ALLOWDRAG	262144
+// 状态_允许焦点
+#define STATE_ALLOWFOCUS	1048576
+// 状态_允许选择
+#define STATE_ALLOWSELECT	2097152
+// 状态_超链接_点燃
+#define STATE_HYPERLINK_HOVER	4194304
+// 状态_超链接_已访问
+#define STATE_HYPERLINK_VISITED	8388608
+// 状态_允许多选
+#define STATE_ALLOWMULTIPLE	16777216
+// 状态_密码模式
+#define STATE_PASSWORD	536870912
 // 组件风格_滚动条不可用时显示禁止状态
 #define EOS_DISABLENOSCROLL	33554432
 // 组件风格_可调整尺寸
@@ -278,66 +278,66 @@
 #define SB_CTL	2
 // 暂无注释
 #define SB_BOTH	3
-// 暂无注释
-#define 按钮风格_复选按钮	1
-// 暂无注释
-#define 按钮风格_单选按钮	2
-// 按下按钮时偏移文本
-#define 按钮风格_文本偏移	4
-// 暂无注释
-#define 按钮风格_图标在右	8
-// 暂无注释
-#define 滚动条风格_水平滚动条	0
-// 暂无注释
-#define 滚动条风格_垂直滚动条	1
-// 暂无注释
-#define 滚动条风格_左顶对齐	2
-// 暂无注释
-#define 滚动条风格_右底对齐	4
-// 暂无注释
-#define 滚动条风格_控制按钮	8
-// 暂无注释
-#define 编辑框风格_允许拖拽	1
-// 暂无注释
-#define 编辑框风格_密码输入	2
-// 暂无注释
-#define 编辑框风格_显示选择文本	4
-// 暂无注释
-#define 编辑框风格_丰富文本	8
-// 暂无注释
-#define 编辑框风格_允许鸣叫	16
-// 暂无注释
-#define 编辑框风格_只读	32
-// 暂无注释
-#define 编辑框风格_回车换行	64
-// 暂无注释
-#define 编辑框风格_数值输入	128
-// 暂无注释
-#define 编辑框风格_自动选择字符	256
-// 暂无注释
-#define 编辑框风格_禁用右键默认菜单	512
-// 暂无注释
-#define 编辑框风格_解析URL	1024
-// 暂无注释
-#define 编辑框风格_允许TAB字符	2048
-// 暂无注释
-#define 编辑框风格_总是显示提示文本	4096
-// 暂无注释
-#define 编辑框风格_隐藏插入符	8192
+// 按钮风格_复选按钮
+#define EBS_CHECKBUTTON	1
+// 按钮风格_单选按钮
+#define EBS_RADIOBUTTON	2
+// 按钮风格_文本偏移
+#define EBS_TEXTOFFSET	4
+// 按钮风格_图标在右
+#define EBS_ICONRIGHT	8
+// 滚动条风格_水平滚动条
+#define ESS_HORIZONTALSCROLL	0
+// 滚动条风格_垂直滚动条
+#define ESS_VERTICALSCROLL	1
+// 滚动条风格_左顶对齐
+#define ESS_LEFTTOPALIGN	2
+// 滚动条风格_右底对齐
+#define ESS_RIGHTBOTTOMALIGN	4
+// 滚动条风格_控制按钮
+#define ESS_CONTROLBUTTON	8
+// 编辑框风格_允许拖拽
+#define EES_DISABLEDRAG	1
+// 编辑框风格_密码输入
+#define EES_USEPASSWORD	2
+// 编辑框风格_显示选择文本
+#define EES_HIDESELECTION	4
+// 编辑框风格_丰富文本
+#define EES_RICHTEXT	8
+// 编辑框风格_允许鸣叫
+#define EES_ALLOWBEEP	16
+// 编辑框风格_只读
+#define EES_READONLY	32
+// 编辑框风格_回车换行
+#define EES_NEWLINE	64
+// 编辑框风格_数值输入
+#define EES_NUMERICINPUT	128
+// 编辑框风格_自动选择字符
+#define EES_AUTOWORDSEL	256
+// 编辑框风格_禁用右键默认菜单
+#define EES_DISABLEMENU	512
+// 编辑框风格_解析URL
+#define EES_PARSEURL	1024
+// 编辑框风格_允许TAB字符
+#define EES_ALLOWTAB	2048
+// 编辑框风格_总是显示提示文本
+#define EES_SHOWTIPSALWAYS	4096
+// 编辑框风格_隐藏插入符
+#define EES_HIDDENCARET	8192
 // 设置提示文本(wParam:提示文本颜色,lParam:文本指针)
 #define EM_SETCUEBANNER	5377
 // 加载RTF文件(wParam:数据长度,lParam:数据指针)
 #define EM_LOAD_RTF	6001
-// 暂无注释
-#define 列表风格_纵向列表	0
-// 暂无注释
-#define 列表风格_横向列表	1
-// 暂无注释
-#define 列表风格_允许多选	8
-// 暂无注释
-#define 列表风格_表项跟踪	16
-// 暂无注释
-#define 列表风格_始终显示选择项	32
+// 列表风格_纵向列表 
+#define ELS_VERTICALLIST	0
+// 列表风格_横向列表
+#define ELS_HORIZONTALLIST	1
+// 列表风格_允许多选 
+#define ELS_ALLOWMULTIPLE	8
+// 列表风格_表项跟踪 
+#define ELS_ITEMTRACKING	16
+// 列表风格_始终显示选择项
+#define ELS_SHOWSELALWAYS	32
 // 未命中
 #define LVHT_NOWHERE	1
 // 命中表项
@@ -688,8 +688,8 @@
 #define ELCP_ABSOLUTE_TYPE_OBJPS	3
 // 组件位置默认值
 #define EOP_DEFAULT	-2147483648
-// 暂无注释
-#define 组合框风格_允许编辑	1
+// 组合框风格_允许编辑
+#define ECS_ALLOWEDIT	1
 // 组合框事件_列表项被改变
 #define CBN_SELCHANGE	1
 // 组合框事件_编辑内容被改变
@@ -700,98 +700,98 @@
 #define CBN_CLOSEUP	8
 // 组合框事件_弹出下拉列表
 #define CBN_POPUPLISTWINDOW	2001
-// 暂无注释
-#define 缓动类型_Linear	1
-// 暂无注释
-#define 缓动类型_Clerp	2
-// 暂无注释
-#define 缓动类型_Spring	3
-// 暂无注释
-#define 缓动类型_Punch	4
-// 暂无注释
-#define 缓动类型_InQuad	5
-// 暂无注释
-#define 缓动类型_OutQuad	6
-// 暂无注释
-#define 缓动类型_InOutQuad	7
-// 暂无注释
-#define 缓动类型_InCubic	8
-// 暂无注释
-#define 缓动类型_OutCubic	9
-// 暂无注释
-#define 缓动类型_InOutCubic	10
-// 暂无注释
-#define 缓动类型_InQuart	11
-// 暂无注释
-#define 缓动类型_OutQuart	12
-// 暂无注释
-#define 缓动类型_InOutQuart	13
-// 暂无注释
-#define 缓动类型_InQuint	14
-// 暂无注释
-#define 缓动类型_OutQuint	15
-// 暂无注释
-#define 缓动类型_InOutQuint	16
-// 暂无注释
-#define 缓动类型_InSine	17
-// 暂无注释
-#define 缓动类型_OutSine	18
-// 暂无注释
-#define 缓动类型_InOutSine	19
-// 暂无注释
-#define 缓动类型_InExpo	20
-// 暂无注释
-#define 缓动类型_OutExpo	21
-// 暂无注释
-#define 缓动类型_InOutExpo	22
-// 暂无注释
-#define 缓动类型_InCirc	23
-// 暂无注释
-#define 缓动类型_OutCirc	24
-// 暂无注释
-#define 缓动类型_InOutCirc	25
-// 暂无注释
-#define 缓动类型_InBounce	26
-// 暂无注释
-#define 缓动类型_OutBounce	27
-// 暂无注释
-#define 缓动类型_InOutBounce	28
-// 暂无注释
-#define 缓动类型_InBack	29
-// 暂无注释
-#define 缓动类型_OutBack	30
-// 暂无注释
-#define 缓动类型_InOutBack	31
-// 暂无注释
-#define 缓动类型_InElastic	32
-// 暂无注释
-#define 缓动类型_OutElastic	33
-// 暂无注释
-#define 缓动类型_InOutElastic	34
-// pEasingContext为自定义回调函数(nProcess,nStart,nStop,nCurrent*,pEasingContext)
-#define 缓动类型_自定义	50
-// pEasingContext为pCurveInfo(_easing_load_curve)
-#define 缓动类型_曲线	51
-// 暂无注释
-#define 缓动模式_单次	1
-// 注意自行停止
-#define 缓动模式_循环	2
-// 高位则为次数
-#define 缓动模式_多次	4
-// 暂无注释
-#define 缓动模式_顺序	8
-// 暂无注释
-#define 缓动模式_逆序	16
-// 暂无注释
-#define 缓动模式_来回	32
-// pContext为回调函数,bool isStop Cbk(pEasingProgress,double nProgress,double nCurrent,pEasingContext,nTimesSurplus,Param1,Param2,Param3,Param4)
-#define 缓动模式_调用函数	0
-// pContext为hObj或hExDUI, wParam:pEasing,lParam:lpEasingInfo,result:isStop
-#define 缓动模式_分发消息	128
-// 使用线程处理,否则在UI线程处理(过程中会阻塞输入)
-#define 缓动模式_使用线程	256
-// 当使用曲线类型时生效,在结束时会自动释放曲线指针
-#define 缓动模式_释放曲线	512
+// 缓动类型_线性
+#define ET_Linear	1
+// 缓动类型_圆线性插值
+#define ET_Clerp	2
+// 缓动类型_弹性
+#define ET_Spring	3
+// 缓动类型_冲击
+#define ET_Punch	4
+// 缓动类型_二次方_In
+#define ET_InQuad	5
+// 缓动类型_二次方_Out
+#define ET_OutQuad	6
+// 缓动类型_二次方_InOut
+#define ET_InOutQuad	7
+// 缓动类型_三次方_In
+#define ET_InCubic	8
+// 缓动类型_三次方_Out
+#define ET_OutCubic	9
+// 缓动类型_三次方_InOut
+#define ET_InOutCubic	10
+// 缓动类型_四次方_In
+#define ET_InQuart	11
+// 缓动类型_四次方_Out
+#define ET_OutQuart	12
+// 缓动类型_四次方_InOut
+#define ET_InOutQuart	13
+// 缓动类型_五次方_In
+#define ET_InQuint	14
+// 缓动类型_五次方_Out
+#define ET_OutQuint	15
+// 缓动类型_五次方_InOut
+#define ET_InOutQuint	16
+// 缓动类型_正弦曲线_In
+#define ET_InSine	17
+// 缓动类型_正弦曲线_Out
+#define ET_OutSine	18
+// 缓动类型_正弦曲线_InOut
+#define ET_InOutSine	19
+// 缓动类型_指数曲线_In
+#define ET_InExpo	20
+// 缓动类型_指数曲线_Out
+#define ET_OutExpo	21
+// 缓动类型_指数曲线_InOut
+#define ET_InOutExpo	22
+// 缓动类型_圆曲线_In
+#define ET_InCirc	23
+// 缓动类型_圆曲线_Out
+#define ET_OutCirc	24
+// 缓动类型_圆曲线_InOut
+#define ET_InOutCirc	25
+// 缓动类型_反弹_In
+#define ET_InBounce	26
+// 缓动类型_反弹_Out
+#define ET_OutBounce	27
+// 缓动类型_反弹_InOuts
+#define ET_InOutBounce	28
+// 缓动类型_三次方溢出_In
+#define ET_InBack	29
+// 缓动类型_三次方溢出_Out
+#define ET_OutBack	30
+// 缓动类型_三次方溢出_InOut
+#define ET_InOutBack	31
+// 缓动类型_正弦曲线指数衰减_In
+#define ET_InElastic	32
+// 缓动类型_正弦曲线指数衰减_Out
+#define ET_OutElastic	33
+// 缓动类型_正弦曲线指数衰减_InOut
+#define ET_InOutElastic	34
+// 缓动类型_自定义 pEasingContext为自定义回调函数(nProcess,nStart,nStop,nCurrent*,pEasingContext)
+#define ET_CUSTOM	50
+// 缓动类型_曲线 pEasingContext为pCurveInfo(_easing_load_curve)
+#define ET_CURVE	51
+// 缓动模式_单次
+#define ES_SINGLE	1
+// 缓动模式_循环,注意自行停止
+#define ES_CYCLE		2
+// 缓动模式_多次,高位则为次数
+#define ES_MANYTIMES		4
+// 缓动模式_顺序
+#define ES_ORDER		8
+// 缓动模式_逆序
+#define ES_REVERSE		16
+// 缓动模式_来回
+#define ES_BACKANDFORTH		32
+// 缓动模式_调用函数 pContext为回调函数,bool isStop Cbk(pEasingProgress,double nProgress,double nCurrent,pEasingContext,nTimesSurplus,Param1,Param2,Param3,Param4)
+#define ES_CALLFUNCTION	0
+// 缓动模式_分发消息 pContext为hObj或hExDUI, wParam:pEasing,lParam:lpEasingInfo,result:isStop
+#define ES_DISPATCHNOTIFY	128
+// 缓动模式_使用线程 使用线程处理,否则在UI线程处理(过程中会阻塞输入)
+#define ES_THREAD	256
+// 缓动模式_释放曲线 当使用曲线类型时生效,在结束时会自动释放曲线指针
+#define ES_RELEASECURVE	512
 // 播放
 #define EES_PLAY	0
 // 暂停
@@ -892,12 +892,12 @@
 #define sizeof_ex_treeview_insertinfo	40
 // 暂无注释
 #define sizeof_ex_treeview_iteminfo	28
-// 暂无注释
-#define 报表框_绘制横线	256
-// 暂无注释
-#define 报表框_绘制竖线	512
-// 暂无注释
-#define 报表框_无表头	1024
+// 报表框_绘制横线
+#define ERLS_DRAWHORIZONTALLINE	256
+// 报表框_绘制竖线
+#define ERLS_DRAWVERTICALLINE	512
+// 报表框_无表头
+#define ERLS_NOHEAD	1024
 // 表头风格_可点击
 #define ERLV_CS_CLICKABLE	1
 // 表头风格_锁定宽度
@@ -974,10 +974,10 @@
 #define TVM_SETIMAGELIST	4361
 // 获取图片组
 #define TVM_GETIMAGELIST	4360
-// 暂无注释
-#define 树形框风格_显示加减号	64
-// 暂无注释
-#define 树形框风格_显示连接线	128
+// 树形框风格_显示加减号
+#define ETS_SHOWADDANDSUB	64
+// 树形框风格_显示连接线
+#define ETS_SHOWCABLE	128
 // 显示
 #define SW_SHOW	5
 // 隐藏
@@ -1005,7 +1005,7 @@
 // 暂无注释
 #define IDCLOSE	8
 // 暂无注释
-#define NULL	0
+//#define NULL	0
 // 设置进度条范围
 #define PBM_SETRANGE	1025
 // 设置进度条位置
@@ -1026,13 +1026,18 @@
 #define IMAGE_BITMAP	0
 // 图标
 #define IMAGE_ICON	1
-//字体风格
-#define 字体风格_普通 0
-#define 字体风格_加粗 1
-#define 字体风格_倾斜 2
-#define 字体风格_加粗倾斜 3
-#define 字体风格_下划线 4
-#define 字体风格_删除线 5
+//字体风格_普通
+#define EFS_DEFAULT	0
+//字体风格_加粗
+#define EFS_BLOD	1
+//字体风格_倾斜
+#define EFS_SLANT 2
+//字体风格_加粗倾斜
+#define EFS_BLODANDSLANT 3
+//字体风格_下划线
+#define EFS_UNDERLINE 4
+//字体风格_删除线
+#define EFS_STRICKOUT 5
 
 #define IRF_DEFAULT					0		//不做改变
 #define IRF_FLIP_L					4		//水平翻转

@@ -13,7 +13,7 @@ size_t _sysbutton_paint(HWND hWnd, EXHANDLE hObj, obj_s* pObj)
 		}
 		else if ((ps.dwStyle_ & EWS_BUTTON_MAX) != 0)
 		{
-			if (窗口_查询风格(hWnd, WS_MAXIMIZE, false))
+			if (_wnd_querystyle(hWnd, WS_MAXIMIZE, false))
 			{
 				atomClass = ATOM_SYSBUTTON_RESTORE;
 			}
@@ -23,7 +23,7 @@ size_t _sysbutton_paint(HWND hWnd, EXHANDLE hObj, obj_s* pObj)
 		}
 		else if ((ps.dwStyle_ & EWS_BUTTON_MIN) != 0)
 		{
-			if (窗口_查询风格(hWnd, WS_MINIMIZE, false))
+			if (_wnd_querystyle(hWnd, WS_MINIMIZE, false))
 			{
 				atomClass = ATOM_SYSBUTTON_RESTORE;
 			}
@@ -48,11 +48,11 @@ size_t _sysbutton_paint(HWND hWnd, EXHANDLE hObj, obj_s* pObj)
 			atomClass = ATOM_SYSBUTTON_HELP;
 		}
 
-		if ((ps.dwState_ & 状态_按下) != 0)
+		if ((ps.dwState_ & STATE_DOWN) != 0)
 		{
 			atomState = ATOM_DOWN;
 		}
-		else if ((ps.dwState_ & 状态_点燃) != 0)
+		else if ((ps.dwState_ & STATE_HOVER) != 0)
 		{
 			atomState = ATOM_HOVER;
 		}
@@ -67,7 +67,7 @@ size_t _sysbutton_paint(HWND hWnd, EXHANDLE hObj, obj_s* pObj)
 			left = ps.t_left_;
 			if (((pObj->pWnd_->dwStyle_ & EWS_HASICON) == EWS_HASICON))
 			{
-				size_t atomClass = 窗口_取图标句柄(hWnd, false);
+				size_t atomClass = _wnd_geticonhandle(hWnd, false);
 				if (atomClass != 0)
 				{
 					EXHANDLE hImg = _img_createfromhicon((void*)atomClass);
@@ -157,11 +157,11 @@ size_t _sysbutton_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_
 		void* ret = nullptr;
 		if (!((pObj->dwStyle_ & EWS_TITLE) == EWS_TITLE))
 		{
-			_obj_setuistate(pObj, 状态_点燃, false, 0, true, &nError);
+			_obj_setuistate(pObj, STATE_HOVER, false, 0, true, &nError);
 			if (((pObj->dwStyle_ & EWS_BUTTON_MAX) == EWS_BUTTON_MAX))
 			{
 				Ex_MemFree(pObj->pstrTips_);
-				if (窗口_查询风格(hWnd, WS_MAXIMIZE, false))
+				if (_wnd_querystyle(hWnd, WS_MAXIMIZE, false))
 				{
 					ret = copytstr((LPCWSTR)g_Li.lpstr_res_max, lstrlenW((LPCWSTR)g_Li.lpstr_res_max));
 				}
@@ -173,7 +173,7 @@ size_t _sysbutton_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_
 			else if (((pObj->dwStyle_ & EWS_BUTTON_MIN) == EWS_BUTTON_MIN))
 			{
 				Ex_MemFree(pObj->pstrTips_);
-				if (窗口_查询风格(hWnd, WS_MINIMIZE, false))
+				if (_wnd_querystyle(hWnd, WS_MINIMIZE, false))
 				{
 					ret = copytstr((LPCWSTR)g_Li.lpstr_res_min, lstrlenW((LPCWSTR)g_Li.lpstr_res_min));
 				}
@@ -188,21 +188,21 @@ size_t _sysbutton_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_
 	{
 		if (!((pObj->dwStyle_ & EWS_TITLE) == EWS_TITLE))
 		{
-			_obj_setuistate(pObj, 状态_点燃 | 状态_按下, true, 0, true, &nError);
+			_obj_setuistate(pObj, STATE_HOVER | STATE_DOWN, true, 0, true, &nError);
 		}
 	}
 	else if (uMsg == WM_LBUTTONDOWN || uMsg == WM_RBUTTONDOWN)
 	{
 		if (!((pObj->dwStyle_ & EWS_TITLE) == EWS_TITLE))
 		{
-			_obj_setuistate(pObj, 状态_按下, false, 0, true, &nError);
+			_obj_setuistate(pObj, STATE_DOWN, false, 0, true, &nError);
 		}
 	}
 	else if (uMsg == WM_LBUTTONUP || uMsg == WM_RBUTTONUP)
 	{
 		if (!((pObj->dwStyle_ & EWS_TITLE) == EWS_TITLE))
 		{
-			_obj_setuistate(pObj, 状态_按下, true, 0, true, &nError);
+			_obj_setuistate(pObj, STATE_DOWN, true, 0, true, &nError);
 		}
 	}
 	else if (uMsg == WM_EX_LCLICK)
@@ -216,30 +216,30 @@ size_t _sysbutton_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_
 			}
 			else {
 				SendMessageW(hWnd, WM_SYSCOMMAND, SC_CLOSE, 0);
-				_obj_setuistate(pObj, 状态_点燃 | 状态_按下, true, 0, true, &nError);
+				_obj_setuistate(pObj, STATE_HOVER | STATE_DOWN, true, 0, true, &nError);
 			}
 		}
 		else if ((ret & EWS_BUTTON_MAX) != 0)
 		{
-			if (窗口_查询风格(hWnd, WS_MAXIMIZE, false))
+			if (_wnd_querystyle(hWnd, WS_MAXIMIZE, false))
 			{
 				SendMessageW(hWnd, WM_SYSCOMMAND, SC_RESTORE, 0);
 			}
 			else {
 				SendMessageW(hWnd, WM_SYSCOMMAND, SC_MAXIMIZE, 0);
 			}
-			_obj_setuistate(pObj, 状态_点燃 | 状态_按下, true, 0, true, &nError);
+			_obj_setuistate(pObj, STATE_HOVER | STATE_DOWN, true, 0, true, &nError);
 		}
 		else if ((ret & EWS_BUTTON_MIN) != 0)
 		{
-			if (窗口_查询风格(hWnd, WS_MINIMIZE, false))
+			if (_wnd_querystyle(hWnd, WS_MINIMIZE, false))
 			{
 				SendMessageW(hWnd, WM_SYSCOMMAND, SC_RESTORE, 0);
 			}
 			else {
 				SendMessageW(hWnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
 			}
-			_obj_setuistate(pObj, 状态_点燃 | 状态_按下, true, 0, true, &nError);
+			_obj_setuistate(pObj, STATE_HOVER | STATE_DOWN, true, 0, true, &nError);
 		}
 	}
 	else if (uMsg == WM_SETFOCUS)
@@ -314,7 +314,7 @@ size_t _page_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lPa
 {
 	if (uMsg == WM_VSCROLL || uMsg == WM_HSCROLL)
 	{
-		if (((pObj->dwStyle_ & 条目风格_子菜单) == 条目风格_子菜单))
+		if (((pObj->dwStyle_ & EMIS_SUBMENU) == EMIS_SUBMENU))
 		{
 			_page_onvscrollbar(hWnd, hObj, pObj, uMsg, wParam, lParam);
 		}

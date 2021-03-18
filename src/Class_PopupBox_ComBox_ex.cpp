@@ -67,7 +67,7 @@ size_t _cb_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lPara
 	if (uMsg == WM_CREATE)
 	{
 		array_s* hArr = Array_Create(0);
-		Array_BindEvent(hArr, 数组事件_删除成员, &_cb_arr_del);
+		Array_BindEvent(hArr, eae_delmember, &_cb_arr_del);
 		pObj->dwOwnerData_ = hArr;
 	}
 	else if (uMsg == WM_DESTROY)
@@ -163,7 +163,7 @@ int _cblv_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam
 				int nError = 0;
 				if (_handle_validate(hObj, HT_OBJECT, (void**)&pObj, &nError))
 				{
-					if ((ecd.dwState & 状态_点燃) != 0)
+					if ((ecd.dwState & STATE_HOVER) != 0)
 					{
 						void* brush = _brush_create(ExRGB2ARGB(8421504, 125));
 						_canvas_fillrect(ecd.hCanvas, brush, ecd.rcDraw.left, ecd.rcDraw.top, ecd.rcDraw.right, ecd.rcDraw.bottom);

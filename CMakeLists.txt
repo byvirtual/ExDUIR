@@ -4,7 +4,7 @@ project(exdui5)
 add_definitions(-DUNICODE)
 add_definitions(-D_WINDOWS)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 add_compile_options("$<$<C_COMPILER_ID:MSVC>:/source-charset:UTF-8>")
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/source-charset:UTF-8>")

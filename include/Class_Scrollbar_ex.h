@@ -1,11 +1,16 @@
 #pragma once
 #include "help_ex.h"
 
-#define 滚动条点击类型_调节按钮1 1
-#define 滚动条点击类型_页面区域1 2
-#define 滚动条点击类型_滚动条 3
-#define 滚动条点击类型_页面区域2 4
-#define 滚动条点击类型_调节按钮2 5
+//滚动条点击类型_调节按钮1
+#define SBCT_ADJUSTBUTTON1 1
+//滚动条点击类型_页面区域1
+#define SBCT_PAGEAREA1 2
+//滚动条点击类型_滚动条
+#define SBCT_CONTROL 3
+//滚动条点击类型_页面区域2
+#define SBCT_PAGEAREA2 4
+//滚动条点击类型_调节按钮2
+#define SBCT_ADJUSTBUTTON2 5
 
 size_t _sb_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj);
 void _sb_init(obj_s* pObj);

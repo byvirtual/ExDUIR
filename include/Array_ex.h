@@ -5,16 +5,22 @@ typedef size_t(*ArrayComparePROC)(void*, size_t, size_t, size_t, size_t, int, in
 typedef size_t(*ArrayPROC)(void*, size_t, size_t, int);
 typedef bool(*ArrayEnumPROC)(void*, int, void*, int, size_t);
 
-
-#define 数组默认增长系数 1.1
-#define 数组事件_添加成员 1
-#define 数组事件_获取成员 2
-#define 数组事件_设置成员 3
-#define 数组事件_删除成员 4
-#define 数组事件_比对成员 5
-
-#define 数组比对原由_寻找位置 1
-#define 数组比对原由_排序比对 2
+//数组默认增长系数
+#define eaf_growthfactor	1.1
+//数组事件_添加成员
+#define eae_addmember	1
+//数组事件_获取成员
+#define eae_getmember	2
+//数组事件_设置成员
+#define eae_setmember 3
+//数组事件_删除成员
+#define eae_delmember 4
+//数组事件_比对成员
+#define eae_comparemember 5
+//数组比对原由_寻找位置
+#define eacy_searchposition 1
+//数组比对原由_排序比对
+#define eacy_sort 2
 
 struct array_s
 {

@@ -1,8 +1,9 @@
 #pragma once
 #include "help_ex.h"
 
-#define mpbf_used 1
-#define 内存池标记_禁止超出最大数量 1
+#define mpbf_used	1
+//内存池标记_禁止超出最大数量
+#define mpbs_maximum	1
 
 struct mempoolheader_s
 {

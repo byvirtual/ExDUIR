@@ -94,7 +94,7 @@ void _easing_progress(easing_s* pEasing)
 	double nCurrent = 0;
 	void* pProgress;
 	void* pCurrent;
-	if ((nMode & 缓动模式_分发消息) == 缓动模式_分发消息)
+	if ((nMode & ES_DISPATCHNOTIFY) == ES_DISPATCHNOTIFY)
 	{
 		EasingInfo.p1 = param1;
 		EasingInfo.p2 = param2;
@@ -109,13 +109,13 @@ void _easing_progress(easing_s* pEasing)
 	}
 	bool fDesc = true;
 	int nProcessTime = 0;
-	while (nTimes > 0 || (nMode & 缓动模式_循环) == 缓动模式_循环)
+	while (nTimes > 0 || (nMode & ES_CYCLE) == ES_CYCLE)
 	{
-		if ((nMode & 缓动模式_来回) == 缓动模式_来回)
+		if ((nMode & ES_BACKANDFORTH) == ES_BACKANDFORTH)
 		{
 			fDesc = !fDesc;
 		}
-		else if ((nMode & 缓动模式_逆序) == 缓动模式_逆序)
+		else if ((nMode & ES_REVERSE) == ES_REVERSE)
 		{
 			fDesc = true;
 		}
@@ -140,7 +140,7 @@ void _easing_progress(easing_s* pEasing)
 				nProcess = 1;
 				pEasing->nState_ = 1;
 			}
-			if ((nMode & 缓动模式_分发消息) == 缓动模式_分发消息)
+			if ((nMode & ES_DISPATCHNOTIFY) == ES_DISPATCHNOTIFY)
 			{
 				EasingInfo.nCurrent = nCurrent;
 				EasingInfo.nProgress = nProcess;
@@ -162,7 +162,7 @@ void _easing_progress(easing_s* pEasing)
 			if (fStop || pEasing->nState_ == EES_STOP)
 			{
 				nTimes = 0;
-				nMode = (nMode & ~缓动模式_循环);
+				nMode = (nMode & ~ES_CYCLE);
 				break;
 			}
 			i = i + 1;
@@ -170,7 +170,7 @@ void _easing_progress(easing_s* pEasing)
 		}
 		nTimes = nTimes - 1;
 	}
-	if ((nMode & 缓动模式_释放曲线) == 缓动模式_释放曲线 && uType == 缓动类型_曲线)
+	if ((nMode & ES_RELEASECURVE) == ES_RELEASECURVE && uType == ET_CURVE)
 	{
 		_easing_curve_free(pEasingContext);
 	}
@@ -732,7 +732,7 @@ easing_s* _easing_create(int dwType, void* pEasingContext, int dwMode,EXHANDLE p
 		pEasing =(easing_s*)Ex_MemAlloc(sizeof(easing_s));
 		int nError = 0;
 		void* ptr;
-		if ((dwMode & 缓动模式_分发消息) == 缓动模式_分发消息)
+		if ((dwMode & ES_DISPATCHNOTIFY) == ES_DISPATCHNOTIFY)
 		{
 			if (_handle_validate(pContext, HT_DUI, (void**)&ptr, &nError))
 			{
@@ -755,11 +755,11 @@ easing_s* _easing_create(int dwType, void* pEasingContext, int dwMode,EXHANDLE p
 		{
 			lpProc = lpCalcProcs[dwType];
 		}
-		else if (dwType == 缓动类型_自定义)
+		else if (dwType == ET_CUSTOM)
 		{
 			lpProc = pEasingContext;
 		}
-		else if (dwType == 缓动类型_曲线)
+		else if (dwType == ET_CURVE)
 		{
 			lpProc = &_easing_calc_curve;
 			if (pEasingContext == 0)
@@ -795,7 +795,7 @@ easing_s* _easing_create(int dwType, void* pEasingContext, int dwMode,EXHANDLE p
 		pEasing->param3_ = param3;
 		pEasing->param4_ = param4;
 		pEasing->hEventPause_ = CreateEventW(0, false, true, 0);
-		if ((dwMode & 缓动模式_使用线程) != 0)
+		if ((dwMode & ES_THREAD) != 0)
 		{
 			Thread_Create((LPTHREAD_START_ROUTINE)&_easing_progress, pEasing);
 		}
