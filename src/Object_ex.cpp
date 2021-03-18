@@ -2463,12 +2463,9 @@ EXHANDLE Ex_ObjGetFromName(EXHANDLE hExDuiOrhObj, void* lpName)
 	{
 		pWnd = pObj->pWnd_;
 	}
-	else {
-		void* pDui = nullptr;
-		if (!_handle_validate(hExDuiOrhObj, HT_DUI, &pDui, &nError))
-		{
-			return 0;
-		}
+	else if (!_handle_validate(hExDuiOrhObj, HT_DUI, &pWnd, &nError))
+	{
+		return 0;
 	}
 	auto atomName = Ex_Atom((LPCWSTR)lpName);
 	if (atomName != 0)
@@ -2487,11 +2484,9 @@ EXHANDLE Ex_ObjGetFromID(EXHANDLE hExDuiOrhObj, int nID)
 	{
 		pWnd = pObj->pWnd_;
 	}
-	else {
-		if (!_handle_validate(hExDuiOrhObj, HT_DUI, (void**)&pWnd, &nError))
-		{
-			return 0;
-		}
+	else if (!_handle_validate(hExDuiOrhObj, HT_DUI, (void**)&pWnd, &nError))
+	{
+		return 0;
 	}
 	return _obj_getobjfromidorname(pWnd, nID);
 }
