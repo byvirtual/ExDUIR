@@ -171,7 +171,7 @@ void _obj_z_set_before_topmost(EXHANDLE objChildFirst, void* pObjChildFirst, EXH
 	else {
 		pObjChildLast->objNext_ = hObj;
 		pObj->objPrev_ = objChildLast;
-		pParent->objChildFirst_ = hObj;
+		pParent->objChildLast_ = hObj;
 	}
 }
 void _obj_z_set(EXHANDLE hObj, obj_s* pObj, EXHANDLE hObjInsertAfter, UINT flags, int* nError)
