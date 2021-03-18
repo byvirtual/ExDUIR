@@ -2488,8 +2488,7 @@ EXHANDLE Ex_ObjGetFromID(EXHANDLE hExDuiOrhObj, int nID)
 		pWnd = pObj->pWnd_;
 	}
 	else {
-		void* pDui = nullptr;
-		if (!_handle_validate(hExDuiOrhObj, HT_DUI, &pDui, &nError))
+		if (!_handle_validate(hExDuiOrhObj, HT_DUI, (void**)&pWnd, &nError))
 		{
 			return 0;
 		}
