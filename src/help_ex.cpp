@@ -25,13 +25,7 @@ bool Ex_MemFree(void* hMem)
 {
 	if (hMem != nullptr)
 	{
-		//free(hMem);
-		auto ret = HeapFree(GetProcessHeap(), 0, hMem);
-		//auto ret = LocalFree(hMem);
-		if (ret == 0)
-		{
-			return true;
-		}
+		return HeapFree(GetProcessHeap(), 0, hMem);
 	}
 	return false;
 }
@@ -525,15 +519,18 @@ std::string GetErrorMessage(DWORD error)
 
 void* copytstr(LPCWSTR lptstr, int len)
 {
-	auto addr = Ex_MemAlloc(len * 2 + 2);
-	if (addr != 0)
-	{
-		RtlMoveMemory(addr, lptstr, len * 2);
+	if (lptstr) {
+		auto addr = Ex_MemAlloc(len * 2 + 2);
+		if (addr != 0)
+		{
+			RtlMoveMemory(addr, lptstr, len * 2 + 2);
+		}
+		else {
+			Ex_SetLastError(ERROR_EX_MEMORY_ALLOC);
+		}
+		return addr;
 	}
-	else {
-		Ex_SetLastError(ERROR_EX_MEMORY_ALLOC);
-	}
-	return addr;
+	return NULL;
 }
 
 HRESULT IUnknown_QueryInterface(void* thisptr, REFIID iid, void** ppvObject)

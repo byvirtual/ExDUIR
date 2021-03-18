@@ -182,12 +182,14 @@ void Ex_Sleep(int us)
 
 int Ex_Atom(LPCWSTR lptstring)//OK
 {
-	auto len = lstrlenW(lptstring) * 2;
+	auto len = lstrlenW(lptstring);
 	int ret = 1;
 	if (len > 0)
 	{
-		//CharLowerW((LPWSTR)lptstring);
-		ret = Crc32_Addr((UCHAR*)lptstring, len);
+		LPWSTR buff = (LPWSTR)copytstr(lptstring, len);
+		CharLowerW((LPWSTR)buff);
+		ret = Crc32_Addr((UCHAR*)buff, len * 2);
+		Ex_MemFree(buff);
 	}
 	return ret;
 }
