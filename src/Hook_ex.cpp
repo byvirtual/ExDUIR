@@ -83,7 +83,8 @@ void _menu_init(HWND hWnd)
 			HashTable_Remove(g_Li.hTableLayout, (size_t)hMenu);
 			menu_s* lpMenuParams = pWnd->lpMenuParams_;
 			SetWindowLongPtrW(hWnd, -20, WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_LAYERED);
-			SetClassLongPtrW(hWnd, -26, 1 | 2 | 8);
+			SetClassLongPtrW(hWnd, GCL_STYLE, 1 | 2 | 8);
+			
 			int dwStyle = EWS_MENU | EWS_NOINHERITBKG | EWS_ESCEXIT | EWS_FULLSCREEN;
 			MsgPROC pfnCallback = nullptr;
 			if (!IsBadReadPtr(lpMenuParams, sizeof(menu_s)))
