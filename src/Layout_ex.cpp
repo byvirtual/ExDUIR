@@ -23,7 +23,7 @@ bool _layout_unregister(int nType)
 void _layout_free_info(array_s* hArr, int nIndex, void* pvItem, int nType)
 {
 	layout_s* pLayout = (layout_s*)Array_GetExtra(hArr);
-	((LayoutTwoPROC)pLayout->lpfnProc_)(ELN_UNINITCHILDPROPS, __get(pvItem, 0), (size_t)pvItem);
+	((LayoutPROC)pLayout->lpfnProc_)(NULL, ELN_UNINITCHILDPROPS, __get(pvItem, 0), (size_t)pvItem);
 	Ex_MemFree((void*)((size_t)pvItem - 16));
 }
 
@@ -58,11 +58,11 @@ EXHANDLE _layout_create(int nType, EXHANDLE hObjBind)
 					pLayout->fUpdateable_ = true;
 					pLayout->lpfnProc_ = (void*)lpfnProc;
 					pLayout->hBind_ = hObjBind;
-					int nCount = ((LayoutThreePROC)lpfnProc)(NULL, ELN_GETPROPSCOUNT, NULL, NULL);
+					int nCount = ((LayoutPROC)lpfnProc)(NULL, ELN_GETPROPSCOUNT, NULL, NULL);
 					void* pInfo = (void*)((size_t)Ex_MemAlloc((nCount + (size_t)4) * (size_t)4) + (size_t)16);
 					pLayout->lpLayoutInfo_ = pInfo;
-					((LayoutThreePROC)lpfnProc)(NULL, ELN_INITPROPS, NULL, (size_t)pInfo);
-					nCount = ((LayoutThreePROC)lpfnProc)(NULL, ELN_GETCHILDPROPCOUNT, NULL, NULL);
+					((LayoutPROC)lpfnProc)(NULL, ELN_INITPROPS, NULL, (size_t)pInfo);
+					nCount = ((LayoutPROC)lpfnProc)(NULL, ELN_GETCHILDPROPCOUNT, NULL, NULL);
 					pLayout->cbInfoLen_ = (nCount + 5) * 4;
 					array_s* hArr = Array_Create(0);
 					Array_BindEvent(hArr, 数组事件_删除成员, &_layout_free_info);
@@ -116,7 +116,7 @@ bool _layout_destory(EXHANDLE hLayout)
 	if (_handle_validate(hLayout, HT_LAYOUT, (void**)&pLayout, &nError))
 	{
 		void* lpfnProc = pLayout->lpfnProc_;
-		((LayoutTwoPROC)lpfnProc)(ELN_UNINITPROPS, 0, (size_t)pLayout->lpLayoutInfo_);
+		((LayoutPROC)lpfnProc)(NULL, ELN_UNINITPROPS, 0, (size_t)pLayout->lpLayoutInfo_);
 		Array_Destroy(pLayout->hArrChildrenInfo_);
 		Ex_MemFree((void*)((size_t)pLayout->lpLayoutInfo_ - 16));
 		Ex_MemFree(pLayout);
@@ -159,7 +159,7 @@ bool _layout_update(EXHANDLE hLayout)
 		if (pLayout->fUpdateable_)
 		{
 			void* lpfnProc = pLayout->lpfnProc_;
-			((LayoutThreePROC)lpfnProc)(pLayout, ELN_UPDATE, pLayout->hBind_, 0);
+			((LayoutPROC)lpfnProc)(pLayout, ELN_UPDATE, pLayout->hBind_, 0);
 		}
 	}
 	Ex_SetLastError(nError);
@@ -202,7 +202,7 @@ size_t _layout_notify(EXHANDLE hLayout, int nEvent, void* wParam, void* lParam)
 		if (pLayout->fUpdateable_)
 		{
 			void* lpfnProc = pLayout->lpfnProc_;
-			ret = ((LayoutThreePROC)lpfnProc)(pLayout, nEvent, (size_t)wParam, (size_t)lParam);
+			ret = ((LayoutPROC)lpfnProc)(pLayout, nEvent, (size_t)wParam, (size_t)lParam);
 		}
 	}
 	Ex_SetLastError(nError);
@@ -258,7 +258,7 @@ bool _layout_setchildprop(EXHANDLE hLayout, EXHANDLE hObj, int dwPropID, size_t 
 				{
 					pInfo = (void*)((size_t)pInfo + 16);
 					__set_int(pInfo, 0, hObj);
-					((LayoutThreePROC)pLayout->lpfnProc_)(pLayout, ELN_INITCHILDPROPS, hObj, (size_t)pInfo);
+					((LayoutPROC)pLayout->lpfnProc_)(pLayout, ELN_INITCHILDPROPS, hObj, (size_t)pInfo);
 					nIndex = Array_AddMember(hArr, (size_t)pInfo);
 				}
 			}
@@ -267,7 +267,7 @@ bool _layout_setchildprop(EXHANDLE hLayout, EXHANDLE hObj, int dwPropID, size_t 
 			}
 			if (pInfo != 0)
 			{
-				if (((LayoutThreePROC)pLayout->lpfnProc_)(pLayout, ELN_CHECKCHILDPROPVALUE, MAKELONG(nIndex, dwPropID), pvValue) == 0)
+				if (((LayoutPROC)pLayout->lpfnProc_)(pLayout, ELN_CHECKCHILDPROPVALUE, MAKELONG(nIndex, dwPropID), pvValue) == 0)
 				{
 					__set(pInfo, dwPropID * sizeof(void*), pvValue);
 				}
@@ -324,7 +324,7 @@ bool _layout_setprop(EXHANDLE hLayout, int dwPropID, size_t pvValue)
 	{
 		void* pInfo = pLayout->lpLayoutInfo_;
 		void* lpfnProc = pLayout->lpfnProc_;
-		if (((LayoutThreePROC)lpfnProc)(pLayout, ELN_CHECKCHILDPROPVALUE, dwPropID, pvValue) == 0)
+		if (((LayoutPROC)lpfnProc)(pLayout, ELN_CHECKCHILDPROPVALUE, dwPropID, pvValue) == 0)
 		{
 			if (dwPropID > 0)
 			{
@@ -1678,9 +1678,9 @@ size_t __layout_absolute_proc(layout_s* pLayout, int nEvent, size_t wParam, size
 		int nType = HIWORD(wParam);
 		if (nType % 2 == 1 && nType >= ELCP_ABSOLUTE_LEFT && nType <= ELCP_ABSOLUTE_OFFSET_V)
 		{
-			if (__get_int(pInfo, (nType + 1) * 4) == ELCP_ABSOLUTE_TYPE_UNKNOWN)
+			if (__get_int(pInfo, nType * 4) == ELCP_ABSOLUTE_TYPE_UNKNOWN)
 			{
-				__set_int(pInfo, (nType + 1) * 4, ELCP_ABSOLUTE_TYPE_PX);
+				__set_int(pInfo, nType * 4, ELCP_ABSOLUTE_TYPE_PX);
 			}
 		}
 		

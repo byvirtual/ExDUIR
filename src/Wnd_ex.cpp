@@ -2104,7 +2104,7 @@ void _wnd_menu_createitems(HWND hWnd, wnd_s* pWnd)
 	size_t hMenu = SendMessageW(hWnd, 481, 0, 0);
 	theme_s* hTheme = pWnd->hTheme_;
 	void* lpPaddingText = Ex_ThemeGetValuePtr(hTheme, ATOM_MENU, ATOM_PADDING_TEXT);
-	int nCount = GetMenuItemCount((HMENU)hMenu) - 1;
+	int nCount = GetMenuItemCount((HMENU)hMenu);
 	wnd_s* pMenuHostWnd = pWnd->pMenuHostWnd_;
 	HWND hParent = pMenuHostWnd->hWnd_;
 	RECT rcParent{ 0 };
@@ -2130,7 +2130,7 @@ void _wnd_menu_createitems(HWND hWnd, wnd_s* pWnd)
 	{
 		int width = pWnd->width_ - (rcPaddingClient.left + rcPaddingClient.right);
 		int height = pWnd->height_ - (rcPaddingClient.top + rcPaddingClient.bottom);
-		_obj_create_proc(&nError, false, hTheme, pParnet, EOS_EX_FOCUSABLE, ATOM_PAGE, 0, EOS_VISIBLE | EOS_VSCROLL | 条目风格_子菜单, rcPaddingClient.left, rcPaddingClient.top, width, height, 0, 0, 0, 0, 0);
+		_obj_create_proc(NULL, false, hTheme, pParnet, EOS_EX_FOCUSABLE, ATOM_PAGE, 0, EOS_VISIBLE | EOS_VSCROLL | 条目风格_子菜单, rcPaddingClient.left, rcPaddingClient.top, width, height, 0, 0, 0, 0, 0);
 		_obj_create_done(hWnd, pWnd, objParent, pParnet);
 		EXHANDLE objPP = objParent;
 		EXHANDLE hLayout = _layout_create(ELT_ABSOLUTE, pWnd->hexdui_);
@@ -2174,15 +2174,14 @@ void _wnd_menu_createitems(HWND hWnd, wnd_s* pWnd)
 							}
 						}
 					}
-					std::vector<wchar_t> bin;
-					bin.resize(520);
+					LPWSTR bin = (LPWSTR)malloc(520 * 2);
 					OffsetRect(&rcItem, -rcParent.left, -rcParent.top);
-					GetMenuStringW((HMENU)hMenu, i, bin.data(), 520, MF_BYPOSITION);
+					GetMenuStringW((HMENU)hMenu, i, bin, 520, MF_BYPOSITION);
 					obj_s* pObj = nullptr;
 					EXHANDLE hObj = _obj_create_init(hWnd, pWnd, ATOM_ITEM, 0, &pObj, &nError);
 					if (hObj != 0)
 					{
-						_obj_create_proc(&nError, false, hTheme, pObj, EOS_EX_FOCUSABLE | EOS_EX_TABSTOP, ATOM_ITEM, bin.data(), eos, rcItem.left, rcItem.top, width, rcItem.bottom - rcItem.top, objParent, mii.wID, 0, i, DT_VCENTER | DT_SINGLELINE);
+						_obj_create_proc(&nError, false, hTheme, pObj, EOS_EX_FOCUSABLE | EOS_EX_TABSTOP, ATOM_ITEM, bin, eos, rcItem.left, rcItem.top, width, rcItem.bottom - rcItem.top, objParent, mii.wID, 0, i, DT_VCENTER | DT_SINGLELINE);
 						pObj->dwFlags_ = pObj->dwFlags_ | eof_bMenuItem;
 						_obj_create_done(hWnd, pWnd, hObj, pObj);
 						if (lpPaddingText != 0)
@@ -2197,6 +2196,7 @@ void _wnd_menu_createitems(HWND hWnd, wnd_s* pWnd)
 							}
 						}
 					}
+					free(bin);
 					height = height + rcItem.bottom - rcItem.top;
 				}
 			}
