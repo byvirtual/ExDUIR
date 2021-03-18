@@ -2463,7 +2463,7 @@ EXHANDLE Ex_ObjGetFromName(EXHANDLE hExDuiOrhObj, void* lpName)
 	{
 		pWnd = pObj->pWnd_;
 	}
-	else if (!_handle_validate(hExDuiOrhObj, HT_DUI, &pWnd, &nError))
+	else if (!_handle_validate(hExDuiOrhObj, HT_DUI, (void**)&pWnd, &nError))
 	{
 		return 0;
 	}
