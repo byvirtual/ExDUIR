@@ -246,9 +246,9 @@
 #define EOS_VISIBLE	268435456
 // 组件风格_边框
 #define EOS_BORDER	536870912
-// 组件风格_水平滚动条
-#define EOS_VSCROLL	1073741824
 // 组件风格_垂直滚动条
+#define EOS_VSCROLL	1073741824
+// 组件风格_水平滚动条
 #define EOS_HSCROLL	-2147483648
 // 组件风格_扩展_自适应尺寸
 #define EOS_EX_AUTOSIZE	4194304
