@@ -746,13 +746,13 @@ bool _canvas_calctextsize_ex(canvas_s* pCanvas, font_s* pFont, LPCWSTR lpwzText,
 	if (*nError == 0)
 	{
 		auto byte = pFont->font_.lfUnderline;
-		if (byte != 0)
+		if (byte)
 		{
 			DWRITE_TEXT_RANGE range = { 0,dwLen };
 			((IDWriteTextLayout*)pLayout)->SetUnderline(byte, range);
 		}
 		byte = pFont->font_.lfStrikeOut;
-		if (byte != 0)
+		if (byte)
 		{
 			DWRITE_TEXT_RANGE range = { 0,dwLen };
 			((IDWriteTextLayout*)pLayout)->SetStrikethrough(byte, range);
@@ -806,14 +806,16 @@ bool _canvas_calctextsize_ex(canvas_s* pCanvas, font_s* pFont, LPCWSTR lpwzText,
 			((IDWriteTextLayout*)pLayout)->SetUnderline(true, rangea);
 		}
 	}
-	if (lpwzTextFix != 0)
+	if (lpwzTextFix)
 	{
 		Ex_MemFree(lpwzTextFix);
 	}
-	if (lpWidth != 0)
+	if (lpWidth)
 	{
-		__set_int(lpWidth, 0, iWidth);
-		__set_int(lpWidth, 0, iHeight);
+		*lpWidth = iWidth;
+	}
+	if (lpHeight) {
+		*lpHeight = iHeight;
 	}
 	return *nError == 0;
 }
