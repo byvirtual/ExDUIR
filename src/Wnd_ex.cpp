@@ -2984,13 +2984,13 @@ void _wnd_wm_initmenupopup(HWND hWnd, wnd_s* pWnd, void* hMenu)
 		int nCount = GetMenuItemCount((HMENU)hMenu) - 1;
 		EXHANDLE hCanvas = pWnd->canvas_bkg_;
 		void* hFont = pWnd->hFont_Menu_;
-		std::vector<wchar_t> buff;
-		buff.resize(520);
+
+		WCHAR buff[520];
 		int width, height, nMax = 0;
 		for (int i = 0; i < nCount; i++)
 		{
-			GetMenuStringW((HMENU)hMenu, i, buff.data(), 520, MF_BYPOSITION);
-			_canvas_calctextsize(hCanvas, hFont, buff.data(), -1, DT_SINGLELINE, 0, 0, 0, &width, &height);
+			GetMenuStringW((HMENU)hMenu, i, buff, 520, MF_BYPOSITION);
+			_canvas_calctextsize(hCanvas, hFont, buff, -1, DT_SINGLELINE, 0, 0, 0, &width, &height);
 			if (nMax < width)
 			{
 				nMax = width;
