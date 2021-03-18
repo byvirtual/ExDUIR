@@ -447,12 +447,12 @@ void* prefixstring(LPCWSTR lpString, int dwFmt, int* nOffset)
 		if (lpOffset != 0)
 		{
 			auto len = lstrlenW(lpString) * 2;
-			*nOffset = lpOffset - lpString;
+			*nOffset = (size_t)lpOffset - (size_t)lpString;
 			ret = Ex_MemAlloc(len);
 			if (ret != 0)
 			{
 				RtlMoveMemory(ret, lpString, *nOffset);
-				RtlMoveMemory((void*)((size_t)ret + *nOffset), lpString + *nOffset + 2, len - *nOffset - 2);
+				RtlMoveMemory((void*)((size_t)ret + *nOffset), (void *)((size_t)lpString + *nOffset + 2), len - *nOffset - 2);
 			}
 		}
 	}

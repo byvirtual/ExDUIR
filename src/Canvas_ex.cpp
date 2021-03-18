@@ -746,13 +746,13 @@ bool _canvas_calctextsize_ex(canvas_s* pCanvas, font_s* pFont, LPCWSTR lpwzText,
 	if (*nError == 0)
 	{
 		auto byte = pFont->font_.lfUnderline;
-		if (byte != 0)
+		if (byte)
 		{
 			DWRITE_TEXT_RANGE range = { 0,dwLen };
 			((IDWriteTextLayout*)pLayout)->SetUnderline(byte, range);
 		}
 		byte = pFont->font_.lfStrikeOut;
-		if (byte != 0)
+		if (byte)
 		{
 			DWRITE_TEXT_RANGE range = { 0,dwLen };
 			((IDWriteTextLayout*)pLayout)->SetStrikethrough(byte, range);
@@ -806,14 +806,16 @@ bool _canvas_calctextsize_ex(canvas_s* pCanvas, font_s* pFont, LPCWSTR lpwzText,
 			((IDWriteTextLayout*)pLayout)->SetUnderline(true, rangea);
 		}
 	}
-	if (lpwzTextFix != 0)
+	if (lpwzTextFix)
 	{
 		Ex_MemFree(lpwzTextFix);
 	}
-	if (lpWidth != 0)
+	if (lpWidth)
 	{
-		__set_int(lpWidth, 0, iWidth);
-		__set_int(lpWidth, 0, iHeight);
+		*lpWidth = iWidth;
+	}
+	if (lpHeight) {
+		*lpHeight = iHeight;
 	}
 	return *nError == 0;
 }
@@ -924,14 +926,15 @@ bool _canvas_rotate_hue(EXHANDLE hCanvas, float fAngle)
 	return nError == 0;
 }
 
-EXHANDLE _canvas_createfrompwnd(wnd_s* pWnd, int width, int height, int dwFlags, int* nError)
+EXHANDLE _canvas_createfrompwnd(wnd_s* pWnd, int width, int height, int dwFlags, int* pError)
 {
 	canvas_s* pCanvas = (canvas_s*)Ex_MemAlloc(sizeof(canvas_s));
 	EXHANDLE hCanvas = 0;
+	int nError = 0;
 	if (pCanvas != 0)
 	{
 
-		hCanvas = _handle_create(HT_CANVAS, pCanvas, nError);
+		hCanvas = _handle_create(HT_CANVAS, pCanvas, &nError);
 
 		if (hCanvas != 0)
 		{
@@ -939,14 +942,14 @@ EXHANDLE _canvas_createfrompwnd(wnd_s* pWnd, int width, int height, int dwFlags,
 			pCanvas->dwFlags_ = dwFlags;
 			pCanvas->pWnd_ = pWnd;
 
-			_canvas_recreate(pCanvas, width, height, nError);
+			_canvas_recreate(pCanvas, width, height, &nError);
 
 		}
 	}
 	else {
-		*nError = ERROR_EX_MEMORY_ALLOC;
+		nError = ERROR_EX_MEMORY_ALLOC;
 	}
-	if (*nError != 0)
+	if (nError != 0)
 	{
 
 		if (pCanvas != 0)
@@ -955,8 +958,11 @@ EXHANDLE _canvas_createfrompwnd(wnd_s* pWnd, int width, int height, int dwFlags,
 		}
 		if (hCanvas != 0)
 		{
-			_handle_destroy(hCanvas, nError);
+			_handle_destroy(hCanvas, &nError);
 		}
+	}
+	if (pError) {
+		*pError = nError;
 	}
 	return hCanvas;
 }

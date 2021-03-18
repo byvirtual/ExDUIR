@@ -290,7 +290,8 @@ void _item_draw(obj_s* pObj, paintstruct_s ps, int crColor, void* lpText)
 			Ex_ThemeDrawControlEx(ps.hTheme_, ps.hCanvas_, rcItem.left, rcItem.top, rcItem.right, rcItem.bottom, ATOM_ITEM, ATOM_SEPARATOR, 0, 0, 0, 0, 255);
 		}
 		else {
-			bool fHover = (ps.dwState_ & 状态_点燃) != 0 && (mii.fState & MFS_GRAYED) == 0 && (mii.fState & MFS_HILITE) != 0 && mii.hSubMenu != 0;
+			bool fHover = ((ps.dwState_ & 状态_点燃) != 0 && (mii.fState & MFS_GRAYED) == 0) || ((mii.fState & MFS_HILITE) != 0 && mii.hSubMenu != 0);
+
 			int alpha = 255;
 			if (fHover)
 			{
@@ -305,7 +306,7 @@ void _item_draw(obj_s* pObj, paintstruct_s ps, int crColor, void* lpText)
 			}
 			else {
 				alpha = 128;
-				int crColor = _obj_getcolor(pObj, COLOR_EX_TEXT_NORMAL);
+				crColor = _obj_getcolor(pObj, COLOR_EX_TEXT_NORMAL);
 				*(((char*)&crColor) + 3) = alpha;
 			}
 			if (mii.hSubMenu != 0)
@@ -358,14 +359,19 @@ void _item_draw(obj_s* pObj, paintstruct_s ps, int crColor, void* lpText)
 						Ex_MemFree(lpLogfont);
 					}
 				}
+
+				LPWSTR tmp1 = (LPWSTR)wcschr((LPCWSTR)lpText, 9);
+				if (tmp1) {
+					*tmp1 = 0;
+				}
 				_canvas_drawtextex(ps.hCanvas_, hFont, crColor, (LPCWSTR)lpText, -1, ps.dwTextFormat_, ps.t_left_, ps.t_top_, ps.t_right_, ps.t_bottom_, 0, 0, 0, 0);
-				if (tmp != -1)
+				if (tmp1)
 				{
 					if (!fHover)
 					{
 						*(((char*)&crColor) + 3) = 128;
 					}
-					_canvas_drawtextex(ps.hCanvas_, hFont, crColor, (LPCWSTR)lpText, -1, ps.dwTextFormat_ | DT_RIGHT, ps.t_left_, ps.t_top_, ps.t_right_, ps.t_bottom_, 0, 0, 0, 0);
+					_canvas_drawtextex(ps.hCanvas_, hFont, crColor, (LPCWSTR)(tmp1 + 1), -1, ps.dwTextFormat_ | DT_RIGHT, ps.t_left_, ps.t_top_, ps.t_right_, ps.t_bottom_, 0, 0, 0, 0);
 				}
 				if ((mii.fState & MFS_DEFAULT) != 0)
 				{

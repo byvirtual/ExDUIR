@@ -101,8 +101,9 @@ void* _dx_createbitmap(void* pDeviceContext, int width, int height, bool fGDI, i
 
 	ID2D1Bitmap1* pBitmap = nullptr;
 
-	*nError = ((ID2D1DeviceContext*)pDeviceContext)->CreateBitmap(size, NULL, 0, pro, (ID2D1Bitmap1**)&pBitmap);
-
+	if (nError) {
+		*nError = ((ID2D1DeviceContext*)pDeviceContext)->CreateBitmap(size, NULL, 0, pro, (ID2D1Bitmap1**)&pBitmap);
+	}
 	return (void*)pBitmap;
 }
 

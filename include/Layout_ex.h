@@ -2,8 +2,7 @@
 #include "help_ex.h"
 
 
-typedef int(*LayoutThreePROC)(void*, int, size_t, size_t);
-typedef int(*LayoutTwoPROC)(int, size_t, size_t);
+typedef int(*LayoutPROC)(void*, int, size_t, size_t);
 
 //注意,所有父布局属性(PADDING不算)用__get的时候要-1再*4
 //ELP_ 为父布局属性, ELCP_ 为子布局属性
@@ -135,3 +134,12 @@ bool _layout_getchildprop(EXHANDLE hLayout, EXHANDLE hObj, int dwPropID, size_t*
 bool _layout_setprop(EXHANDLE hLayout, int dwPropID, size_t pvValue);
 size_t _layout_getprop(EXHANDLE hLayout, int dwPropID);
 bool _layout_absolute_setedge(EXHANDLE hLayout, EXHANDLE hObjChild, int dwEdge, int dwType, size_t nValue);
+void _layout_move_margin(EXHANDLE hObj, RECT* lpObjRc, void* lpMargin, int dwLockFlags, int dwOrgFlags);
+size_t __layout_linear_proc(layout_s* pLayput, int nEvent, size_t wParam, size_t lParam);
+size_t __layout_flow_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t lParam);
+size_t __layout_page_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t lParam);
+size_t __layout_table_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t lParam);
+void _layout_relative_update(layout_s* pLayout, void* pLayoutInfo, array_s* hArrObjs, size_t lParam);
+size_t __layout_relative_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t lParam);
+size_t __layout_absolute_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t lParam);
+void _layout_init();
