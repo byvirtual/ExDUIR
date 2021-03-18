@@ -105,7 +105,7 @@ size_t Array_SetEvent(array_s* pArray, int nEvent, size_t index1, size_t pvValue
 	auto nType = pArray->nType_;
 	if (pvValue == 0)
 	{
-		pvValue = __get(pData, (index1 - 1) * sizeof(void*));
+		pvValue = __get(pData, index1 * sizeof(void*));
 	}
 	if (nEvent == 数组事件_比对成员)
 	{
@@ -146,14 +146,14 @@ size_t Array_AddMember(array_s* pArray, size_t value, size_t index)
 {
 	if (Array_IsLegal(pArray) == false) return 0;
 	auto nCount = pArray->nCount_;
-	if (index <= 0) index = nCount + 1;
-	if (index <= 0 || index > nCount + 1) return 0;
+	if (index <= 0) index = nCount;
+	if (index < 0 || index > nCount) return 0;
 	Array_Resize(pArray, 1, true);
 	auto pData = pArray->lpData_;
-	if (nCount > 0) RtlMoveMemory((void*)((size_t)pData + index * sizeof(void*)), (void*)((size_t)pData + (index - 1) * sizeof(void*)), (nCount - index + 1) * sizeof(void*));
+	if (nCount > 0) RtlMoveMemory((void*)((size_t)pData + index * sizeof(void*)), (void*)((size_t)pData + index * sizeof(void*)), (nCount - index) * sizeof(void*));
 	auto pRet = Array_SetEvent(pArray, 数组事件_添加成员, index, value);
 	if (pRet == 0) pRet = value;
-	__set(pData, (index - 1) * sizeof(void*), pRet);
+	__set(pData, index * sizeof(void*), pRet);
 	return index;
 }
 
@@ -163,7 +163,7 @@ bool Array_DelMember(array_s* pArray, size_t index)
 	Array_SetEvent(pArray, 数组事件_删除成员, index);
 	auto pData = pArray->lpData_;
 	auto nCount = pArray->nCount_;
-	RtlMoveMemory((void*)((size_t)pData + (index - 1) * sizeof(void*)), (void*)((size_t)pData + index * sizeof(void*)), (nCount - index) * sizeof(void*));
+	RtlMoveMemory((void*)((size_t)pData + index * sizeof(void*)), (void*)((size_t)pData + index * sizeof(void*)), (nCount - index) * sizeof(void*));
 	Array_Resize(pArray, -1, true);
 	return true;
 }
@@ -201,7 +201,7 @@ bool Array_SetMember(array_s* pArray, size_t index, size_t value)
 	if (Array_IsLegal(pArray) == false) return false;
 	auto pvItem = Array_SetEvent(pArray, 数组事件_设置成员, index, value);
 	if (pvItem == 0) pvItem = value;
-	__set(pArray->lpData_, (index - 1) * sizeof(void*), pvItem);
+	__set(pArray->lpData_, index * sizeof(void*), pvItem);
 	return true;
 }
 
@@ -210,7 +210,7 @@ size_t Array_GetMember(array_s* pArray, size_t index)
 	if (Array_IsLegal(pArray) == false) return false;
 	auto pvItem = Array_SetEvent(pArray, 数组事件_获取成员, index);
 
-	if (pvItem == 0) pvItem = __get(pArray->lpData_, (index - 1) * sizeof(void*));
+	if (pvItem == 0) pvItem = __get(pArray->lpData_, index * sizeof(void*));
 	return pvItem;
 }
 
@@ -246,9 +246,9 @@ size_t Array_Emum(array_s* pArray, void* fun, size_t pvParam, bool reverse)
 	auto pData = pArray->lpData_;
 	if (reverse)
 	{
-		for (int index = nCount; index > 1; index--)
+		for (int index = nCount; index > 0; index--)
 		{
-			if (((ArrayEnumPROC)fun)(pArray, index, (void*)__get(pData, (index - 1) * sizeof(void*)), nType, pvParam))
+			if (((ArrayEnumPROC)fun)(pArray, index, (void*)__get(pData, index * sizeof(void*)), nType, pvParam))
 			{
 				return index;
 			}
@@ -257,7 +257,7 @@ size_t Array_Emum(array_s* pArray, void* fun, size_t pvParam, bool reverse)
 	else {
 		for (int index = 0; index < nCount; index++)
 		{
-			if (((ArrayEnumPROC)fun)(pArray, index, (void*)__get(pData, (index - 1) * sizeof(void*)), nType, pvParam))
+			if (((ArrayEnumPROC)fun)(pArray, index, (void*)__get(pData, index * sizeof(void*)), nType, pvParam))
 			{
 				return index;
 			}
