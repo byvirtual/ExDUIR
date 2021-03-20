@@ -36,11 +36,12 @@ BOOL Ex_Init(HINSTANCE hInstance, int dwGlobalFlags, HCURSOR hDefaultCursor, LPC
 	if (lpszDefaultClassName == NULL) {
 		lpszDefaultClassName = L"Ex_DirectUI";
 	}
-	wchar_t* a;
-	_get_wpgmptr(&a);//取自身完整路径
 
-	g_Li.hIcon = ExtractIconW(g_Li.hInstance, a, 0);
-	g_Li.hIconsm = ExtractIconW(g_Li.hInstance, a, 0);
+	TCHAR szFilePath[MAX_PATH + 1];
+	GetModuleFileName(NULL, szFilePath, MAX_PATH);//取自身完整路径
+
+	g_Li.hIcon = ExtractIconW(g_Li.hInstance, szFilePath, 0);
+	g_Li.hIconsm = ExtractIconW(g_Li.hInstance, szFilePath, 0);
 	//SetDefaultIcon();
 	g_Li.atomClassName = Ex_WndRegisterClass(lpszDefaultClassName, NULL, NULL, NULL);
 
