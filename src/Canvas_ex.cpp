@@ -438,7 +438,7 @@ bool _canvas_drawimagerectrect(EXHANDLE hCanvas, EXHANDLE hImage, float dstLeft,
 
 bool _canvas_drawimagerect(EXHANDLE hCanvas, EXHANDLE hImage, float Left, float Top, float Right, float Bottom, int alpha)
 {
-	float w, h;
+	int w, h;
 	bool ret = false;
 	if (_img_getsize(hImage, &w, &h))
 	{
@@ -450,7 +450,7 @@ bool _canvas_drawimagerect(EXHANDLE hCanvas, EXHANDLE hImage, float Left, float 
 
 bool _canvas_drawimage(EXHANDLE hCanvas, EXHANDLE hImage, float Left, float Top, int alpha)
 {
-	float w, h;
+	int w, h;
 	bool ret = false;
 	if (_img_getsize(hImage, &w, &h))
 	{

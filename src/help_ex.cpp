@@ -457,7 +457,7 @@ void* prefixstring(LPCWSTR lpString, int dwFmt, int* nOffset)
 void SetDefaultIcon()
 {
 
-	auto hRes = FindResourceW(g_Li.hInstance, MAKEINTRESOURCE(104), MAKEINTRESOURCE(14));
+	auto hRes = FindResourceW(g_Li.hInstance, MAKEINTRESOURCE(102), MAKEINTRESOURCE(14));
 
 	if (hRes == 0)
 	{
@@ -491,8 +491,9 @@ void SetDefaultIcon()
 					}
 				}
 			}
-			g_Li.hIconsm = ret[0];
-			g_Li.hIcon = ret[1];
+			
+			//g_Li.hIconsm = ret[0];
+			//g_Li.hIcon = ret[1];
 			FreeResource(hData);
 		}
 	}

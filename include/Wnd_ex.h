@@ -142,7 +142,7 @@ LRESULT _wnd_defaultproc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 bool _wnd_querystyle(HWND hWnd, int dwStyle, bool bExStyle);
 bool _wnd_delstyle(HWND hWnd, int dwStyle, bool bExStyle);
 bool _wnd_addstyle(HWND hWnd, int dwStyle, bool bExStyle);
-size_t _wnd_geticonhandle(HWND hWnd, bool 大图标);
+size_t _wnd_geticonhandle(HWND hWnd, bool isbigicon);
 void* Thunkwindow(HWND hWnd, ThunkPROC pfnProc, void* dwData, int* nError);
 bool _wnd_getscreenrect(HWND hWnd, RECT *rcMonitor = NULL, RECT *rcDesk = NULL);
 std::wstring _wnd_gettitle(HWND hWnd);

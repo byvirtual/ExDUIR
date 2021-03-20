@@ -120,13 +120,12 @@ LRESULT _wnd_defaultproc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProcW(hWnd, uMsg, wParam, lParam);
 }
 
-size_t _wnd_geticonhandle(HWND hWnd, bool 大图标)
+size_t _wnd_geticonhandle(HWND hWnd, bool isbigicon)
 {
-	size_t ret = SendMessageW(hWnd, 127, (大图标 ? 1 : 0), 0);
+	size_t ret = SendMessageW(hWnd, 127, (isbigicon ? 1 : 0), 0);
 	if (ret == 0)
 	{
-
-		ret = GetClassLongPtrW(hWnd, 大图标 ? -14 : -34);
+		ret = GetClassLongPtrW(hWnd, isbigicon ? -14 : -34);
 	}
 	return ret;
 }

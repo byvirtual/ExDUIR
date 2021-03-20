@@ -17,7 +17,8 @@ static void pt(std::wstring& str, std::wstring s)//这个是 文本型
 }
 static void pt(std::wstring& str, const wchar_t* s)//这个是 L"" 
 {
-	str.append(s); str.append(L"\r\n");
+	str.append(s); 
+	str.append(L"\r\n");
 }
 //可以无限重载自定义类型的 调试输出  输出内容格式可以自定义   
 //下面的字节集调试输出例子 是用vector自封的数组  输出结果 跟易语言调试输出字节集一样的效果
