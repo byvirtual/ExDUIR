@@ -438,7 +438,7 @@ short __get_short(void* lpAddr, size_t offset);
 char __get_char(void* lpAddr, size_t offset);
 UCHAR __get_unsignedchar(void* lpAddr, size_t offset);
 wchar_t __get_wchar(void* lpAddr, size_t offset);
-void __set(void* lpAddr, size_t offset, size_t value);
+size_t __set(void* lpAddr, size_t offset, size_t value);
 void __set_float(void* lpAddr, size_t offset, float value);
 void __set_int(void* lpAddr, size_t offset, int value);
 void __set_char(void* lpAddr, size_t offset, char value);

@@ -83,8 +83,7 @@ void HashTable_ReHash(hashtable_s* hTable)
 			void* oEntry = pEntry;
 			pEntry = ((entry_s*)oEntry)->pEntry;
 			size_t nPos = HashTable_GetPos(((entry_s*)oEntry)->hKey, newBound);
-			__set(newTable, nPos * sizeof(void*), (size_t)oEntry);
-			((entry_s*)oEntry)->pEntry = 0;
+			((entry_s*)oEntry)->pEntry = (entry_s *)__set(newTable, nPos * sizeof(void*), (size_t)oEntry);
 		}
 	}
 	hTable->pTable = newTable;

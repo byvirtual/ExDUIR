@@ -84,10 +84,12 @@ wchar_t __get_wchar(void* lpAddr, size_t offset)
 	return *(wchar_t*)a;
 }
 
-void __set(void* lpAddr, size_t offset, size_t value)
+size_t __set(void* lpAddr, size_t offset, size_t value)
 {
-	size_t a = (size_t)lpAddr + offset;
-	*(size_t*)a = value;
+	size_t* a = (size_t*)((size_t)lpAddr + offset);
+	size_t old = *a;
+	*a = value;
+	return old;
 }
 
 void __set_int(void* lpAddr, size_t offset, int value)
