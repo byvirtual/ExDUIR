@@ -124,13 +124,13 @@ int _path_close(EXHANDLE hPath)
 	return nError;
 }
 
-int _path_beginfigure(EXHANDLE hPath)
+int _path_beginfigure(EXHANDLE hPath, float x, float y)
 {
 	int nError = 0;
 	path_s* pPath = nullptr;
 	if (_handle_validate(hPath, HT_PATH, (void**)&pPath, &nError))
 	{
-		pPath->pObj_->BeginFigure({ 0,0 }, D2D1_FIGURE_BEGIN_FILLED);
+		pPath->pObj_->BeginFigure({ x,y }, D2D1_FIGURE_BEGIN_FILLED);
 	}
 	Ex_SetLastError(nError);
 	return nError;
