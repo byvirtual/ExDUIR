@@ -183,6 +183,12 @@ int list_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam,
 	return 0;
 }
 
+int button_clicked(EXHANDLE hObj, int nID, int nCode, WPARAM wParam, LPARAM lParam) {
+	Ex_MessageBoxEx(hObj, (void*)L"button clicked", (void*)L"button clicked", 0, 0, 0, 0, 0, 0);
+	return 0;
+}
+
+
 void 测试窗口()
 {
 	std::vector<char> data;
@@ -213,7 +219,7 @@ void 测试窗口()
 		//按钮
 		LPCWSTR class_button = L"button";
 		EXHANDLE button = Ex_ObjCreateEx(-1, (void*)class_button, (void*)title, -1, 10, 130, 100, 30, hExDui, 0, DT_VCENTER | DT_CENTER, 0, 0, NULL);
-		
+		Ex_ObjHandleEvent(button, NM_CLICK, button_clicked);
 
 		//编辑框
 		LPCWSTR class_edit = L"edit";
@@ -225,7 +231,6 @@ void 测试窗口()
 		Ex_ObjSetColor(listview, COLOR_EX_BACKGROUND, ExRGB2ARGB(16711680, 50), true);
 		Ex_ObjSendMessage(listview, LVM_SETITEMCOUNT, 100, 100);
 		//信息框
-		//Ex_MessageBoxEx(hExDui, (void*)title, (void*)title, 0, 0, 0, 0, 0, 0);
 		Ex_DUIShowWindow(hExDui, 5, 0, 0, 0);
 	}
 	Ex_WndMsgLoop();
