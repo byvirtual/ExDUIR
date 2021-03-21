@@ -65,6 +65,8 @@ struct paintstruct_s;
 struct mempoolmsg_s;
 
 struct EX_THUNK_DATA;
+struct EX_EVENT_HANDLER;
+struct EX_EVENT_HANDLER_TABLE;
 
 struct obj_base {
 	union {

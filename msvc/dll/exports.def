@@ -61,7 +61,7 @@ Ex_ObjLayoutGet
 ;Ex_ObjLayoutClear
 Ex_ObjDispatchMessage
 Ex_ObjDispatchNotify
-;Ex_ObjHandleEvent
+Ex_ObjHandleEvent
 Ex_ObjSendMessage
 Ex_ObjPostMessage
 Ex_ObjDestroy

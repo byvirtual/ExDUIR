@@ -998,6 +998,8 @@ int _wnd_create(EXHANDLE hExDui, wnd_s* pWnd, HWND hWnd, int dwStyle, theme_s* h
 	pWnd->dwFlags_ = dwFlags | EWF_bLeaveSent;
 	pWnd->pfnMsgProc_ = lpfnMsgProc;
 	pWnd->hTableObjects_ = HashTable_Create(GetNearestPrime(256), NULL);
+	//4.1.20.430
+	pWnd->hTableEvent_ = HashTable_Create(17, pfnDefaultFreeData);
 
 	if ((dwStyle & EWS_MESSAGEBOX) != 0)
 	{
@@ -1807,6 +1809,8 @@ int _wnd_destroy(HWND hWnd, wnd_s* pWnd)
 	}
 
 	HashTable_Destroy(pWnd->hTableObjects_);
+	//4.1.20.430
+	HashTable_Destroy(pWnd->hTableEvent_);
 
 	//bkgimginfo
 	KillTimer(hWnd, (size_t)pWnd + TIMER_BKG_INHERIT);

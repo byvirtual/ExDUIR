@@ -1588,7 +1588,24 @@ int Ex_ObjDispatchMessage(EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam
 int _obj_dispatchnotify(HWND hWnd, obj_s* pObj, EXHANDLE hObj, int nID, int nCode, size_t wParam, size_t lParam)
 {
 	nID = pObj->id_;
-	int ret = 1;
+	int ret = 0;
+
+	//Ex_ObjHandleEvent
+	wnd_s* pWnd = pObj->pWnd_;
+	EX_EVENT_HANDLER_TABLE* pEventHandlerTable = NULL;
+	if (HashTable_Get(pWnd->hTableEvent_, nCode, (size_t*)&pEventHandlerTable))
+	{
+		int len = pEventHandlerTable->len;
+		for (int i = 0; i < len; i++) {
+			if (pEventHandlerTable->handler[i].hObj == hObj) {
+				ret = pEventHandlerTable->handler[i].pfnCallback(hObj, nID, nCode, wParam, lParam);
+				if (!ret) {
+					break;
+				}
+				return ret;
+			}
+		}
+	}
 
 	EX_NMHDR nmhdr{ 0 };
 	nmhdr.hObjFrom = hObj;
@@ -1596,7 +1613,6 @@ int _obj_dispatchnotify(HWND hWnd, obj_s* pObj, EXHANDLE hObj, int nID, int nCod
 	nmhdr.nCode = nCode;
 	nmhdr.wParam = wParam;
 	nmhdr.lParam = lParam;
-
 	ret = _obj_baseproc(hWnd, hObj, pObj, WM_NOTIFY, nID, (size_t)&nmhdr);//发给自身
 	EXHANDLE hParent;
 	obj_s* pParent = nullptr;
@@ -1689,6 +1705,33 @@ void _obj_destroy(EXHANDLE hObj, obj_s* pObj, int* nError)
 	KillTimer(hWnd, (UINT_PTR)((size_t)pObj + TIMER_OBJECT));
 	//backgroundinfo
 	_obj_backgroundimage_clear(hWnd, (obj_base*)pObj);
+
+	//4.1.20.430
+	//Clean EventHandler
+	hashtable_s* hTableEvent = pWnd->hTableEvent_;
+	std::vector<size_t> aKey;
+	std::vector<size_t> aValue;
+	HashTable_GetAllKeysAndValues(hTableEvent, aKey, aValue);
+	for (int i = 0; i < aValue.size(); i++) {
+		EX_EVENT_HANDLER_TABLE* pEventHandlerTable = (EX_EVENT_HANDLER_TABLE*)aValue[i];
+		int len = pEventHandlerTable->len;
+		for (int j = 0; j < len; j++) {
+			if (pEventHandlerTable->handler[j].hObj == hObj) {
+				if (--pEventHandlerTable->len) {
+					if (len - j - 1 > 0) {
+						memmove(&pEventHandlerTable->handler[j], &pEventHandlerTable->handler[j + 1], (len - j - 1) * sizeof(EX_EVENT_HANDLER));
+					}
+				}
+				else {
+					HashTable_Remove(hTableEvent, aKey[i]);
+				}
+				break;
+			}
+		}
+	}
+
+
+
 	_obj_z_clear(hObj, pObj, 0, 0);
 	//清理子组件
 	EXHANDLE sObj = pObj->objChildFirst_;
@@ -3756,5 +3799,92 @@ bool Ex_ObjGetClassInfo(EXHANDLE hObj, void* lpClassInfo)
 		RtlMoveMemory(lpClassInfo, pClass, sizeof(class_s));
 	}
 	Ex_SetLastError(nError);
+	return nError == 0;
+}
+
+//--------------------------ExDirectUI 4.1.20.430-----------------------------
+BOOL Ex_ObjHandleEvent(EXHANDLE hObj, int nEvent, EventHandlerPROC pfnCallback) {
+	obj_s* pObj = NULL;
+	int nError = 0;
+	BOOL bFind = FALSE;
+	int i = 0;
+	int len = 0;
+	int originSize = 0;
+
+	if (_handle_validate(hObj, HT_OBJECT, (void**)&pObj, &nError))
+	{
+		wnd_s* pWnd = pObj->pWnd_;
+		hashtable_s* hTableEvent = pWnd->hTableEvent_;
+		EX_EVENT_HANDLER_TABLE* pEventHandlerTable;
+
+		if (hTableEvent)
+		{
+			if (HashTable_Get(hTableEvent, nEvent, (size_t *)&pEventHandlerTable))
+			{
+				len = pEventHandlerTable->len;
+			
+				for (i = 0; i < len; ++i)
+				{
+					if (pEventHandlerTable->handler[i].hObj == hObj)
+					{
+						bFind = TRUE;
+						break;
+					}
+				}
+				originSize = sizeof(EX_EVENT_HANDLER) * (len - 1) + sizeof(EX_EVENT_HANDLER_TABLE);
+				if (bFind)
+				{
+					if (pfnCallback)
+					{
+						pEventHandlerTable->handler[i].pfnCallback = pfnCallback;
+					}
+					else if (--pEventHandlerTable->len)
+					{
+						memmove(&pEventHandlerTable->handler[i], &pEventHandlerTable->handler[i + 1], (len - i - 1) * sizeof(EX_EVENT_HANDLER));
+					}
+					else
+					{
+						HashTable_Remove(hTableEvent, nEvent);
+					}
+				}
+				else if (pfnCallback)
+				{
+					EX_EVENT_HANDLER_TABLE* pNewTable = (EX_EVENT_HANDLER_TABLE *)Ex_MemAlloc(originSize + sizeof(EX_EVENT_HANDLER));
+					if (pNewTable)
+					{
+						RtlMoveMemory(pNewTable, pNewTable, originSize);
+						pNewTable->len++;						
+						pNewTable->handler[pNewTable->len - 1].hObj = hObj;
+						pNewTable->handler[pNewTable->len - 1].pfnCallback = pfnCallback;
+						HashTable_Set(hTableEvent, nEvent, (size_t)pNewTable);
+						Ex_MemFree((HLOCAL*)&pEventHandlerTable);
+					}
+					else
+					{
+						nError = ERROR_EX_MEMORY_ALLOC;
+					}
+				}
+			}
+			else
+			{
+				pEventHandlerTable = (EX_EVENT_HANDLER_TABLE *)Ex_MemAlloc(sizeof(EX_EVENT_HANDLER_TABLE));
+				if (pEventHandlerTable)
+				{
+					pEventHandlerTable->len = 1;
+					pEventHandlerTable->handler[0].hObj = hObj;
+					pEventHandlerTable->handler[0].pfnCallback = pfnCallback;
+					HashTable_Set(hTableEvent, nEvent, (size_t)pEventHandlerTable);
+				}
+				else
+				{
+					nError = ERROR_EX_MEMORY_ALLOC;
+				}
+			}
+		}
+		else
+		{
+			nError = ERROR_EX_MEMORY_BADPTR;
+		}
+	}
 	return nError == 0;
 }

@@ -101,6 +101,7 @@ struct wnd_s
 	MsgPROC pfnMsgProc_;
 	EXHANDLE hExDuiParent_;
 	hashtable_s* hTableObjects_;
+	hashtable_s* hTableEvent_;
 	void* pJSObj_;
 	void* pSysObj_;
 

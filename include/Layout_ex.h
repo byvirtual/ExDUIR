@@ -2,7 +2,7 @@
 #include "help_ex.h"
 
 
-typedef int(*LayoutPROC)(void*, int, size_t, size_t);
+typedef size_t(CALLBACK* LayoutPROC)(layout_s*, int, size_t, size_t);
 
 //注意,所有父布局属性(PADDING不算)用__get的时候要-1再*4
 //ELP_ 为父布局属性, ELCP_ 为子布局属性
@@ -116,7 +116,7 @@ struct layout_s
 };
 
 
-bool _layout_register(int nType, void* lpfnLayoutProc);
+bool _layout_register(int nType, LayoutPROC lpfnLayoutProc);
 bool _layout_unregister(int nType);
 void _layout_free_info(array_s* hArr, int nIndex, void* pvItem, int nType);
 EXHANDLE _layout_create(int nType, EXHANDLE hObjBind);

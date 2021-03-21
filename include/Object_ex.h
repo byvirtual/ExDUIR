@@ -5,7 +5,7 @@
 typedef int(*EnumPROC)(size_t, size_t);
 typedef size_t(*ClsPROC)(HWND, EXHANDLE, UINT, size_t, size_t, obj_s*);
 typedef BOOL(*EnumPropsPROC)(EXHANDLE, int,size_t,size_t);
-
+typedef int (*EventHandlerPROC)(EXHANDLE, int, int, WPARAM, LPARAM);
 #define WM_NOTIFY_SELF 1030 //notify父控件前,先发给自己
 
 #define EOF_INITED 2147483648
@@ -62,6 +62,18 @@ typedef BOOL(*EnumPropsPROC)(EXHANDLE, int,size_t,size_t);
 #define EWF_bInheritBkgStarted 67108864
 #define EWF_bDestroyWindow 134217728
 #define EWF_bSizeMoving 268435456
+
+
+struct EX_EVENT_HANDLER {
+	EXHANDLE hObj;
+	EventHandlerPROC pfnCallback;
+};
+
+struct EX_EVENT_HANDLER_TABLE {
+	int len;
+	EX_EVENT_HANDLER handler[1];
+};
+
 
 struct mempoolmenumsg_s {
 	HWND hWnd;
@@ -400,3 +412,5 @@ bool Ex_ObjGetRectEx(EXHANDLE hObj, void* lpRect, int nType);
 void Ex_ObjPointTransform(EXHANDLE hObjSrc, EXHANDLE hObjDst, int* ptX, int* ptY);
 bool Ex_ObjEnableEventBubble(EXHANDLE hObj, bool fEnable);
 bool Ex_ObjGetClassInfo(EXHANDLE hObj, void* lpClassInfo);
+
+BOOL Ex_ObjHandleEvent(EXHANDLE hObj, int nEvent, EventHandlerPROC pfnCallback);

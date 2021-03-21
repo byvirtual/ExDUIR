@@ -2,10 +2,7 @@
 
 void pfnDefaultFreeData(void* dwData)
 {
-	if (dwData != nullptr)
-	{
-		LocalFree(dwData);
-	}
+	Ex_MemFree(dwData);
 }
 
 void Ex_SetLastError(int nError)

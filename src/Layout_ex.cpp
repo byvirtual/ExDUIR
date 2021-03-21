@@ -1,6 +1,6 @@
 #include "Layout_ex.h"
 
-bool _layout_register(int nType, void* lpfnLayoutProc)
+bool _layout_register(int nType, LayoutPROC lpfnLayoutProc)
 {
 	bool ret = false;
 	if (!HashTable_IsExit(g_Li.hTableLayout, nType))
