@@ -623,8 +623,9 @@ void _edit_command(obj_s *pObj, int uMsg, size_t wParam, size_t lParam) {
         if (wParam == EM_SETSEL) {
             uMsg = EM_EXSETSEL;
             wParam = 0;
-            void *lp = MemPool_Alloc(g_Li.hMemPoolMsg, true);
-            __set_int(lp, sizeof(size_t), -1);
+            CHARRANGE* lp = (CHARRANGE *)MemPool_Alloc(g_Li.hMemPoolMsg, true);
+            lp->cpMin = 0; 
+            lp->cpMax = -1;
             _edit_sendmessage(pObj, uMsg, wParam, (size_t) lp, &sOK);
             MemPool_Free(g_Li.hMemPoolMsg, lp);
         }
