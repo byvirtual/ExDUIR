@@ -2127,14 +2127,14 @@ void _wnd_menu_createitems(HWND hWnd, wnd_s* pWnd)
 							}
 						}
 					}
-					LPWSTR bin = (LPWSTR)malloc(520 * 2);
+					WCHAR buff[520];
 					OffsetRect(&rcItem, -rcParent.left, -rcParent.top);
-					GetMenuStringW((HMENU)hMenu, i, bin, 520, MF_BYPOSITION);
+					GetMenuStringW((HMENU)hMenu, i, buff, 520, MF_BYPOSITION);
 					obj_s* pObj = nullptr;
 					EXHANDLE hObj = _obj_create_init(hWnd, pWnd, ATOM_ITEM, 0, &pObj, &nError);
 					if (hObj != 0)
 					{
-						_obj_create_proc(&nError, false, hTheme, pObj, EOS_EX_FOCUSABLE | EOS_EX_TABSTOP, ATOM_ITEM, bin, eos, rcItem.left, rcItem.top, width, rcItem.bottom - rcItem.top, objParent, mii.wID, 0, i, DT_VCENTER | DT_SINGLELINE);
+						_obj_create_proc(&nError, false, hTheme, pObj, EOS_EX_FOCUSABLE | EOS_EX_TABSTOP, ATOM_ITEM, buff, eos, rcItem.left, rcItem.top, width, rcItem.bottom - rcItem.top, objParent, mii.wID, 0, i, DT_VCENTER | DT_SINGLELINE);
 						pObj->dwFlags_ = pObj->dwFlags_ | eof_bMenuItem;
 						_obj_create_done(hWnd, pWnd, hObj, pObj);
 						if (lpPaddingText != 0)
@@ -2149,7 +2149,6 @@ void _wnd_menu_createitems(HWND hWnd, wnd_s* pWnd)
 							}
 						}
 					}
-					free(bin);
 					height = height + rcItem.bottom - rcItem.top;
 				}
 			}
