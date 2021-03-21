@@ -339,7 +339,7 @@ _path_hittest
 _path_addline
 _path_addrect
 _path_addroundedrect
-;_path_beginfigure2
+_path_beginfigure2
 ;_path_addarc2
 
 

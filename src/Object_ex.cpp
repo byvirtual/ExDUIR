@@ -1029,7 +1029,7 @@ void _obj_reset_path(obj_s* pObj, int left, int top, int right, int bottom, int 
 	{
 		if (_path_open(path) == 0)
 		{
-			_path_beginfigure(path, left, top);
+			_path_beginfigure2(path, left, top);
 			_path_addroundedrect(path, left, top, right, bottom, pObj->radius_topleft_, pObj->radius_topright_, pObj->radius_bottomleft_, pObj->radius_bottomright_);
 			_path_endfigure(path, true);
 			_path_close(path);
@@ -2383,7 +2383,7 @@ bool Ex_ObjEndPaint(EXHANDLE hObj, paintstruct_s* lpPS)
 		{
 			_obj_dispatchnotify(_obj_gethWnd(pObj), pObj, hObj, 0, NM_CUSTOMDRAW, 0, (size_t)lpPS);
 		}
-		if ((pObj->dwStyle & EOS_BORDER) == EOS_BORDER)
+		if ((pObj->dwStyle_ & EOS_BORDER) == EOS_BORDER)
 		{
 			hBrush = _brush_create(_obj_getcolor(pObj, COLOR_EX_BORDER));
 			if (hBrush)
@@ -2391,7 +2391,7 @@ bool Ex_ObjEndPaint(EXHANDLE hObj, paintstruct_s* lpPS)
 				EXHANDLE hPath = NULL;
 				_path_create(EPF_DISABLESCALE, &hPath);
 				_path_open(hPath);
-				_path_beginfigure(hPath, pObj->c_left_, pObj->c_top_ - pObj->radiustopleft);
+				_path_beginfigure2(hPath, pObj->c_left_, pObj->c_top_ - pObj->radius_topleft_);
 				_path_addroundedrect(
 					hPath,
 					pObj->c_left_,
@@ -2408,17 +2408,16 @@ bool Ex_ObjEndPaint(EXHANDLE hObj, paintstruct_s* lpPS)
 				_canvas_drawpath(hCanvas, hPath, hBrush, Ex_Scale(2), 0);
 				_path_destroy(hPath);
 				_brush_destroy(hBrush);
-			}*/
 			}
 		}
 		if (Flag_Query(EXGF_OBJECT_SHOWPOSTION))
 		{
-					std::wstring wzPostion
+			std::wstring wzPostion
 				= std::to_wstring(pObj->w_left_) + L","
 				+ std::to_wstring(pObj->w_top_) + L","
 				+ std::to_wstring(pObj->w_right_) + L","
 				+ std::to_wstring(pObj->w_bottom_);
-			void* F = _fontcreate();
+			void* F = _font_create();
 			_canvas_drawtext(hCanvas,
 				F/*pObj->hFont*/,
 				ExRGBA(0, 0, 0, 128),
@@ -2427,10 +2426,10 @@ bool Ex_ObjEndPaint(EXHANDLE hObj, paintstruct_s* lpPS)
 				DT_LEFT | DT_TOP | DT_SINGLELINE,
 				0,
 				0,
-				static_cast<FLOAT>(pObj->right),
-				static_cast<FLOAT>(pObj->bottom)
+				static_cast<FLOAT>(pObj->right_),
+				static_cast<FLOAT>(pObj->bottom_)
 			);
-			_fontdestroy(F);
+			_font_destroy(F);
 		}
 		_canvas_resetclip(hCanvas);
 		float fHue = __get_float(pObj, offsetof(obj_s, fHUE_));
