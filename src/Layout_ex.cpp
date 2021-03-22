@@ -3,7 +3,7 @@
 bool _layout_register(int nType, LayoutPROC lpfnLayoutProc)
 {
 	bool ret = false;
-	if (!HashTable_IsExit(g_Li.hTableLayout, nType))
+	if (!HashTable_IsExist(g_Li.hTableLayout, nType))
 	{
 		ret = HashTable_Set(g_Li.hTableLayout, nType, (size_t)lpfnLayoutProc);
 	}
@@ -13,7 +13,7 @@ bool _layout_register(int nType, LayoutPROC lpfnLayoutProc)
 bool _layout_unregister(int nType)
 {
 	bool ret = false;
-	if (!HashTable_IsExit(g_Li.hTableLayout, nType))
+	if (!HashTable_IsExist(g_Li.hTableLayout, nType))
 	{
 		ret = HashTable_Remove(g_Li.hTableLayout, nType);
 	}

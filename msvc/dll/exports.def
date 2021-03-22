@@ -125,7 +125,7 @@ Ex_ObjGetRectEx
 Ex_ObjPointTransform
 Ex_ObjEnableEventBubble
 Ex_ObjGetClassInfo
-;Ex_ObjGetClassInfoEx
+Ex_ObjGetClassInfoEx
 
 Ex_ObjScrollGetControl
 Ex_ObjScrollSetInfo

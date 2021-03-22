@@ -1843,7 +1843,7 @@ void _obj_create_proc(int* nError, bool fScale, theme_s* hTheme, obj_s* pObj, in
 		hTheme = pWnd->hTheme_;
 	}
 	else {
-		if (!HashTable_IsExit(hTheme->tableClass_, atomClass))
+		if (!HashTable_IsExist(hTheme->tableClass_, atomClass))
 		{
 			hTheme = pWnd->hTheme_;
 		}
@@ -2122,7 +2122,7 @@ EXHANDLE Ex_ObjCreateEx(int dwStyleEx, void* lptszClassName, void* lptszObjTitle
 	}
 	if (nError == 0)
 	{
-		if (HashTable_IsExit(g_Li.hTableClass, (size_t)lptszClassName))
+		if (HashTable_IsExist(g_Li.hTableClass, (size_t)lptszClassName))
 		{
 			atom = (int)lptszClassName;
 		}
@@ -3852,7 +3852,7 @@ BOOL Ex_ObjHandleEvent(EXHANDLE hObj, int nEvent, EventHandlerPROC pfnCallback) 
 					EX_EVENT_HANDLER_TABLE* pNewTable = (EX_EVENT_HANDLER_TABLE *)Ex_MemAlloc(originSize + sizeof(EX_EVENT_HANDLER));
 					if (pNewTable)
 					{
-						RtlMoveMemory(pNewTable, pNewTable, originSize);
+						RtlMoveMemory(pNewTable, pEventHandlerTable, originSize);
 						pNewTable->len++;						
 						pNewTable->handler[pNewTable->len - 1].hObj = hObj;
 						pNewTable->handler[pNewTable->len - 1].pfnCallback = pfnCallback;
@@ -3887,4 +3887,18 @@ BOOL Ex_ObjHandleEvent(EXHANDLE hObj, int nEvent, EventHandlerPROC pfnCallback) 
 		}
 	}
 	return nError == 0;
+}
+
+BOOL Ex_ObjGetClassInfoEx(LPCWSTR lptszClassName, class_s* lpClassInfo)
+{
+    void* pClass = NULL;
+    int atom;
+
+    if (HashTable_IsExist(g_Li.hTableClass, (size_t)lptszClassName))
+		atom = (int)lptszClassName;
+    else
+		atom = Ex_Atom(lptszClassName);
+    if (HashTable_Get(g_Li.hTableClass, atom, (size_t*)&pClass) && pClass)
+        RtlMoveMemory(lpClassInfo, pClass, sizeof(class_s));
+    return pClass != 0;
 }

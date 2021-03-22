@@ -27,6 +27,6 @@ void HashTable_ReHash(hashtable_s* hTable);
 BOOL HashTable_Set(hashtable_s* hTable, size_t hKey, size_t dwValue);
 BOOL HashTable_Get(hashtable_s* hTable, size_t hKey, size_t* dwValue);
 BOOL HashTable_Remove(hashtable_s* hTable, size_t hKey);
-BOOL HashTable_IsExit(hashtable_s* hTable, size_t hKey);
+BOOL HashTable_IsExist(hashtable_s* hTable, size_t hKey);
 size_t HashTable_GetCounts(hashtable_s* hTable);
 size_t HashTable_GetAllKeysAndValues(hashtable_s* hTable, std::vector<size_t>& aryKey, std::vector<size_t>& aryValue);
