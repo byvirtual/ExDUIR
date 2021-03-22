@@ -1827,7 +1827,7 @@ int _wnd_destroy(HWND hWnd, wnd_s* pWnd)
 	EXHANDLE hLayout = pWnd->hLayout_;
 	if (hLayout != 0)
 	{
-		_layout_destory(hLayout);
+		_layout_destroy(hLayout);
 	}
 
 	_wnd_dx_unint(pWnd);

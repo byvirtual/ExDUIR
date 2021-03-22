@@ -48,7 +48,7 @@ bool Ex_ObjLayoutSet(EXHANDLE handle, EXHANDLE hLayout, bool fUpdate)
 		pObj->hLayout_ = hLayout;
 		if (hOld != hLayout)
 		{
-			_layout_destory(hOld);
+			_layout_destroy(hOld);
 		}
 		if (fUpdate)
 		{
@@ -1741,7 +1741,7 @@ void _obj_destroy(EXHANDLE hObj, obj_s* pObj, int* nError)
 		_obj_notify_brothers(hWnd, sObj, psObj, WM_DESTROY, 0, 0, false, false);
 	}
 	//释放资源
-	_layout_destory(pObj->hLayout_);
+	_layout_destroy(pObj->hLayout_);
 	_font_destroy(pObj->hFont_);
 	_canvas_destroy(pObj->canvas_obj_);
 	_path_destroy(pObj->hPath_Client_);

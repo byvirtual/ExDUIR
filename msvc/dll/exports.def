@@ -56,7 +56,7 @@ Ex_ObjDefProc
 Ex_ObjRegister
 ;Ex_ObjCallProc
 Ex_ObjLayoutGet
-;Ex_ObjLayoutSet
+Ex_ObjLayoutSet
 ;Ex_ObjLayoutUpdate
 ;Ex_ObjLayoutClear
 Ex_ObjDispatchMessage
@@ -188,7 +188,7 @@ Ex_ResGetFile
 _layout_register
 _layout_unregister
 _layout_create
-;_layout_destroy
+_layout_destroy
 ;_layout_addchild
 ;_layout_addchildren
 ;_layout_deletechild

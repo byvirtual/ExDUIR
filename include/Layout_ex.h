@@ -121,7 +121,7 @@ bool _layout_unregister(int nType);
 void _layout_free_info(array_s* hArr, int nIndex, void* pvItem, int nType);
 EXHANDLE _layout_create(int nType, EXHANDLE hObjBind);
 EXHANDLE _layout_get_parent_layout(EXHANDLE hObj);
-bool _layout_destory(EXHANDLE hLayout);
+bool _layout_destroy(EXHANDLE hLayout);
 bool _layout_enum_find_obj(void* hArr, int nIndex, void* pvItem, int nType, void* pvParam);
 void* _layout_get_child(layout_s* pLayout, EXHANDLE hObj);
 bool _layout_update(EXHANDLE hLayout);

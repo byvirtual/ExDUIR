@@ -109,7 +109,7 @@ EXHANDLE _layout_get_parent_layout(EXHANDLE hObj)
 	return hLayoutParent;
 }
 
-bool _layout_destory(EXHANDLE hLayout)
+bool _layout_destroy(EXHANDLE hLayout)
 {
 	int nError = 0;
 	layout_s* pLayout = nullptr;
