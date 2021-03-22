@@ -479,6 +479,8 @@ void _lv_btndown(HWND hWnd, EXHANDLE hObj, obj_s* pObj, UINT uMsg, size_t wParra
 				{
 					_lv_item_changestate(hWnd, hObj, pObj, pOwner, lpItems, iSelect, STATE_SELECT, true, 0, 0, 0);
 					nSelects = nSelects - 1;
+				}
+				else {
 					return;
 				}
 			}
