@@ -414,3 +414,4 @@ bool Ex_ObjEnableEventBubble(EXHANDLE hObj, bool fEnable);
 bool Ex_ObjGetClassInfo(EXHANDLE hObj, void* lpClassInfo);
 
 BOOL Ex_ObjHandleEvent(EXHANDLE hObj, int nEvent, EventHandlerPROC pfnCallback);
+BOOL Ex_ObjGetClassInfoEx(LPCWSTR lptszClassName, class_s* lpClassInfo);
