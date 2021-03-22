@@ -3857,7 +3857,7 @@ BOOL Ex_ObjHandleEvent(EXHANDLE hObj, int nEvent, EventHandlerPROC pfnCallback) 
 						pNewTable->handler[pNewTable->len - 1].hObj = hObj;
 						pNewTable->handler[pNewTable->len - 1].pfnCallback = pfnCallback;
 						HashTable_Set(hTableEvent, nEvent, (size_t)pNewTable);
-						Ex_MemFree((HLOCAL*)&pEventHandlerTable);
+						Ex_MemFree(pEventHandlerTable);
 					}
 					else
 					{
