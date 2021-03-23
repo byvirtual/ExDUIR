@@ -75,8 +75,8 @@ bool Array_Resize(array_s* pArray, int nCount, bool fGrowCount)
 		pArray->lpData_ = pNewData;
 	}
 	pArray->nCount_ = nCount;
-	void* pDataa = pArray->lpData_;
-	if (pDataa != 0)
+	pData = pArray->lpData_;
+	if (pData != 0)
 	{
 		__set_int((void*)((size_t)pData - 8), 0, 1);
 		__set_int((void*)((size_t)pData - 4), 0, nCount);
