@@ -725,7 +725,7 @@ void _lv_mousemove(HWND hWnd, EXHANDLE hObj, obj_s* pObj, size_t wParam, size_t 
 
 void _lv_drawitem(HWND hWnd, EXHANDLE hObj, obj_s* pObj, listview_s* pOwner, paintstruct_s ps, int iItem, RECT rcClip, RECT rcItem)
 {
-	
+	int atomRect = 0;
 	EX_CUSTOMDRAW ecd;
 	ecd.hTheme = ps.hTheme_;
 	ecd.hCanvas = ps.hCanvas_;
@@ -738,27 +738,29 @@ void _lv_drawitem(HWND hWnd, EXHANDLE hObj, obj_s* pObj, listview_s* pOwner, pai
 	ecd.iItem = iItem;
 	if (_obj_dispatchnotify(hWnd, pObj, hObj, 0, NM_CUSTOMDRAW, iItem, (size_t)&ecd) == 0)
 	{
-		void* hBrush = _brush_create(ExRGB2ARGB(0, 51));
-		if (hBrush != 0)
-		{
-			if ((ecd.dwState & STATE_HOVER) != 0)
-			{
-				_canvas_fillrect(ps.hCanvas_, hBrush, rcItem.left, rcItem.top, rcItem.right, rcItem.bottom);
-			}
-			else {
-				if ((ecd.dwState & STATE_SELECT) != 0)
-				{
-
-				}
-				if ((ecd.dwState & STATE_HOVER) != 0)
-				{
-
-				}
-			}
-			_brush_destroy(hBrush);
+		if (ecd.dwState & STATE_SELECT) {
+			atomRect = ATOM_SELECT;
 		}
-		std::wstring tmp=std::to_wstring(iItem);
-		_canvas_drawtext(ps.hCanvas_, pObj->hFont_, ExRGB2ARGB(0, 255), tmp.c_str(), -1, DT_CENTER | DT_VCENTER | DT_SINGLELINE, rcItem.left, rcItem.top, rcItem.right, rcItem.bottom);
+		else if (ecd.dwState & STATE_HOVER) {
+			atomRect = ATOM_HOVER;
+		}
+		if (atomRect) {
+			Ex_ThemeDrawControlEx(
+				(theme_s*)ecd.hTheme,
+				ecd.hCanvas,
+				ecd.rcDraw.left,
+				ecd.rcDraw.top,
+				ecd.rcDraw.right,
+				ecd.rcDraw.bottom,
+				ATOM_ITEM,
+				atomRect,
+				0,
+				0,
+				0,
+				0,
+				255
+			);
+		}
 	}
 }
 
