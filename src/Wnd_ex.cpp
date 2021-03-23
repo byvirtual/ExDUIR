@@ -1732,7 +1732,7 @@ void CALLBACK _wnd_timer_mousetrack(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWOR
 void _wnd_wm_leavecheck(HWND hWnd, wnd_s* pWnd, EXHANDLE objCheck, EXHANDLE objHittest, obj_s* pObjHittest, bool fTrack)
 {
 	int nError = 0;
-	if (objHittest = -1)
+	if (objHittest == -1)
 	{
 		objHittest = pWnd->objHittest_;
 		_handle_validate(objHittest, HT_OBJECT, (void**)&pObjHittest, &nError);
@@ -3127,7 +3127,7 @@ bool Ex_DUITrayIconSet(EXHANDLE hExDui, size_t hIcon, LPCWSTR lpwzTips)
 		}
 	}
 	Ex_SetLastError(nError);
-	return nError = 0;
+	return nError == 0;
 }
 
 bool Ex_DUIGetBackgroundImage(EXHANDLE hExDui, void* lpBackgroundImage)

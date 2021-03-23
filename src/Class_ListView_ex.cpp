@@ -828,7 +828,7 @@ size_t _lv_size(HWND hWnd, EXHANDLE hObj, obj_s* pObj)
 	return 0;
 }
 
-size_t _lv_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj)
+size_t CALLBACK _lv_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj)
 {
 	int nError = 0;
 	if (uMsg == WM_CREATE)

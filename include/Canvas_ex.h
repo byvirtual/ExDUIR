@@ -72,3 +72,7 @@ EXHANDLE _canvas_createfromexdui(EXHANDLE hExDui, int width, int height, int dwF
 void* _cv_dx_bmp(canvas_s* pCanvas);
 void* _cv_context(canvas_s* pCanvas);
 void* _cv_dx_gdiinterop(canvas_s* pCanvas);
+
+BOOL _canvas_setantialias(EXHANDLE hCanvas, BOOL antialias);
+BOOL _canvas_setimageantialias(EXHANDLE hCanvas, BOOL antialias);
+BOOL _canvas_settransform(EXHANDLE hCanvas, D2D1_MATRIX_3X2_F* pMatrix);

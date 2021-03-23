@@ -1,6 +1,6 @@
 #include "Class_PopupBox_ComBox_ex.h"
 
-size_t _pb_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj)
+size_t CALLBACK _pb_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj)
 {
 	if (uMsg == WM_PAINT)
 	{
@@ -17,14 +17,14 @@ size_t _pb_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lPara
 		SetMenuInfo(hMenu, &mi);
 		RECT rc{ 0 };
 		GetWindowRect(hWnd, &rc);
-		Ex_TrackPopupMenu(hMenu, 0, rc.left + pObj->w_left_, rc.top + pObj->w_bottom_, 0, hObj, 0, &_pbm_proc, 0);
+		Ex_TrackPopupMenu(hMenu, 0, rc.left + pObj->w_left_, rc.top + pObj->w_bottom_, 0, hObj, 0, _pbm_proc, 0);
 		DestroyMenu(hMenu);
 	}
 
 	return Ex_ObjDefProc(hWnd, hObj, uMsg, wParam, lParam);
 }
 
-size_t _pbm_proc(HWND hWnd, EXHANDLE hExDUI, UINT uMsg, size_t wParam, size_t lParam, void* lpResult)
+size_t CALLBACK _pbm_proc(HWND hWnd, EXHANDLE hExDUI, UINT uMsg, size_t wParam, size_t lParam, void* lpResult)
 {
 	wnd_s* pWnd = nullptr;
 	obj_s* pObj = nullptr;
@@ -62,7 +62,7 @@ size_t _pbm_proc(HWND hWnd, EXHANDLE hExDUI, UINT uMsg, size_t wParam, size_t lP
 	return 0;
 }
 
-size_t _cb_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj)
+size_t CALLBACK _cb_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj)
 {
 	if (uMsg == WM_CREATE)
 	{

@@ -54,4 +54,4 @@ void _lv_drawitem(HWND hWnd, EXHANDLE hObj, obj_s* pObj, listview_s* pOwner, pai
 size_t _lv_paint(HWND hWnd, EXHANDLE hObj, obj_s* pObj);
 size_t _lv_size(HWND hWnd, EXHANDLE hObj, obj_s* pObj);
 void _lv_lvm_setitemstate(obj_s* pObj, listview_s* pOwner, int iItem, int dwState);
-size_t _lv_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj);
+size_t CALLBACK _lv_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj);

@@ -1,7 +1,7 @@
 #include "Class_Button_Item_ex.h"
 
 
-size_t _button_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj)
+size_t CALLBACK _button_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj)
 {
 	if (uMsg == WM_PAINT)
 	{
@@ -433,7 +433,7 @@ void _item_paint(EXHANDLE hObj, obj_s* pObj)
 	}
 }
 
-size_t _item_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj)
+size_t CALLBACK _item_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj)
 {
 	if (uMsg == WM_PAINT)
 	{

@@ -33,7 +33,7 @@ struct slb_s
 
 
 void _static_paint(EXHANDLE hObj, obj_s* pObj);
-size_t _static_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj);
+size_t CALLBACK _static_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj);
 void _syslink_leavecheck(obj_s* pObj, sli_s* pOwner);
 size_t _syslink_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj);
 size_t _syslink_hittest(obj_s* pObj, size_t wParam, size_t lParam);

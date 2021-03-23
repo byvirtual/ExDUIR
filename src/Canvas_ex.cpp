@@ -1075,7 +1075,7 @@ BOOL _canvas_setimageantialias(EXHANDLE hCanvas, BOOL antialias) {
 	return nError == 0;
 }
 
-BOOL __stdcall _canvas_settransform(EXHANDLE hCanvas, D2D1_MATRIX_3X2_F* pMatrix)
+BOOL _canvas_settransform(EXHANDLE hCanvas, D2D1_MATRIX_3X2_F* pMatrix)
 {
 	int nError = 0;
 	canvas_s* pCanvas = NULL;

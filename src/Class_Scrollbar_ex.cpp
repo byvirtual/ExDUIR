@@ -653,7 +653,7 @@ void _sb_set_wArrows(EXHANDLE hSB, int wArrows, bool fRedraw)
 	}
 }
 
-size_t _sb_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj)
+size_t CALLBACK _sb_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj)
 {
 	int nError = 0;
 	if (uMsg == WM_CREATE)

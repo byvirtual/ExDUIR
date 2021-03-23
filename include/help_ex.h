@@ -92,12 +92,12 @@ typedef LRESULT(CALLBACK* ThunkPROC)(EX_THUNK_DATA* pData, UINT uMsg, WPARAM wPa
 #include "HandelTable_ex.h"
 #include "Global_ex.h"
 
+#include "DirectX_ex.h"
 #include "Canvas_ex.h"
 #include "Font_ex.h"
 #include "Format_ex.h"
 #include "Brush_ex.h"
 #include "Image_ex.h"
-#include "DirectX_ex.h"
 #include "Object_ex.h"
 #include "Wnd_ex.h"
 #include "Path_ex.h"

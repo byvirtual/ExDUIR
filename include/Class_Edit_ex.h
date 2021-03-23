@@ -60,4 +60,4 @@ LRESULT _edit_getlen(obj_s* pObj);
 void _edit_contextmenu(HWND hWnd, wnd_s* pWnd, EXHANDLE hObj, obj_s* pObj, size_t wParam, int x, int y);
 void _edit_command(obj_s* pObj, int uMsg, size_t wParam, size_t lParam);
 size_t _edit_paint(EXHANDLE hObj, obj_s* pObj);
-size_t _edit_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj);
+size_t CALLBACK _edit_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj);

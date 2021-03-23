@@ -2,10 +2,10 @@
 #include "help_ex.h"
 
 
-typedef int(*EnumPROC)(size_t, size_t);
-typedef size_t(*ClsPROC)(HWND, EXHANDLE, UINT, size_t, size_t, obj_s*);
-typedef BOOL(*EnumPropsPROC)(EXHANDLE, int,size_t,size_t);
-typedef int (*EventHandlerPROC)(EXHANDLE, int, int, WPARAM, LPARAM);
+typedef int(CALLBACK *EnumPROC)(size_t, size_t);
+typedef size_t(CALLBACK *ClsPROC)(HWND, EXHANDLE, UINT, size_t, size_t, obj_s*);
+typedef BOOL(CALLBACK *EnumPropsPROC)(EXHANDLE, int,size_t,size_t);
+typedef int (CALLBACK *EventHandlerPROC)(EXHANDLE, int, int, WPARAM, LPARAM);
 #define WM_NOTIFY_SELF 1030 //notify父控件前,先发给自己
 
 #define EOF_INITED 2147483648
@@ -415,3 +415,5 @@ bool Ex_ObjGetClassInfo(EXHANDLE hObj, void* lpClassInfo);
 
 BOOL Ex_ObjHandleEvent(EXHANDLE hObj, int nEvent, EventHandlerPROC pfnCallback);
 BOOL Ex_ObjGetClassInfoEx(LPCWSTR lptszClassName, class_s* lpClassInfo);
+EXHANDLE Ex_ObjGetFromNodeID(EXHANDLE hExDUIOrObj, int nNodeID);
+size_t Ex_ObjCallProc(ClsPROC lpPrevObjProc, HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pvData);

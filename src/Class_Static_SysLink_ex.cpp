@@ -16,7 +16,7 @@ void _static_paint(EXHANDLE hObj, obj_s* pObj)
 	}
 }
 
-size_t _static_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj)
+size_t CALLBACK _static_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pObj)
 {
 	if (uMsg == WM_PAINT)
 	{

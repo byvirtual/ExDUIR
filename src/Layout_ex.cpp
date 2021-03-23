@@ -440,7 +440,7 @@ void _layout_move_margin(EXHANDLE hObj, RECT* lpObjRc, void* lpMargin, int dwLoc
 	Ex_ObjMove(hObj, rcObj.left, rcObj.top, rcObj.right, rcObj.bottom, false);
 }
 
-size_t __layout_linear_proc(layout_s* pLayput, int nEvent, size_t wParam, size_t lParam)
+size_t CALLBACK __layout_linear_proc(layout_s* pLayput, int nEvent, size_t wParam, size_t lParam)
 {
 	if (nEvent == ELN_GETPROPSCOUNT)
 	{
@@ -638,7 +638,7 @@ size_t __layout_linear_proc(layout_s* pLayput, int nEvent, size_t wParam, size_t
 	return 0;
 }
 
-size_t __layout_flow_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t lParam)
+size_t CALLBACK __layout_flow_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t lParam)
 {
 	if (nEvent == ELN_GETPROPSCOUNT)
 	{
@@ -739,7 +739,7 @@ size_t __layout_flow_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t l
 	return 0;
 }
 
-size_t __layout_page_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t lParam)
+size_t CALLBACK __layout_page_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t lParam)
 {
 	if (nEvent == ELN_GETPROPSCOUNT)
 	{
@@ -762,10 +762,10 @@ size_t __layout_page_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t l
 		void* pInfoa = pLayout->lpLayoutInfo_;
 		array_s* hArr = pLayout->hArrChildrenInfo_;
 		bool fVertical = __get_int(pInfoa, (ELP_LINEAR_DIRECTION - 1) * 4) == ELP_DIRECTION_V;
-		rcClient.left = rcClient.left + __get_int(pInfoa, ELP_PADDING_LEFT * (size_t)4);
-		rcClient.top = rcClient.top + __get_int(pInfoa, ELP_PADDING_TOP * (size_t)4);
-		rcClient.right = rcClient.right + __get_int(pInfoa, ELP_PADDING_RIGHT * (size_t)4);
-		rcClient.bottom = rcClient.bottom + __get_int(pInfoa, ELP_PADDING_BOTTOM * (size_t)4);
+		rcClient.left = rcClient.left + __get_int(pInfoa, ELP_PADDING_LEFT * 4);
+		rcClient.top = rcClient.top + __get_int(pInfoa, ELP_PADDING_TOP * 4);
+		rcClient.right = rcClient.right + __get_int(pInfoa, ELP_PADDING_RIGHT * 4);
+		rcClient.bottom = rcClient.bottom + __get_int(pInfoa, ELP_PADDING_BOTTOM * 4);
 		int nCurrentPage = __get_int(pInfoa, (ELP_PAGE_CURRENT - 1) * (size_t)4);
 		for (int i = 0; i < Array_GetCount(hArr); i++)
 		{
@@ -785,7 +785,7 @@ size_t __layout_page_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t l
 	return 0;
 }
 
-size_t __layout_table_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t lParam)
+size_t CALLBACK __layout_table_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t lParam)
 {
 	if (nEvent == ELN_GETPROPSCOUNT)
 	{
@@ -825,10 +825,10 @@ size_t __layout_table_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t 
 		array_s* hArrRows = (array_s*)__get(pInfoa, (ELP_TABLE_ARRAY_ROW - 1) * sizeof(size_t));
 		array_s* hArrCells = (array_s*)__get(pInfoa, (ELP_TABLE_ARRAY_CELL - 1) * sizeof(size_t));
 
-		rcClient.left = rcClient.left + __get_int(pInfoa, ELP_PADDING_LEFT * (size_t)4);
-		rcClient.top = rcClient.top + __get_int(pInfoa, ELP_PADDING_TOP * (size_t)4);
-		rcClient.right = rcClient.right + __get_int(pInfoa, ELP_PADDING_RIGHT * (size_t)4);
-		rcClient.bottom = rcClient.bottom + __get_int(pInfoa, ELP_PADDING_BOTTOM * (size_t)4);
+		rcClient.left = rcClient.left + __get_int(pInfoa, ELP_PADDING_LEFT * 4);
+		rcClient.top = rcClient.top + __get_int(pInfoa, ELP_PADDING_TOP * 4);
+		rcClient.right = rcClient.right + __get_int(pInfoa, ELP_PADDING_RIGHT * 4);
+		rcClient.bottom = rcClient.bottom + __get_int(pInfoa, ELP_PADDING_BOTTOM * 4);
 		std::vector < std::vector<RECT>> aRects;
 		RECT rcTmp{ 0 };
 		if (Array_GetCount(hArrRows) > 0 && Array_GetCount(hArrCells) > 0)
@@ -931,7 +931,7 @@ size_t __layout_table_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t 
 	return 0;
 }
 
-size_t __layout_relative_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t lParam)
+size_t CALLBACK __layout_relative_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t lParam)
 {
 	if (nEvent == ELN_GETPROPSCOUNT)
 	{
@@ -996,10 +996,10 @@ void _layout_relative_update(layout_s* pLayout, void* pLayoutInfo, array_s* hArr
 	else {
 		Ex_DUIGetClientRect(hObjParent, &rcClient);
 	}
-	rcClient.left = rcClient.left + __get_int(pLayoutInfo, ELP_PADDING_LEFT * (size_t)4);
-	rcClient.top = rcClient.top + __get_int(pLayoutInfo, ELP_PADDING_TOP * (size_t)4);
-	rcClient.right = rcClient.right + __get_int(pLayoutInfo, ELP_PADDING_RIGHT * (size_t)4);
-	rcClient.bottom = rcClient.bottom + __get_int(pLayoutInfo, ELP_PADDING_BOTTOM * (size_t)4);
+	rcClient.left = rcClient.left + __get_int(pLayoutInfo, ELP_PADDING_LEFT * 4);
+	rcClient.top = rcClient.top + __get_int(pLayoutInfo, ELP_PADDING_TOP * 4);
+	rcClient.right = rcClient.right + __get_int(pLayoutInfo, ELP_PADDING_RIGHT * 4);
+	rcClient.bottom = rcClient.bottom + __get_int(pLayoutInfo, ELP_PADDING_BOTTOM * 4);
 	for (int i = 0; i < Array_GetCount(hArrObjs); i++)
 	{
 		void* pInfo = (void*)Array_GetMember(hArrObjs, i);
@@ -1196,7 +1196,7 @@ void _layout_relative_update(layout_s* pLayout, void* pLayoutInfo, array_s* hArr
 				EXHANDLE hEXDUI = 0;
 				if (dwValue == -1)//相对父
 				{
-					Infos[2] = rcClient.bottom+__get_int(pInfo, ELCP_MARGIN_TOP*4)- __get_int(pInfo, ELCP_MARGIN_BOTTOM * 4);
+					Infos[2] = rcClient.bottom+__get_int(pInfo, ELCP_MARGIN_TOP * 4) - __get_int(pInfo, ELCP_MARGIN_BOTTOM * 4);
 				}
 				else if (dwValue != 0 && (hObjParent == Ex_ObjGetParentEx(dwValue, &hEXDUI)) || hObjParent == hEXDUI)//同层组件
 				{
@@ -1457,7 +1457,7 @@ void _layout_relative_update(layout_s* pLayout, void* pLayoutInfo, array_s* hArr
 	HashTable_Destroy(hHashPosInfos);
 }
 
-size_t __layout_absolute_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t lParam)
+size_t CALLBACK __layout_absolute_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t lParam)
 {
 	if (nEvent == ELN_GETPROPSCOUNT)
 	{
@@ -1479,10 +1479,10 @@ size_t __layout_absolute_proc(layout_s* pLayout, int nEvent, size_t wParam, size
 		}
 		void* pInfoa = pLayout->lpLayoutInfo_;
 		array_s* hArr = pLayout->hArrChildrenInfo_;
-		rcClient.left = rcClient.left + __get_int(pInfoa, ELP_PADDING_LEFT * (size_t)4);
-		rcClient.top = rcClient.top + __get_int(pInfoa, ELP_PADDING_TOP * (size_t)4);
-		rcClient.right = rcClient.right + __get_int(pInfoa, ELP_PADDING_RIGHT * (size_t)4);
-		rcClient.bottom = rcClient.bottom + __get_int(pInfoa, ELP_PADDING_BOTTOM * (size_t)4);
+		rcClient.left = rcClient.left + __get_int(pInfoa, ELP_PADDING_LEFT * 4);
+		rcClient.top = rcClient.top + __get_int(pInfoa, ELP_PADDING_TOP * 4);
+		rcClient.right = rcClient.right + __get_int(pInfoa, ELP_PADDING_RIGHT * 4);
+		rcClient.bottom = rcClient.bottom + __get_int(pInfoa, ELP_PADDING_BOTTOM * 4);
 		SIZE szClient{ 0 };
 		szClient.cx = rcClient.right - rcClient.left;
 		szClient.cy = rcClient.bottom - rcClient.top;
