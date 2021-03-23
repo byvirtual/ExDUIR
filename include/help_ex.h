@@ -9,16 +9,16 @@
 template <class Ty>//这里实现了 int long float double  unsigned int/... 等等
 static void pt(std::wstring& str, Ty v)
 {
-	str.append(std::to_wstring(v) + L"\r\n");
+	str.append(std::to_wstring(v) + L" ");
 }
 static void pt(std::wstring& str, std::wstring s)//这个是 文本型 
 {
-	str.append(s + L"\r\n");
+	str.append(s + L" ");
 }
 static void pt(std::wstring& str, const wchar_t* s)//这个是 L"" 
 {
 	str.append(s); 
-	str.append(L"\r\n");
+	str.append(L" ");
 }
 //可以无限重载自定义类型的 调试输出  输出内容格式可以自定义   
 //下面的字节集调试输出例子 是用vector自封的数组  输出结果 跟易语言调试输出字节集一样的效果
@@ -32,8 +32,8 @@ template <class... T>
 static void output(T...args) {
 	std::wstring str = L"";
 	std::initializer_list<int>{ (pt(str, std::forward<T>(args)), 0)...};
-	OutputDebugString(str.c_str());
-	//OutputDebugString(L"\r\n");
+	str.append(L"\r\n");
+	OutputDebugStringW(str.c_str());
 }
 
 #define EX_DEFINE_API(NAME,RET,ARGS)	typedef RET (WINAPI* ExPFN_##NAME)ARGS; extern ExPFN_##NAME	NAME					//定义一个API函数类型,并声明
@@ -381,12 +381,12 @@ struct LOCALINFO
 	std::vector<theme_s*> aryThemes;
 	std::vector<int> aryColorsAtom;
 	std::vector<int> aryColorsOffset;
-	void* lpstr_min;
-	void* lpstr_res_min;
-	void* lpstr_max;
-	void* lpstr_res_max;
-	void* lpstr_close;
-	void* lpstr_help;
+	LPCWSTR lpstr_min;
+	LPCWSTR lpstr_res_min;
+	LPCWSTR lpstr_max;
+	LPCWSTR lpstr_res_max;
+	LPCWSTR lpstr_close;
+	LPCWSTR lpstr_help;
 	UINT dwClickTime;
 	size_t hToken;
 };
@@ -473,7 +473,7 @@ void* prefixstring(LPCWSTR lpString, int dwFmt, int* nOffset);
 
 void SetDefaultIcon();
 std::string GetErrorMessage(DWORD error);
-void* copytstr(LPCWSTR lptstr, int len);
+LPCWSTR copytstr(LPCWSTR lptstr, int len);
 
 HRESULT IUnknown_QueryInterface(void* thisptr, REFIID iid, void** ppvObject);
 ULONG IUnknown_AddRef(void* thisptr);

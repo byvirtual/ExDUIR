@@ -647,7 +647,8 @@ size_t _edit_paint(EXHANDLE hObj, obj_s *pObj) {
         if ((ps.dwStyleEx_ & EOS_EX_CUSTOMDRAW) == 0) {
             Ex_ThemeDrawControl(ps.hTheme_, ps.hCanvas_, 0, 0, ps.width_, ps.height_, ATOM_EDIT, atom, 255);
         }
-        void *lpBanner = (void *) __get(ps.dwOwnerData_, offsetof(edit_s, pBanner_));
+       
+        LPCWSTR lpBanner = ((edit_s*)ps.dwOwnerData_)->pBanner_;
         bool bDrawBanner = false;
         if (lpBanner != 0) {
             if (pITS == 0) {
@@ -666,7 +667,7 @@ size_t _edit_paint(EXHANDLE hObj, obj_s *pObj) {
                         dt = DT_VCENTER;
                     }
                     _canvas_drawtext(ps.hCanvas_, pObj->hFont_, __get_int(ps.dwOwnerData_, offsetof(edit_s, crBanner_)),
-                                     (LPCWSTR) lpBanner, -1, dt, __get_int(mDc, 0), __get_int(mDc, 4),
+                                      lpBanner, -1, dt, __get_int(mDc, 0), __get_int(mDc, 4),
                                      __get_int(mDc, 8), __get_int(mDc, 12));
                     bDrawBanner = true;
                 }

@@ -1688,6 +1688,68 @@ size_t __layout_absolute_proc(layout_s* pLayout, int nEvent, size_t wParam, size
 	return 0;
 }
 
+bool _layout_addchild(EXHANDLE hLayout, EXHANDLE hObj)
+{
+	layout_s* pLayout = nullptr;
+	int nError = 0;
+	void* pInfo = nullptr;
+	bool fIsChild = false;
+	if (_handle_validate(hLayout, HT_LAYOUT, (void**)&pLayout, &nError))
+	{
+		if (hObj != 0)
+		{
+			if (__get(pLayout, 12) == HT_OBJECT)
+			{
+				if (Ex_ObjGetParent(hObj) == __get(pLayout, 8))
+				{
+					fIsChild = true;
+				}
+			}
+			else {
+				if (_handle_validate(hObj, HT_OBJECT, &pInfo, &nError))
+				{
+					if (__get(pInfo, 368) == 0 && __get((void*)__get(pInfo, 0), 114) == __get(pLayout, 8))
+					{
+						fIsChild = true;
+					}
+				}
+			}
+
+			if (fIsChild)
+			{
+				array_s* hArr = pLayout->hArrChildrenInfo_;
+				if (_layout_get_child(pLayout, hObj) == 0)
+				{
+					size_t nIndex = 0;
+					nIndex = Array_Emum(hArr, &_layout_enum_find_obj, hObj);
+					if (nIndex == 0)
+					{
+						pInfo = Ex_MemAlloc(pLayout->cbInfoLen_);
+						if (pInfo != 0)
+						{
+							pInfo = (void*)((size_t)pInfo + 16);
+							__set_int(pInfo, 0, hObj);
+							((LayoutPROC)pLayout->lpfnProc_)(pLayout, ELN_INITCHILDPROPS, hObj, (size_t)pInfo);
+							nIndex = Array_AddMember(hArr, (size_t)pInfo);
+						}
+						else {
+							nError = ERROR_EX_MEMORY_ALLOC;
+						}
+					}
+				}
+			}
+			else {
+				nError = ERROR_EX_LAYOUT_NOT_CHILD;
+			}
+		}
+		else {
+			nError = ERROR_EX_INVALID_OBJECT;
+		}
+	}
+	Ex_SetLastError(nError);
+	return nError == 0;
+}
+
 void _layout_init()
 {
 	_layout_register(ELT_LINEAR, &__layout_linear_proc);

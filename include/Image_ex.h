@@ -33,10 +33,10 @@ struct img_s
 	void* lpFrames_;
 	void* lpHeader_;
 	void* pPrev_;
-	void* p_x_;
-	void* p_y_;
-	void* p_w_;
-	void* p_h_;
+	int p_x_;
+	int p_y_;
+	int p_w_;
+	int p_h_;
 };
 
 struct bkgimg_s

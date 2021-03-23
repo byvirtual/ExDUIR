@@ -189,7 +189,7 @@ _layout_register
 _layout_unregister
 _layout_create
 _layout_destroy
-;_layout_addchild
+_layout_addchild
 ;_layout_addchildren
 ;_layout_deletechild
 ;_layout_deletechildren

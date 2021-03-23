@@ -12,7 +12,7 @@
 #pragma comment(lib, "dxguid.lib")
 #pragma comment(lib, "windowscodecs.lib")
 
-
+#include <gdiplus.h>
 #include "help_ex.h"
 
 
@@ -41,5 +41,5 @@ void _dx_drawbitmaprectrect(void* pDeviceContext, void* pBitmap, float dstLeft, 
 void _dx_drawimage(void* pDeviceContext, img_s* pImage, float left, float top, int mode);
 void _dx_drawimage_ex(void* pDeviceContext, img_s* pImage, float dstLeft, float dstTop, float srcLeft, float srcTop, float srcRight, float srcBottom, int mode);
 void _dx_bmp_copyfrom(void** pDestBitmap, void* pSrcBitmap, int dX, int dY, int srcLeft, int srcTop, int srcRight, int srcBottom);
-
+void _dx_drawframe_apng(img_s* pImage, void* pImgSrc, int x, int y, int w, int h, char dispose, char blend, int nIndex);
 void ARGB2ColorF(int argb, D2D1_COLOR_F *color);

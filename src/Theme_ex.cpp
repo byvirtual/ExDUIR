@@ -293,15 +293,15 @@ void* Ex_ThemeLoadFromMemory(void* lpData, size_t dwDataLen, void* lpKey, size_t
 	return 0;
 }
 
-void* Ex_ThemeLoadFromFile(void* lptszFile, void* lpKey, size_t dwKeyLen, bool bDefault)
+void* Ex_ThemeLoadFromFile(LPCWSTR lptszFile, void* lpKey, size_t dwKeyLen, bool bDefault)
 {
-	int dwLen = lstrlenW((LPCWSTR)lptszFile);
+	int dwLen = lstrlenW(lptszFile);
 	void* ret = nullptr;
 	if (dwLen > 0)
 	{
 		std::vector<char> data;
 		std::wstring wstr;
-		wstr += (LPCWSTR)lptszFile;
+		wstr += lptszFile;
 		Ex_ReadFile(wstr, &data);
 		ret = Ex_ThemeLoadFromMemory(data.data(), data.size(), lpKey, dwKeyLen, bDefault);
 	}

@@ -85,6 +85,18 @@ void* _wic_selectactiveframe(void* pDecoder, int nIndex, int* nError)
 
 void _apng_drawframe(img_s* pImage, int nIndex)//未完成
 {
+	/*' 0 dwLen
+	' 4 Type
+	' 8 uint sequence_number 序列
+	' 12 uint width 宽度
+	' 16 uint height 高度
+	' 20 uint x_offset 水平偏移
+	' 24 uint y_offset 垂直偏移
+	' 28 ushort delay_num 为这一帧显示时间的以秒为单位的分子
+	' 30 ushort delay_den 为这一帧显示时间以秒为单位的分母
+	' 32 byte dispose_op 处理方式
+	' 33 byte blend_op 混合模式*/
+
 	if (nIndex<0 || nIndex>pImage->nMaxFrames_ - 1)
 	{
 		return;
@@ -105,7 +117,7 @@ void _apng_drawframe(img_s* pImage, int nIndex)//未完成
 		size_t lpStream = 0;
 		while (type== PNG_fdAT || type== PNG_IDAT)
 		{
-			lpStream=_apng_thunk_getlength(pIDATNext) + (size_t)12;
+			lpStream= (size_t)_apng_thunk_getlength(pIDATNext) + (size_t)12;
 			dwLen = dwLen + lpStream + (type == PNG_fdAT ? -4 : 0);
 			pIDATNext =(void*)((size_t) pIDATNext + lpStream);
 			type = __get_int(pIDATNext, 4);
@@ -114,7 +126,7 @@ void _apng_drawframe(img_s* pImage, int nIndex)//未完成
 		void* hMem = GlobalAlloc(2, dwLen);
 		if (hMem != 0)
 		{
-			if (CreateStreamOnHGlobal(hMem, 1, (LPSTREAM*)lpStream) == 0)
+			if (CreateStreamOnHGlobal(hMem, 1, (LPSTREAM*)&lpStream) == 0)
 			{
 				void* pBuffer = GlobalLock(hMem);
 				if (pBuffer != 0)
@@ -122,7 +134,7 @@ void _apng_drawframe(img_s* pImage, int nIndex)//未完成
 					RtlMoveMemory(pBuffer,(void*)((size_t) pHeader + 4), dwHeader);
 					__set_int(pBuffer, 16, __get_int(pFrame, 12));
 					__set_int(pBuffer, 20, __get_int(pFrame, 16));
-					__set_int(pBuffer, 29,_byteswap_ulong( Crc32_Addr((void*)((size_t)pBuffer+12),17)));
+					__set_int(pBuffer, 29,_byteswap_ulong(Crc32_Addr((void*)((size_t)pBuffer+12),17)));
 					void* pOffset =(void*)((size_t)pBuffer + dwHeader);
 					pIDATNext = pIDAT;
 					type = __get_int(pIDAT, 4);
@@ -150,9 +162,11 @@ void _apng_drawframe(img_s* pImage, int nIndex)//未完成
 
 					GlobalUnlock(hMem);
 					void* pObj = pImage->pObj_;
-					
+					_dx_drawframe_apng(pImage, pObj, x, y, __get_int(pFrame, 12), __get_int(pFrame, 16), dispose, blend, nIndex);
 				}
+				((LPSTREAM)lpStream)->Release();
 			}
+			GlobalFree(hMem);
 		}
 	}
 }
@@ -165,11 +179,11 @@ bool _img_selectactiveframe(EXHANDLE hImg, int nIndex)
 	{
 		if (_handle_validate(hImg, HT_IMAGE, (void**)&pImg, &nError))
 		{
-			/*if (__query(pImg, offsetof(img_s, dwFlags_), IMGF_APNG))
+			if (__query(pImg, offsetof(img_s, dwFlags_), IMGF_APNG))
 			{
-				_apng_drawframe
-			}*/
-			if (pImg->nMaxFrames_ > 1)
+				_apng_drawframe(pImg, nIndex);
+			}
+			else if (pImg->nMaxFrames_ > 1)
 			{
 				void* pFrame = _wic_selectactiveframe(pImg->pWicDecoder_, nIndex, &nError);
 				if (pFrame != 0)
@@ -481,7 +495,7 @@ EXHANDLE _img_createfromstream(void* lpStream)
 	}
 	if (hImg != 0)
 	{
-		/////////////APNG
+		_apng_int(hImg, lpStream);
 	}
 	Ex_SetLastError(nError);
 	return hImg;
@@ -811,6 +825,7 @@ void _apng_int(EXHANDLE hImage, void* lpStream)
 {
 	void* hGlobal = nullptr;
 	int i = 0;
+	
 	if (GetHGlobalFromStream((LPSTREAM)lpStream, &hGlobal) == 0)
 	{
 		void* lpMem = GlobalLock(hGlobal);
@@ -825,8 +840,10 @@ void _apng_int(EXHANDLE hImage, void* lpStream)
 					int nPos = 8;
 					void* pIHDR = nullptr;
 					int dwIHDR = 0;
+					
 					if (_apng_thunk_getnext(lpMem, &nPos, PNG_IHDR, &pIHDR, &dwIHDR))
 					{
+						
 						void* pPLTE = nullptr;
 						int dwPLTE = 0;
 						void* pTRNS = nullptr;
@@ -837,6 +854,7 @@ void _apng_int(EXHANDLE hImage, void* lpStream)
 						void* pHeader = Ex_MemAlloc(dwLen);
 						if (pHeader != 0)
 						{
+							
 							__set_int(pHeader, 0, dwLen - 4);
 							__set_int(pHeader, 4, PNG_HEADER);
 							__set_int(pHeader, 8, 169478669);
@@ -856,10 +874,12 @@ void _apng_int(EXHANDLE hImage, void* lpStream)
 							if (_apng_thunk_getnext(lpMem, &nPos, PNG_acTL, &pThunk, &dwLen))
 							{
 								int nCount = _apng_thunk_getlength((void*)((size_t)pThunk + 8));
+								
 								void* pFrames = Ex_MemAlloc(nCount * sizeof(void*));
 								if (pFrames != 0)
 								{
-									pImage->dwFlags_ = pImage->dwFlags_ | IMGF_APNG;
+									
+;									pImage->dwFlags_ = pImage->dwFlags_ | IMGF_APNG;
 									pImage->nMaxFrames_ = nCount;
 									pImage->lpFrames_ = pFrames;
 									pImage->lpHeader_ = pHeader;
@@ -879,7 +899,7 @@ void _apng_int(EXHANDLE hImage, void* lpStream)
 										__set_int(pThunk, 20, _apng_thunk_getlength((void*)((size_t)pThunk + 20)));
 										__set_int(pThunk, 24, _apng_thunk_getlength((void*)((size_t)pThunk + 24)));
 										__set_int(pThunk, 28, _apng_thunk_getlength((void*)((size_t)pThunk + 28)));
-
+										
 										//TODO: x64
 										__set_int(pFrames, i * sizeof(void*), (int)pThunk);
 										i = i + 1;

@@ -21,7 +21,7 @@ struct edit_s
 	void* prctext_;
 	void* prcinset_;
 	int flags_;
-	void* pBanner_;
+	LPCWSTR pBanner_;
 	int crBanner_;
 	int dwPropBits_;
 	HDC mDc_;

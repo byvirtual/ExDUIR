@@ -758,7 +758,7 @@ void _lv_drawitem(HWND hWnd, EXHANDLE hObj, obj_s* pObj, listview_s* pOwner, pai
 			_brush_destroy(hBrush);
 		}
 		std::wstring tmp=std::to_wstring(iItem);
-		_canvas_drawtext(ps.hCanvas_, pObj->hFont_, ExRGB2ARGB(0, 255), (LPCWSTR)tmp.c_str(), -1, DT_CENTER | DT_VCENTER | DT_SINGLELINE, rcItem.left, rcItem.top, rcItem.right, rcItem.bottom);
+		_canvas_drawtext(ps.hCanvas_, pObj->hFont_, ExRGB2ARGB(0, 255), tmp.c_str(), -1, DT_CENTER | DT_VCENTER | DT_SINGLELINE, rcItem.left, rcItem.top, rcItem.right, rcItem.bottom);
 	}
 }
 

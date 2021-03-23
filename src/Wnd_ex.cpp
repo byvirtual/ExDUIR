@@ -1398,7 +1398,7 @@ void _wnd_sysbutton_create(HWND hWnd, wnd_s* pWnd, int dwStyle)
 	if (objCaption != 0)
 	{
 		std::wstring title;
-		void* lpTitle = nullptr;
+		LPCWSTR lpTitle = nullptr;
 		
 		if (((pWnd->dwStyle_ & EWS_MESSAGEBOX) == EWS_MESSAGEBOX))
 		{
@@ -1409,7 +1409,7 @@ void _wnd_sysbutton_create(HWND hWnd, wnd_s* pWnd, int dwStyle)
 		else {
 
 			title = _wnd_gettitle(hWnd);
-			lpTitle = (void*)title.data();
+			lpTitle = title.data();
 		}
 
 		_obj_create_proc(&nError, false, hTheme, pObjCaption, (dwStyle & EWS_NOCAPTIONTOPMOST) != 0 ? 0 : -1, ATOM_SYSBUTTON, lpTitle,
@@ -3002,7 +3002,7 @@ bool Ex_TrackPopupMenu(void* hMenu, int uFlags, int x, int y, int nReserved, siz
 	return ret;
 }
 
-int Ex_MessageBoxEx(size_t handle, void* lpText, void* lpCaption, int uType, void* lpCheckBox, bool* lpCheckBoxChecked, int dwMilliseconds, int dwFlags, MsgPROC lpfnMsgProc)
+int Ex_MessageBoxEx(size_t handle, LPCWSTR lpText, LPCWSTR lpCaption, int uType, LPCWSTR lpCheckBox, bool* lpCheckBoxChecked, int dwMilliseconds, int dwFlags, MsgPROC lpfnMsgProc)
 {
     HWND hWnd = 0;
     wnd_s* pWnd = nullptr;
@@ -3021,11 +3021,11 @@ int Ex_MessageBoxEx(size_t handle, void* lpText, void* lpCaption, int uType, voi
 
         pWnd->lpMsgParams_ = &mbp;
     }
-    auto ret = MessageBoxW(hWnd, (LPCWSTR)lpText, (LPCWSTR)lpCaption, uType);
+    auto ret = MessageBoxW(hWnd, lpText, lpCaption, uType);
 	return ret;
 }
 
-int Ex_MessageBox(size_t handle, void* lpText, void* lpCaption, int uType, int dwFlags)
+int Ex_MessageBox(size_t handle, LPCWSTR lpText, LPCWSTR lpCaption, int uType, int dwFlags)
 {
 	return Ex_MessageBoxEx(handle, lpText, lpCaption, uType, 0, 0, 0, dwFlags, 0);
 }
@@ -3050,7 +3050,7 @@ bool Ex_DUISetBlur(EXHANDLE hExDui, float fDeviation)
 	return nError == 0;
 }
 
-bool Ex_DUITrayIconPopup(EXHANDLE hExDui, void* lpwzInfo, void* lpwzInfoTitle, int dwInfoFlags)
+bool Ex_DUITrayIconPopup(EXHANDLE hExDui, LPCWSTR lpwzInfo, LPCWSTR lpwzInfoTitle, int dwInfoFlags)
 {
 	wnd_s* pWnd = nullptr;
 	int nError = 0;
@@ -3061,11 +3061,11 @@ bool Ex_DUITrayIconPopup(EXHANDLE hExDui, void* lpwzInfo, void* lpwzInfoTitle, i
 		{
 			((NOTIFYICONDATAW*)lpNid)->uFlags = NIF_INFO;
 			RtlZeroMemory((void*)((size_t)lpNid + offsetof(NOTIFYICONDATAW, szInfo)), 512);
-			int len = lstrlenW((LPCWSTR)lpwzInfo);
+			int len = lstrlenW(lpwzInfo);
 			if (len > 255) len = 255;
 			RtlMoveMemory((void*)((size_t)lpNid + offsetof(NOTIFYICONDATAW, szInfo)), lpwzInfo, len * 2);
 			RtlZeroMemory((void*)((size_t)lpNid + offsetof(NOTIFYICONDATAW, szInfoTitle)), 128);
-			len = lstrlenW((LPCWSTR)lpwzInfoTitle);
+			len = lstrlenW(lpwzInfoTitle);
 			if (len > 63) len = 63;
 			RtlMoveMemory((void*)((size_t)lpNid + offsetof(NOTIFYICONDATAW, szInfoTitle)), lpwzInfoTitle, len * 2);
 			((NOTIFYICONDATAW*)lpNid)->dwInfoFlags = dwInfoFlags;
@@ -3075,14 +3075,14 @@ bool Ex_DUITrayIconPopup(EXHANDLE hExDui, void* lpwzInfo, void* lpwzInfoTitle, i
 	return nError == 0;
 }
 
-bool Ex_DUITrayIconSet(EXHANDLE hExDui, size_t hIcon, void* lpwzTips)
+bool Ex_DUITrayIconSet(EXHANDLE hExDui, size_t hIcon, LPCWSTR lpwzTips)
 {
 	wnd_s* pWnd = nullptr;
 	int nError = 0;
 	if (_handle_validate(hExDui, HT_DUI, (void**)&pWnd, &nError))
 	{
 		HWND hWnd = pWnd->hWnd_;
-		int len = lstrlenW((LPCWSTR)lpwzTips);
+		int len = lstrlenW(lpwzTips);
 		void* lpNid = pWnd->nID_;
 		if (lpNid == 0)
 		{

@@ -118,15 +118,15 @@ void* Ex_ResLoadFromMemory(void* lpData, size_t dwDataLen)
 	return ret;
 }
 
-void* Ex_ResLoadFromFile(void* lptszFile)
+void* Ex_ResLoadFromFile(LPCWSTR lptszFile)
 {
-	int dwLen = lstrlenW((LPCWSTR)lptszFile);
+	int dwLen = lstrlenW(lptszFile);
 	void* ret = nullptr;
 	if (dwLen > 0)
 	{
 		std::vector<char> data;
 		std::wstring wstr;
-		wstr += (LPCWSTR)lptszFile;
+		wstr += lptszFile;
 		Ex_ReadFile(wstr, &data);
 		ret = Ex_ResLoadFromMemory(data.data(), data.size());
 	}
@@ -155,7 +155,7 @@ bool Ex_ResGetFileFromAtom(hashtable_s* hRes, int atomPath, void** lpFile, size_
 	return *dwFileLen > 0;
 }
 
-bool Ex_ResGetFile(hashtable_s* hRes, void* lpwzPath, void** lpFile, size_t* dwFileLen)
+bool Ex_ResGetFile(hashtable_s* hRes, LPCWSTR lpwzPath, void** lpFile, size_t* dwFileLen)
 {
-	return Ex_ResGetFileFromAtom(hRes, Ex_Atom((LPCWSTR)lpwzPath), lpFile, dwFileLen);
+	return Ex_ResGetFileFromAtom(hRes, Ex_Atom(lpwzPath), lpFile, dwFileLen);
 }

@@ -18,7 +18,6 @@ void Ex_SetLastError(int nError)
 BOOL Ex_Init(HINSTANCE hInstance, int dwGlobalFlags, HCURSOR hDefaultCursor, LPCWSTR lpszDefaultClassName, LPVOID lpDefaultTheme, int dwDefaultThemeLen, LPVOID lpDefaultI18N, int dwDefaultI18NLen)
 {
 	CoInitialize(NULL);
-	//加载NTDLL();
 
 	g_Li.csError = Thread_InitializeCriticalSection();
 
@@ -122,14 +121,13 @@ BOOL Ex_Init(HINSTANCE hInstance, int dwGlobalFlags, HCURSOR hDefaultCursor, LPC
 void Ex_UnInit()
 {
 	UnhookWindowsHookEx((HHOOK)g_Li.hHookMsgBox);
-	Ex_MemFree(g_Li.lpstr_min);
-	Ex_MemFree(g_Li.lpstr_max);
-	Ex_MemFree(g_Li.lpstr_res_min);
-	Ex_MemFree(g_Li.lpstr_res_max);
-	Ex_MemFree(g_Li.lpstr_close);
-	Ex_MemFree(g_Li.lpstr_help);
+	Ex_MemFree((void*)g_Li.lpstr_min);
+	Ex_MemFree((void*)g_Li.lpstr_max);
+	Ex_MemFree((void*)g_Li.lpstr_res_min);
+	Ex_MemFree((void*)g_Li.lpstr_res_max);
+	Ex_MemFree((void*)g_Li.lpstr_close);
+	Ex_MemFree((void*)g_Li.lpstr_help);
 	Ex_MemFree(g_Li.lpLogFontDefault);
-	//Ex_MemFree(g_Li.pfnEditCallback);
 	_canvas_uninit();
 	_handle_uninit(g_Li.hHandles);
 	HashTable_Destroy(g_Li.hTableClass);

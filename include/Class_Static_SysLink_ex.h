@@ -13,9 +13,9 @@ struct slb_s
 {
 	int dwFlags_;
 	int dwID_;
-	void* szText_;
-	void* szUrl_;
-	void* szToolTips_;
+	LPCWSTR szText_;
+	LPCWSTR szUrl_;
+	LPCWSTR szToolTips_;
 	int rc_left_;
 	int rc_top_;
 	int rc_right_;
@@ -41,4 +41,4 @@ HCURSOR _syslink_setcurrsor(obj_s* pObj);
 void _syslink_click(HWND hWnd, EXHANDLE hObj, obj_s* pObj);
 void _syslink_paint(EXHANDLE hObj, obj_s* pObj);
 void _syslink_freeblocks(obj_s* pObj);
-void _syslink_calcblocks(obj_s* pObj, void* lpwzText);
+//void _syslink_calcblocks(obj_s* pObj, LPCWSTR lpwzText);

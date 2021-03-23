@@ -156,12 +156,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Exdui5.cpp" />
+    <ClCompile Include="test_obj.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="test_obj.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="icon.ico" />

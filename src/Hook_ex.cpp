@@ -131,13 +131,13 @@ void _msgbox_drawinfo(wnd_s* pWnd, EXHANDLE cvBkg)
 			}
 			l = r + Ex_Scale(15);
 		}
-		void* pText = pMsg->lpText_;
+		LPCWSTR pText = pMsg->lpText_;
 		if (pText != 0)
 		{
 			void* hFont = _font_create();
 			if (hFont != 0)
 			{
-				_canvas_drawtext(cvBkg, hFont, -16777216, (LPCWSTR)pText, -1, DT_NOPREFIX | DT_WORDBREAK | DT_EDITCONTROL, l, t, w - Ex_Scale(15), h);
+				_canvas_drawtext(cvBkg, hFont, -16777216, pText, -1, DT_NOPREFIX | DT_WORDBREAK | DT_EDITCONTROL, l, t, w - Ex_Scale(15), h);
 				_font_destroy(hFont);
 			}
 		}
@@ -192,7 +192,7 @@ void _msgbox_initdialog(HWND hWnd, wnd_s* pWnd, size_t wParam, size_t lParam)
 			if (_canvas_begindraw(hCanvas))
 			{
 
-				_canvas_calctextsize(hCanvas, hFont, (LPCWSTR)lpwzCheckbox, -1, DT_LEFT | DT_SINGLELINE, 0, 0, 0, &widthCheckbox, 0);
+				_canvas_calctextsize(hCanvas, hFont, lpwzCheckbox, -1, DT_LEFT | DT_SINGLELINE, 0, 0, 0, &widthCheckbox, 0);
 				_canvas_enddraw(hCanvas);
 			}
 			widthCheckbox = widthCheckbox + 16 + 8;
@@ -201,7 +201,7 @@ void _msgbox_initdialog(HWND hWnd, wnd_s* pWnd, size_t wParam, size_t lParam)
 
 		if (_canvas_begindraw(hCanvas))
 		{
-			_canvas_calctextsize(hCanvas, hFont, (LPCWSTR)pMsg->lpText_, -1, DT_NOPREFIX | DT_WORDBREAK | DT_EDITCONTROL, 0, width, rcText.bottom - rcText.top, &w, &h);
+			_canvas_calctextsize(hCanvas, hFont, pMsg->lpText_, -1, DT_NOPREFIX | DT_WORDBREAK | DT_EDITCONTROL, 0, width, rcText.bottom - rcText.top, &w, &h);
 			_canvas_enddraw(hCanvas);
 		}
 		_font_destroy(hFont);
@@ -250,7 +250,7 @@ void _msgbox_initdialog(HWND hWnd, wnd_s* pWnd, size_t wParam, size_t lParam)
 		hObj = _obj_create_init(hWnd, pWnd, ATOM_BUTTON, 0, &pObj, &nError);
 		if (hObj != 0)
 		{
-			_obj_create_proc(&nError, true, hTheme, pObj, -1, ATOM_BUTTON, (void*)aryText[i].c_str(), -1, left, top, 80, 24, 0, ~aryID[i], 0, aryID[i], -1);
+			_obj_create_proc(&nError, true, hTheme, pObj, -1, ATOM_BUTTON, aryText[i].c_str(), -1, left, top, 80, 24, 0, ~aryID[i], 0, aryID[i], -1);
 			pObj->dwFlags_ = pObj->dwFlags_ | eof_bMsgBoxControl;
 			_obj_create_done(hWnd, pWnd, hObj, pObj);
 			if (aryID[i] == iDef) _obj_setfocus(hWnd, pWnd, hObj, pObj, true);

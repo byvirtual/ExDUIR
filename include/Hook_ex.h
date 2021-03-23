@@ -4,10 +4,10 @@
 struct mbp_s
 {
 	size_t handle_;
-	void* lpText_;
-	void* lpCaption_;
+	LPCWSTR lpText_;
+	LPCWSTR lpCaption_;
 	int uType_;
-	void* lpCheckBox_;
+	LPCWSTR lpCheckBox_;
 	void* lpCheckBoxChecked_;
 	int dwMilliseconds_;
 	int dwFlags_;
