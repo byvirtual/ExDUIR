@@ -1026,3 +1026,80 @@ EXHANDLE _canvas_createfromexdui(EXHANDLE hExDui, int width, int height, int dwF
 	Ex_SetLastError(nError);
 	return hCanvas;
 }
+
+//-----------ExDirectUI 4.1.20
+BOOL _canvas_setantialias(EXHANDLE hCanvas, BOOL antialias)
+{
+	D2D1_ANTIALIAS_MODE mode;
+	int nError = 0;
+	canvas_s* pCanvas = 0;
+
+	if (_handle_validate(hCanvas, HT_CANVAS, (void**)&pCanvas, &nError))
+	{
+		if (antialias) {
+			FLAGS_ADD(pCanvas->dwFlags_, 2);
+		}
+		else {
+			FLAGS_DEL(pCanvas->dwFlags_, 2);
+		}
+
+		if (Ex_IsDxRender())
+		{
+			void* pContext = _cv_context(pCanvas);
+			if (antialias || Flag_Query(EXGF_RENDER_CANVAS_ALIAS)) {
+				mode = D2D1_ANTIALIAS_MODE_PER_PRIMITIVE;
+			}
+			else {
+				mode = D2D1_ANTIALIAS_MODE_ALIASED;
+			}
+			((ID2D1DeviceContext*)pContext)->SetAntialiasMode((D2D1_ANTIALIAS_MODE)!mode);
+		}
+	}
+	Ex_SetLastError(nError);
+	return nError == 0;
+}
+
+BOOL _canvas_setimageantialias(EXHANDLE hCanvas, BOOL antialias) {
+	canvas_s* pCanvas = 0;
+	int nError = 0;
+	if (_handle_validate(hCanvas, HT_CANVAS, (void**)&pCanvas, &nError))
+	{
+		if (antialias) {
+			FLAGS_ADD(pCanvas->dwFlags_, 16);
+		}
+		else {
+			FLAGS_DEL(pCanvas->dwFlags_, 16);
+		}
+	}
+	Ex_SetLastError(nError);
+	return nError == 0;
+}
+
+BOOL __stdcall _canvas_settransform(EXHANDLE hCanvas, D2D1_MATRIX_3X2_F* pMatrix)
+{
+	int nError = 0;
+	canvas_s* pCanvas = NULL;
+
+	if (_handle_validate(hCanvas, HT_CANVAS, (void**)&pCanvas, &nError))
+	{
+		if (Ex_IsDxRender())
+		{
+
+			void* pContext = _cv_context(pCanvas);
+			if (pMatrix)
+			{
+				((ID2D1DeviceContext*)pContext)->SetTransform((D2D1_MATRIX_3X2_F*)pMatrix);
+			}
+			else
+			{
+				D2D1_MATRIX_3X2_F matrix;
+				matrix.m11 = 1.0f;
+				matrix.m22 = 1.0f;
+				((ID2D1DeviceContext*)pContext)->SetTransform(&matrix);
+			}
+			//TODO: __set(pCanvas, 44, v5);
+			// pCanvas->pMatrix = pMatrix;
+		}
+	}
+	return nError == 0;
+}

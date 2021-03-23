@@ -3814,6 +3814,15 @@ bool Ex_ObjGetClassInfo(EXHANDLE hObj, void* lpClassInfo)
 }
 
 //--------------------------ExDirectUI 4.1.20.430-----------------------------
+
+//======================================================
+// 函数名称：Ex_ObjHandleEvent
+// 返回类型：逻辑型
+// 函数说明：挂接事件回调
+// 参数<1>：hObj
+// 参数<2>：nEvent，#NM_
+// 参数<3>：pfnCallback，(Bool) Handler(hObj,nID,nCode,wParam,lParam) 返回假继续分发事件,返回真则停止继续分发事件
+//======================================================
 BOOL Ex_ObjHandleEvent(EXHANDLE hObj, int nEvent, EventHandlerPROC pfnCallback) {
 	obj_s* pObj = NULL;
 	int nError = 0;
@@ -3900,6 +3909,13 @@ BOOL Ex_ObjHandleEvent(EXHANDLE hObj, int nEvent, EventHandlerPROC pfnCallback) 
 	return nError == 0;
 }
 
+//======================================================
+// 函数名称：Ex_ObjGetClassInfoEx
+// 返回类型：逻辑型
+// 函数说明：通过类名/类ATOM获取类信息
+// 参数<1>：wzClassName，wzClassName/AtomClassName
+// 参数<2>：lpClassInfo，相关结构 EX_CLASSINFO
+//======================================================
 BOOL Ex_ObjGetClassInfoEx(LPCWSTR lptszClassName, class_s* lpClassInfo)
 {
     void* pClass = NULL;
@@ -3912,4 +3928,57 @@ BOOL Ex_ObjGetClassInfoEx(LPCWSTR lptszClassName, class_s* lpClassInfo)
     if (HashTable_Get(g_Li.hTableClass, atom, (size_t*)&pClass) && pClass)
         RtlMoveMemory(lpClassInfo, pClass, sizeof(class_s));
     return pClass != 0;
+}
+
+//======================================================
+// 函数名称：Ex_ObjGetFromNodeID
+// 返回类型：整数型
+// 参数<1>：hExDUIOrObj
+// 参数<2>：nNodeID
+//======================================================
+EXHANDLE Ex_ObjGetFromNodeID(EXHANDLE hExDUIOrObj, int nNodeID)
+{
+	int nError = 0;
+	EXHANDLE hChild = NULL;
+	obj_base* pObj = NULL;
+
+	if (_handle_validate(hExDUIOrObj, HT_DUI, (void**)&pObj, &nError))
+	{
+		hChild = pObj->objChildFirst_;
+	}
+	else
+	{
+		nError = 0;
+		if (_handle_validate(hExDUIOrObj, HT_OBJECT, (void**)&pObj, &nError))
+			hChild = pObj->objChildFirst_;
+		else
+			Ex_SetLastError(ERROR_EX_HANDLE_INVALID);
+	}
+	while (1)
+	{
+		nError = 0;
+		if (!_handle_validate(hChild, HT_OBJECT, (void**)&pObj, &nError))
+			break;
+
+		if (((obj_s*)pObj)->nodeid_ == nNodeID)
+			break;
+		hChild = ((obj_s*)pObj)->objNext_;
+	}
+	return hChild;
+}
+
+//======================================================
+// 函数名称：Ex_ObjCallProc
+// 返回类型：整数型
+// 函数说明：调用过程
+// 参数<1>：lpPrevObjProc
+// 参数<2>：hWnd
+// 参数<3>：hObj
+// 参数<4>：uMsg
+// 参数<5>：wParam
+// 参数<6>：lParam
+// 参数<7>：pvData
+//======================================================
+size_t Ex_ObjCallProc(ClsPROC lpPrevObjProc, HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pvData) {
+	return lpPrevObjProc(hWnd, hObj, uMsg, wParam, lParam, pvData);
 }

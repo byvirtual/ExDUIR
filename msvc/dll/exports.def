@@ -45,16 +45,11 @@ Ex_WndRegisterClass
 ;----------------------------------------
 Ex_ObjBeginPaint
 Ex_ObjEndPaint
-;Ex_ObjBeginPaint2
-;Ex_ObjEndPaint2
-;Ex_ObjBeginPaintP
-;Ex_ObjEndPaintP
 Ex_ObjGetRect
-;Ex_ObjGetRectP
 Ex_ObjClientToWindow
 Ex_ObjDefProc
 Ex_ObjRegister
-;Ex_ObjCallProc
+Ex_ObjCallProc
 Ex_ObjLayoutGet
 Ex_ObjLayoutSet
 ;Ex_ObjLayoutUpdate
@@ -120,7 +115,7 @@ Ex_ObjMove
 Ex_ObjSetUIState
 Ex_ObjGetUIState
 ;Ex_ObjLoadFromLayout
-;Ex_ObjGetFromNodeID
+Ex_ObjGetFromNodeID
 Ex_ObjGetRectEx
 Ex_ObjPointTransform
 Ex_ObjEnableEventBubble
@@ -243,11 +238,11 @@ _canvas_calctextsize
 _canvas_getdc
 _canvas_releasedc
 _canvas_blur
-;_canvas_settransform
+_canvas_settransform
 _canvas_rotate_hue
 
-;_canvas_setantialias
-;_canvas_setimageantialias
+_canvas_setantialias
+_canvas_setimageantialias
 ;_canvas_settextantialiasmode
 
 
