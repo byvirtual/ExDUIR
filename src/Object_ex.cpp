@@ -507,14 +507,17 @@ void _obj_setchildrenpostion(obj_s* pObj, int x, int y)
 
 void _obj_update(obj_s* pObj, bool fUpdateWindow)
 {
-	void* prc = MemPool_Alloc(g_Li.hMemPoolMsg, true);
+	LPRECT prc = (LPRECT)MemPool_Alloc(g_Li.hMemPoolMsg, true);
 	pObj->d_left_ = pObj->left_;
 	pObj->d_top_ = pObj->top_;
 	pObj->d_right_ = pObj->right_;
 	pObj->d_bottom_ = pObj->bottom_;
-	OffsetRect((LPRECT)((size_t)pObj + offsetof(obj_s, d_left_)), (-pObj->left_), (-pObj->top_));
-	RtlMoveMemory(prc, (void*)((size_t)pObj + offsetof(obj_s, d_left_)), 16);
-	OffsetRect((LPRECT)prc, (-pObj->w_left_), (-pObj->w_top_));
+	OffsetRect((LPRECT)&pObj->d_left_, -pObj->left_, -pObj->top_);
+	RtlMoveMemory(prc, &pObj->d_left_, sizeof(RECT));
+
+	_ASSERT(sizeof(RECT) == 16, "RECT size error!");
+
+	OffsetRect(prc, pObj->w_left_, pObj->w_top_);
 	wnd_s* pWnd = pObj->pWnd_;
 	HWND hWnd = pWnd->hWnd_;
 	if (_obj_makeupinvalidaterect(pWnd, pObj, prc))
