@@ -36,6 +36,22 @@ static void output(T...args) {
 	OutputDebugStringW(str.c_str());
 }
 
+//断言
+#ifndef _DEBUG
+	#ifndef EX_ASSERT
+	#define EX_ASSERT(expr, msg, ...) ((void)0)
+	#endif
+#else
+	#ifndef EX_ASSERT
+	#define EX_ASSERT(expr, msg, ...) \
+				(void)(                                                                                     \
+					(!!(expr)) ||                                                                           \
+					(1 != _CrtDbgReportW(_CRT_ASSERT, _CRT_WIDE(__FILE__), __LINE__, NULL, msg, __VA_ARGS__)) || \
+					(_CrtDbgBreak(), 0)                                                                     \
+				)
+	#endif
+#endif
+
 #define EX_DEFINE_API(NAME,RET,ARGS)	typedef RET (WINAPI* ExPFN_##NAME)ARGS; extern ExPFN_##NAME	NAME					//定义一个API函数类型,并声明
 #define EX_DECLEAR_API(NAME)			ExPFN_##NAME NAME																	//声明一个函数指针变量
 #define EX_GET_API(NAME)				NAME = (ExPFN_##NAME) ::GetProcAddress(hModule,#NAME)	

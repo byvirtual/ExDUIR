@@ -501,7 +501,19 @@ EXHANDLE _img_createfromstream(void* lpStream)
 	return hImg;
 }
 
-EXHANDLE _img_createfrommemory(void* lpData, int dwLen)
+//======================================================
+// 函数名称：_img_createfromhbitmap
+// 返回类型：整数型
+// 函数说明：创建自GDI位图句柄。成功返回0。
+// 参数<1>：hBitmap
+// 参数<2>：hPalette
+// 参数<3>：fPreAlpha，是否预乘透明通道
+// 参数<4>：hImg，返回图像指针
+//======================================================
+EXHANDLE _img_createfrommemory(
+	__in void* lpData,
+	__in int dwLen,
+	__out_opt EXHANDLE* phImg)
 {
 	int nError = 0;
 	EXHANDLE hImg = 0;
@@ -511,11 +523,21 @@ EXHANDLE _img_createfrommemory(void* lpData, int dwLen)
 		hImg = _img_createfromstream(lpStream);
 		((IStream*)lpStream)->Release();
 	}
+	if (phImg) {
+		*phImg = hImg;
+	}
 	Ex_SetLastError(nError);
 	return hImg;
 }
 
-EXHANDLE _img_createfromhicon(void* hIcon)
+//======================================================
+// 函数名称：_img_createfromhicon
+// 返回类型：整数型
+// 函数说明：创建自图标句柄。成功返回0。
+// 参数<1>：hIcon
+// 参数<2>：hImg，返回图像指针
+//======================================================
+EXHANDLE _img_createfromhicon(__in void* hIcon,	__out_opt EXHANDLE* phImg)
 {
 	int nError = 0;
 	void* pBitmap = nullptr;
@@ -526,11 +548,23 @@ EXHANDLE _img_createfromhicon(void* hIcon)
 	{
 		hImg = _img_init(pBitmapConvert, 0, 1, 0, &nError);
 	}
+	if (phImg) {
+		*phImg = hImg;
+	}
 	Ex_SetLastError(nError);
 	return hImg;
 }
 
-EXHANDLE _img_createfromfile(LPCWSTR lpwzFilename)
+//======================================================
+// 函数名称：_img_createfromfile
+// 返回类型：整数型
+// 函数说明：创建自文件。成功返回0。
+// 参数<1>：lpwzFilename
+// 参数<2>：hImg，返回图像指针
+//======================================================
+EXHANDLE _img_createfromfile(
+	__in LPCWSTR lpwzFilename,
+	__out_opt EXHANDLE* phImg)
 {
 	void* pDecoder = nullptr;
 	EXHANDLE hImg = 0;
@@ -539,6 +573,9 @@ EXHANDLE _img_createfromfile(LPCWSTR lpwzFilename)
 	if (nError == 0)
 	{
 		hImg = _wic_init_from_decoder(pDecoder, &nError);
+	}
+	if (phImg) {
+		*phImg = hImg;
 	}
 	Ex_SetLastError(nError);
 	return hImg;
@@ -956,7 +993,7 @@ EXHANDLE _img_createfromres(hashtable_s* hRes, int atomPath)
 	EXHANDLE ret = 0;
 	if (Ex_ResGetFileFromAtom(hRes, atomPath, &lpFile, &dwLen))
 	{
-		ret = _img_createfrommemory(lpFile, dwLen);
+		ret = _img_createfrommemory(lpFile, dwLen, NULL);
 	}
 	return ret;
 }

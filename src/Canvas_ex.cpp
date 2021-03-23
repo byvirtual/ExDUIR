@@ -447,8 +447,17 @@ bool _canvas_drawimagerect(EXHANDLE hCanvas, EXHANDLE hImage, float Left, float 
 	return ret;
 }
 
+//======================================================
+// 函数名称：_canvas_drawimage
+// 返回类型：逻辑型
+// 参数<1>：hCanvas
+// 参数<2>：hImage
+// 参数<3>：left
+// 参数<4>：top
+// 参数<5>：alpha
+//======================================================
 
-bool _canvas_drawimage(EXHANDLE hCanvas, EXHANDLE hImage, float Left, float Top, int alpha)
+BOOL _canvas_drawimage(EXHANDLE hCanvas, EXHANDLE hImage, float Left, float Top, int alpha)
 {
 	int w, h;
 	bool ret = false;
@@ -1027,7 +1036,15 @@ EXHANDLE _canvas_createfromexdui(EXHANDLE hExDui, int width, int height, int dwF
 	return hCanvas;
 }
 
-//-----------ExDirectUI 4.1.20
+//-----------ExDirectUI 4.1.20---------------
+
+//======================================================
+// 函数名称：_canvas_setantialias
+// 返回类型：逻辑型
+// 函数说明：设置图形抗锯齿
+// 参数<1>：hCanvas
+// 参数<2>：antialias
+//======================================================
 BOOL _canvas_setantialias(EXHANDLE hCanvas, BOOL antialias)
 {
 	D2D1_ANTIALIAS_MODE mode;
@@ -1059,6 +1076,13 @@ BOOL _canvas_setantialias(EXHANDLE hCanvas, BOOL antialias)
 	return nError == 0;
 }
 
+//======================================================
+// 函数名称：_canvas_setimageantialias
+// 返回类型：逻辑型
+// 函数说明：设置图像抗锯齿
+// 参数<1>：hCanvas
+// 参数<2>：antialias
+//======================================================
 BOOL _canvas_setimageantialias(EXHANDLE hCanvas, BOOL antialias) {
 	canvas_s* pCanvas = 0;
 	int nError = 0;
@@ -1075,6 +1099,12 @@ BOOL _canvas_setimageantialias(EXHANDLE hCanvas, BOOL antialias) {
 	return nError == 0;
 }
 
+//======================================================
+// 函数名称：_canvas_settransform
+// 返回类型：逻辑型
+// 参数<1>：hCanvas
+// 参数<2>：pMatrix，0.则重置
+//======================================================
 BOOL _canvas_settransform(EXHANDLE hCanvas, D2D1_MATRIX_3X2_F* pMatrix)
 {
 	int nError = 0;

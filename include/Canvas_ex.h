@@ -43,7 +43,7 @@ bool _canvas_fillregion(EXHANDLE hCanvas, void* hRgn, void* hBrush);
 bool _canvas_drawimagerectrect(EXHANDLE hCanvas, EXHANDLE hImage, float dstLeft, float dstTop, float dstRight, float dstBottom,
 	float srcLeft, float srcTop, float srcRight, float srcBottom, int alpha);
 bool _canvas_drawimagerect(EXHANDLE hCanvas, EXHANDLE hImage, float Left, float Top, float Right, float Bottom, int alpha);
-bool _canvas_drawimage(EXHANDLE hCanvas, EXHANDLE hImage, float Left, float Top, int alpha);
+BOOL _canvas_drawimage(EXHANDLE hCanvas, EXHANDLE hImage, float Left, float Top, int alpha);
 bool _canvas_drawimagefromgrid(EXHANDLE hCanvas, EXHANDLE hImage, float dstLeft, float dstTop, float dstRight, float dstBottom,
 	float srcLeft, float srcTop, float srcRight, float srcBottom, float gridPaddingLeft, float gridPaddingTop, float gridPaddingRight,
 	float gridPaddingBottom, int dwFlags, int dwAlpha);

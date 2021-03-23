@@ -70,7 +70,7 @@ size_t _sysbutton_paint(HWND hWnd, EXHANDLE hObj, obj_s* pObj)
 				size_t atomClass = _wnd_geticonhandle(hWnd, false);
 				if (atomClass != 0)
 				{
-					EXHANDLE hImg = _img_createfromhicon((void*)atomClass);
+					EXHANDLE hImg = _img_createfromhicon((void*)atomClass, NULL);
 					if (hImg != 0)
 					{
 						_canvas_drawimagerect(ps.hCanvas_, hImg, left, (ps.t_bottom_ - ps.t_top_ - 16) / 2, left + 16, (ps.t_bottom_ - ps.t_top_ - 16) / 2 + 16, 255);

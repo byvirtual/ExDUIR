@@ -90,7 +90,7 @@ Ex_ObjGetText
 Ex_ObjGetTextLength
 Ex_ObjSetText
 Ex_ObjSetFont
-;Ex_ObjSetFontFromFamily
+Ex_ObjSetFontFromFamily
 Ex_ObjGetFont
 Ex_ObjSetColor
 Ex_ObjGetColor
@@ -224,6 +224,7 @@ _canvas_fillellipse
 _canvas_drawpath
 _canvas_fillpath
 _canvas_fillregion
+_canvas_drawimage
 _canvas_drawimagerect
 _canvas_drawimagerectrect
 _canvas_drawimagefromgrid

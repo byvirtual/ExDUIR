@@ -515,7 +515,7 @@ void _obj_update(obj_s* pObj, bool fUpdateWindow)
 	OffsetRect((LPRECT)&pObj->d_left_, -pObj->left_, -pObj->top_);
 	RtlMoveMemory(prc, &pObj->d_left_, sizeof(RECT));
 
-	_ASSERT(sizeof(RECT) == 16, "RECT size error!");
+	_ASSERT_EXPR(sizeof(RECT) == 16, "_obj_update: RECT size error!");
 
 	OffsetRect(prc, pObj->w_left_, pObj->w_top_);
 	wnd_s* pWnd = pObj->pWnd_;
@@ -976,6 +976,25 @@ size_t Ex_ObjGetLong(EXHANDLE hObj, int nIndex)
 	size_t ret = 0;
 	if (_handle_validate(hObj, HT_OBJECT, (void**)&pObj, &nError))
 	{
+		if (nIndex == EOL_USERDATA) {
+			return (size_t)pObj->dwUserData_;
+		} 
+		else if(nIndex == EOL_HFONT) {
+			return (size_t)pObj->hFont_;
+		}
+		else if (nIndex == EOL_LPWZTITLE) {
+			return (size_t)pObj->pstrTitle_;
+		}
+		else if (nIndex == EOL_TEXTFORMAT) {
+			return (size_t)pObj->dwTextFormat_;
+		}
+		else if (nIndex == EOL_LPARAM) {
+			return pObj->lParam_;
+		}
+		else if (nIndex < 0) {
+			//nIndex >= 0是组件自定义偏移 nIndex < 0 时偏移不正确
+			EX_ASSERT(false, L"Ex_ObjGetLong: unknown EOL index: %ld", nIndex);
+		}
 		ret = __get(pObj, offsetof(obj_s, index_start_) + nIndex * sizeof(void*));
 	}
 	Ex_SetLastError(nError);
@@ -1017,8 +1036,33 @@ size_t Ex_ObjSetLong(EXHANDLE hObj, int nIndex, size_t dwNewLong)
 				Ex_ObjSendMessage(hObj, WM_STYLECHANGED, EOL_EXSTYLE, dwNewLong);
 			}
 		}
+		else if (nIndex == EOL_USERDATA) {
+			ret = (size_t)pObj->dwUserData_;
+			pObj->dwUserData_ = (void*)dwNewLong;
+		}
+		else if (nIndex == EOL_HFONT) {
+			ret = (size_t)pObj->hFont_;
+			pObj->hFont_ = (void*)dwNewLong;
+		}
+		else if (nIndex == EOL_LPWZTITLE) {
+			ret = (size_t)pObj->pstrTitle_;
+			pObj->pstrTitle_ = (LPWSTR)dwNewLong;
+		}
+		else if (nIndex == EOL_TEXTFORMAT) {
+			ret = (size_t)pObj->dwTextFormat_;
+			pObj->dwTextFormat_ = (int)dwNewLong;
+		}
+		else if (nIndex == EOL_LPARAM) {
+			ret = pObj->lParam_;
+			pObj->lParam_ = dwNewLong;
+		}
+		else if (nIndex >= 0) {
+			ret = __set(pObj, offsetof(obj_s, index_start_) + nIndex * sizeof(void*), dwNewLong);
+		}
 		else {
-			__set(pObj, offsetof(obj_s, index_start_) + nIndex * sizeof(void*), dwNewLong);
+			//这里的偏移已经不正确了
+			EX_ASSERT(false, L"Ex_ObjSetLong: unknown EOL index: %ld", nIndex);
+			//ret = __set(pObj, offsetof(obj_s, index_start_) + nIndex * sizeof(void*), dwNewLong);
 		}
 	}
 	Ex_SetLastError(nError);
@@ -2770,7 +2814,7 @@ bool _obj_backgroundimage_set(HWND hWnd, obj_s* pObj, void* lpImage, int dwImage
 		return true;
 	}
 	else {
-		EXHANDLE hImg = _img_createfrommemory(lpImage, dwImageLen);
+		EXHANDLE hImg = _img_createfrommemory(lpImage, dwImageLen, NULL);
 		if (hImg != 0)
 		{
 			void* lpBI = _struct_createfromaddr(pObj, offsetof(obj_base, lpBackgroundImage_), sizeof(bkgimg_s), nError);
@@ -3981,4 +4025,31 @@ EXHANDLE Ex_ObjGetFromNodeID(EXHANDLE hExDUIOrObj, int nNodeID)
 //======================================================
 size_t Ex_ObjCallProc(ClsPROC lpPrevObjProc, HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pvData) {
 	return lpPrevObjProc(hWnd, hObj, uMsg, wParam, lParam, pvData);
+}
+
+//======================================================
+// 函数名称：Ex_ObjSetFontFromFamily
+// 返回类型：逻辑型
+// 函数说明：设置组件文本字体
+// 参数<1>：hObj
+// 参数<2>：lpszFontfamily，-1 为默认字体
+// 参数<3>：dwFontsize，-1 为默认尺寸
+// 参数<4>：dwFontstyle，-1 为默认风格
+// 参数<5>：fRedraw
+//======================================================
+BOOL Ex_ObjSetFontFromFamily(EXHANDLE hObj, LPWSTR lpszFontfamily, int dwFontsize, int dwFontstyle, BOOL fRedraw)
+{
+	int ret;
+	void* pFont;
+
+	pFont = _font_createfromfamily(lpszFontfamily, dwFontsize, dwFontstyle);
+	if (pFont)
+	{
+		ret = Ex_ObjSendMessage(hObj, WM_SETFONT, (size_t)pFont, fRedraw);
+	}
+	else
+	{
+		ret = -1;
+	}
+	return ret == 0;
 }

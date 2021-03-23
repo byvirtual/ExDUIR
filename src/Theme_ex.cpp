@@ -170,7 +170,7 @@ bool _theme_fillclasses(hashtable_s* pTableFiles, hashtable_s* pTableClass, std:
 															pClass->hImage_ = _img_createfrompngbits(lpFiles[ii]);
 														}
 														else {
-															pClass->hImage_ = _img_createfrommemory((void*)((size_t)lpFiles[ii] + 4), __get_int(lpFiles[ii], 0));
+															pClass->hImage_ = _img_createfrommemory((void*)((size_t)lpFiles[ii] + 4), __get_int(lpFiles[ii], 0), NULL);
 														}
 														break;
 													}

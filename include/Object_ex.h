@@ -417,3 +417,4 @@ BOOL Ex_ObjHandleEvent(EXHANDLE hObj, int nEvent, EventHandlerPROC pfnCallback);
 BOOL Ex_ObjGetClassInfoEx(LPCWSTR lptszClassName, class_s* lpClassInfo);
 EXHANDLE Ex_ObjGetFromNodeID(EXHANDLE hExDUIOrObj, int nNodeID);
 size_t Ex_ObjCallProc(ClsPROC lpPrevObjProc, HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, obj_s* pvData);
+BOOL Ex_ObjSetFontFromFamily(EXHANDLE hObj, LPWSTR lpszFontfamily, int dwFontsize, int dwFontstyle, BOOL fRedraw);
