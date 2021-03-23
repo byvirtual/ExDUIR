@@ -82,7 +82,7 @@ size_t _sysbutton_paint(HWND hWnd, EXHANDLE hObj, obj_s* pObj)
 			
 			if (((pObj->pWnd_->dwStyle_ & EWS_TITLE) == EWS_TITLE))
 			{
-				_canvas_drawtextex(ps.hCanvas_, pObj->hFont_, _obj_getcolor(pObj, COLOR_EX_TEXT_NORMAL), (LPCWSTR)(pObj->pstrTitle_), -1,
+				_canvas_drawtextex(ps.hCanvas_, pObj->hFont_, _obj_getcolor(pObj, COLOR_EX_TEXT_NORMAL), pObj->pstrTitle_, -1,
 					DT_VCENTER | DT_LEFT | DT_SINGLELINE | DT_WORD_ELLIPSIS, left, ps.t_top_, ps.t_right_, ps.t_bottom_, pObj->dwShadowSize_, 0, 0, 0);
 			}
 		}
@@ -115,18 +115,18 @@ size_t _sysbutton_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_
 	int nError = 0;
 	if (uMsg == WM_NCCREATE)
 	{
-		void* ret = nullptr;
+		LPCWSTR ret = nullptr;
 		if (((pObj->dwStyle_ & EWS_BUTTON_MIN) == EWS_BUTTON_MIN))
 		{
-			ret = copytstr((LPCWSTR)(g_Li.lpstr_min), lstrlenW((LPCWSTR)(g_Li.lpstr_min)));
+			ret = copytstr(g_Li.lpstr_min, lstrlenW(g_Li.lpstr_min));
 		}
 		else if (((pObj->dwStyle_ & EWS_BUTTON_CLOSE) == EWS_BUTTON_CLOSE))
 		{
-			ret = copytstr((LPCWSTR)(g_Li.lpstr_close), lstrlenW((LPCWSTR)(g_Li.lpstr_close)));
+			ret = copytstr(g_Li.lpstr_close, lstrlenW(g_Li.lpstr_close));
 		}
 		else if (((pObj->dwStyle_ & EWS_BUTTON_HELP) == EWS_BUTTON_HELP))
 		{
-			ret = copytstr((LPCWSTR)(g_Li.lpstr_help), lstrlenW((LPCWSTR)(g_Li.lpstr_help)));
+			ret = copytstr(g_Li.lpstr_help, lstrlenW(g_Li.lpstr_help));
 		}
 		if (ret != 0)
 		{
@@ -154,31 +154,31 @@ size_t _sysbutton_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_
 	}
 	else if (uMsg == WM_MOUSEHOVER)
 	{
-		void* ret = nullptr;
+		LPCWSTR ret = nullptr;
 		if (!((pObj->dwStyle_ & EWS_TITLE) == EWS_TITLE))
 		{
 			_obj_setuistate(pObj, STATE_HOVER, false, 0, true, &nError);
 			if (((pObj->dwStyle_ & EWS_BUTTON_MAX) == EWS_BUTTON_MAX))
 			{
-				Ex_MemFree(pObj->pstrTips_);
+				Ex_MemFree((void*)pObj->pstrTips_);
 				if (_wnd_querystyle(hWnd, WS_MAXIMIZE, false))
 				{
-					ret = copytstr((LPCWSTR)g_Li.lpstr_res_max, lstrlenW((LPCWSTR)g_Li.lpstr_res_max));
+					ret = copytstr(g_Li.lpstr_res_max, lstrlenW(g_Li.lpstr_res_max));
 				}
 				else {
-					ret = copytstr((LPCWSTR)g_Li.lpstr_max, lstrlenW((LPCWSTR)g_Li.lpstr_max));
+					ret = copytstr(g_Li.lpstr_max, lstrlenW(g_Li.lpstr_max));
 				}
 				pObj->pstrTips_ = ret;
 			}
 			else if (((pObj->dwStyle_ & EWS_BUTTON_MIN) == EWS_BUTTON_MIN))
 			{
-				Ex_MemFree(pObj->pstrTips_);
+				Ex_MemFree((void*)pObj->pstrTips_);
 				if (_wnd_querystyle(hWnd, WS_MINIMIZE, false))
 				{
-					ret = copytstr((LPCWSTR)g_Li.lpstr_res_min, lstrlenW((LPCWSTR)g_Li.lpstr_res_min));
+					ret = copytstr(g_Li.lpstr_res_min, lstrlenW(g_Li.lpstr_res_min));
 				}
 				else {
-					ret = copytstr((LPCWSTR)g_Li.lpstr_min, lstrlenW((LPCWSTR)g_Li.lpstr_min));
+					ret = copytstr(g_Li.lpstr_min, lstrlenW(g_Li.lpstr_min));
 				}
 				pObj->pstrTips_ = ret;
 			}

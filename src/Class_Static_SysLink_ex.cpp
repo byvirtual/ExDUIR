@@ -6,10 +6,10 @@ void _static_paint(EXHANDLE hObj, obj_s* pObj)
 	if (Ex_ObjBeginPaint(hObj, (paintstruct_s*)&ps))
 	{
 		Ex_ThemeDrawControl(ps.hTheme_, ps.hCanvas_, 0, 0, ps.width_, ps.height_, ATOM_STATIC, ATOM_NORMAL, 255);
-		void* lpText = pObj->pstrTitle_;
+		LPCWSTR lpText = pObj->pstrTitle_;
 		if (lpText != 0)
 		{
-			_canvas_drawtextex(ps.hCanvas_, pObj->hFont_, _obj_getcolor(pObj, COLOR_EX_TEXT_NORMAL), (LPCWSTR)lpText, -1, ps.dwTextFormat_, ps.t_left_, ps.t_top_, ps.t_right_, ps.t_bottom_,
+			_canvas_drawtextex(ps.hCanvas_, pObj->hFont_, _obj_getcolor(pObj, COLOR_EX_TEXT_NORMAL), lpText, -1, ps.dwTextFormat_, ps.t_left_, ps.t_top_, ps.t_right_, ps.t_bottom_,
 				pObj->dwShadowSize_, _obj_getcolor(pObj, COLOR_EX_TEXT_SHADOW), 0, 0);
 		}
 		Ex_ObjEndPaint(hObj, (paintstruct_s*)&ps);
@@ -145,8 +145,8 @@ void _syslink_click(HWND hWnd, EXHANDLE hObj, obj_s* pObj)
 		if ((lpHitBlock->dwFlags_ & slbf_type_link) == slbf_type_link)
 		{
 			lpHitBlock->dwFlags_ = lpHitBlock->dwFlags_ | slbf_visted;
-			void* lpwzUrl=lpHitBlock->szUrl_;
-			ShellExecuteW(0, L"open", (LPCWSTR)lpwzUrl, NULL, NULL, 1);
+			LPCWSTR lpwzUrl=lpHitBlock->szUrl_;
+			ShellExecuteW(0, L"open", lpwzUrl, NULL, NULL, 1);
 		}
 	}
 }
@@ -179,7 +179,7 @@ void _syslink_paint(EXHANDLE hObj, obj_s* pObj)
 						crText = _obj_getcolor(pObj, COLOR_EX_TEXT_VISTED);
 					}
 				}
-				_canvas_drawtextex(hCanvas, hFont, crText, (LPCWSTR)((slb_s*)((size_t)lpBlocks + index))->szText_, -1, DT_LEFT | DT_TOP | DT_NOPREFIX | DT_SINGLELINE, ((slb_s*)((size_t)lpBlocks + index))->rc_left_, ((slb_s*)((size_t)lpBlocks + index))->rc_top_, ((slb_s*)((size_t)lpBlocks + index))->rc_right_, ((slb_s*)((size_t)lpBlocks + index))->rc_bottom_, pObj->dwShadowSize_, _obj_getcolor(pObj, COLOR_EX_TEXT_SHADOW), 0, 0);
+				_canvas_drawtextex(hCanvas, hFont, crText, ((slb_s*)((size_t)lpBlocks + index))->szText_, -1, DT_LEFT | DT_TOP | DT_NOPREFIX | DT_SINGLELINE, ((slb_s*)((size_t)lpBlocks + index))->rc_left_, ((slb_s*)((size_t)lpBlocks + index))->rc_top_, ((slb_s*)((size_t)lpBlocks + index))->rc_right_, ((slb_s*)((size_t)lpBlocks + index))->rc_bottom_, pObj->dwShadowSize_, _obj_getcolor(pObj, COLOR_EX_TEXT_SHADOW), 0, 0);
 			}
 		}
 		Ex_ObjEndPaint(hObj, ps);
@@ -199,20 +199,20 @@ void _syslink_freeblocks(obj_s* pObj)
 			for (int i = 0; i < nBlocks; i++)
 			{
 				size_t index = i * sizeof(slb_s);
-				void* lpwzText=((slb_s*)((size_t)lpBlocks + index))->szText_;
+				LPCWSTR lpwzText=((slb_s*)((size_t)lpBlocks + index))->szText_;
 				if (lpwzText != 0)
 				{
-					Ex_MemFree(lpwzText);
+					Ex_MemFree((void*)lpwzText);
 				}
-				void* lpwzUrl = ((slb_s*)((size_t)lpBlocks + index))->szUrl_;
+				LPCWSTR lpwzUrl = ((slb_s*)((size_t)lpBlocks + index))->szUrl_;
 				if (lpwzUrl != 0)
 				{
-					Ex_MemFree(lpwzUrl);
+					Ex_MemFree((void*)lpwzUrl);
 				}
-				void* lpwzToolTips = ((slb_s*)((size_t)lpBlocks + index))->szToolTips_;
+				LPCWSTR lpwzToolTips = ((slb_s*)((size_t)lpBlocks + index))->szToolTips_;
 				if (lpwzToolTips != 0)
 				{
-					Ex_MemFree(lpwzToolTips);
+					Ex_MemFree((void*)lpwzToolTips);
 				}
 				_font_destroy(((slb_s*)((size_t)lpBlocks + index))->hFont_);
 			}

@@ -189,14 +189,14 @@ void _button_paint(EXHANDLE hObj, obj_s* pObj)
 				Ex_ThemeDrawControl(ps.hTheme_, ps.hCanvas_, 0, 0, ps.width_, ps.height_, atomClass, atomProp, 255);
 			}
 		}
-		void* lptext = pObj->pstrTitle_;
+		LPCWSTR lptext = pObj->pstrTitle_;
 		if (lptext != 0)
 		{
 			if ((ps.dwState_ & STATE_DOWN) != 0 && (ps.dwStyle_ & EBS_TEXTOFFSET) != 0)
 			{
 				OffsetRect((LPRECT)&ps.t_left_, Ex_Scale(1), Ex_Scale(1));
 			}
-			_canvas_drawtextex(ps.hCanvas_, pObj->hFont_, _obj_getcolor(pObj, nIndex), (LPCWSTR)lptext, -1, ps.dwTextFormat_, ps.t_left_, ps.t_top_, ps.t_right_, ps.t_bottom_, pObj->dwShadowSize_, _obj_getcolor(pObj, COLOR_EX_TEXT_SHADOW), 0, 0);
+			_canvas_drawtextex(ps.hCanvas_, pObj->hFont_, _obj_getcolor(pObj, nIndex), lptext, -1, ps.dwTextFormat_, ps.t_left_, ps.t_top_, ps.t_right_, ps.t_bottom_, pObj->dwShadowSize_, _obj_getcolor(pObj, COLOR_EX_TEXT_SHADOW), 0, 0);
 		}
 		Ex_ObjEndPaint(hObj, &ps);
 	}
@@ -258,7 +258,7 @@ void _item_click(HWND hWnd, obj_s* pObj)
 	}
 }
 
-void _item_draw(obj_s* pObj, paintstruct_s ps, int crColor, void* lpText)
+void _item_draw(obj_s* pObj, paintstruct_s ps, int crColor, LPCWSTR lpText)
 {
 	wnd_s* pWnd = pObj->pWnd_;
 	HMENU hMenu = (HMENU)pWnd->hMenuPopup_;
@@ -360,11 +360,11 @@ void _item_draw(obj_s* pObj, paintstruct_s ps, int crColor, void* lpText)
 					}
 				}
 
-				LPWSTR tmp1 = (LPWSTR)wcschr((LPCWSTR)lpText, 9);
+				LPWSTR tmp1 = (LPWSTR)wcschr(lpText, 9);
 				if (tmp1) {
 					*tmp1 = 0;
 				}
-				_canvas_drawtextex(ps.hCanvas_, hFont, crColor, (LPCWSTR)lpText, -1, ps.dwTextFormat_, ps.t_left_, ps.t_top_, ps.t_right_, ps.t_bottom_, 0, 0, 0, 0);
+				_canvas_drawtextex(ps.hCanvas_, hFont, crColor, lpText, -1, ps.dwTextFormat_, ps.t_left_, ps.t_top_, ps.t_right_, ps.t_bottom_, 0, 0, 0, 0);
 				if (tmp1)
 				{
 					if (!fHover)
@@ -410,7 +410,7 @@ void _item_paint(EXHANDLE hObj, obj_s* pObj)
 			}
 		}
 		int crColor = _obj_getcolor(pObj, nIndex);
-		void* lptext = pObj->pstrTitle_;
+		LPCWSTR lptext = pObj->pstrTitle_;
 		if ((pObj->dwFlags_ & eof_bMenuItem) == eof_bMenuItem)
 		{
 			_item_draw(pObj, ps, crColor, lptext);
@@ -426,7 +426,7 @@ void _item_paint(EXHANDLE hObj, obj_s* pObj)
 			}
 			if (lptext != 0)
 			{
-				_canvas_drawtextex(ps.hCanvas_, pObj->hFont_, crColor, (LPCWSTR)lptext, -1, ps.dwTextFormat_, ps.t_left_, ps.t_top_, ps.t_right_, ps.t_bottom_, pObj->dwShadowSize_, _obj_getcolor(pObj, COLOR_EX_TEXT_SHADOW), 0, 0);
+				_canvas_drawtextex(ps.hCanvas_, pObj->hFont_, crColor, lptext, -1, ps.dwTextFormat_, ps.t_left_, ps.t_top_, ps.t_right_, ps.t_bottom_, pObj->dwShadowSize_, _obj_getcolor(pObj, COLOR_EX_TEXT_SHADOW), 0, 0);
 			}
 		}
 		Ex_ObjEndPaint(hObj, &ps);

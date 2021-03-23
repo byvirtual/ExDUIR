@@ -8,7 +8,7 @@
 
 struct cbi_s
 {
-	void* wzItem_;
+	LPCWSTR wzItem_;
 	int nItem_;
 };
 

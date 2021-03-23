@@ -191,7 +191,7 @@ BOOL HashTable_Remove(hashtable_s* hTable, size_t hKey)
 	return ret;
 }
 
-BOOL HashTable_IsExit(hashtable_s* hTable, size_t hKey)
+BOOL HashTable_IsExist(hashtable_s* hTable, size_t hKey)
 {
 	BOOL ret = false;
 	if (hTable != nullptr)

@@ -142,4 +142,5 @@ size_t __layout_table_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t 
 void _layout_relative_update(layout_s* pLayout, void* pLayoutInfo, array_s* hArrObjs, size_t lParam);
 size_t __layout_relative_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t lParam);
 size_t __layout_absolute_proc(layout_s* pLayout, int nEvent, size_t wParam, size_t lParam);
+bool _layout_addchild(EXHANDLE hLayout, EXHANDLE hObj);
 void _layout_init();

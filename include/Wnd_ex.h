@@ -205,11 +205,11 @@ bool _wnd_menu_item_callback(HWND hWnd, EXHANDLE hObj, UINT uMsg, WPARAM wParam,
 bool _wnd_menu_callback_test(HWND hWnd, EXHANDLE hExDui, UINT uMsg, WPARAM wParam, LPARAM lParam, void** lpResult);
 void _wnd_wm_initmenupopup(HWND hWnd, wnd_s* pWnd, void* hMenu);
 bool Ex_TrackPopupMenu(void* hMenu, int uFlags, int x, int y, int nReserved, size_t handle, void* lpRC, MsgPROC pfnCallback, int dwFlags);
-int Ex_MessageBoxEx(size_t handle, void* lpText, void* lpCaption, int uType, void* lpCheckBox, bool* lpCheckBoxChecked, int dwMilliseconds, int dwFlags, MsgPROC lpfnMsgProc);
-int Ex_MessageBox(size_t handle, void* lpText, void* lpCaption, int uType, int dwFlags);
+int Ex_MessageBoxEx(size_t handle, LPCWSTR lpText, LPCWSTR lpCaption, int uType, LPCWSTR lpCheckBox, bool* lpCheckBoxChecked, int dwMilliseconds, int dwFlags, MsgPROC lpfnMsgProc);
+int Ex_MessageBox(size_t handle, LPCWSTR lpText, LPCWSTR lpCaption, int uType, int dwFlags);
 bool Ex_DUISetBlur(EXHANDLE hExDui, float fDeviation);
-bool Ex_DUITrayIconPopup(EXHANDLE hExDui, void* lpwzInfo, void* lpwzInfoTitle, int dwInfoFlags);
-bool Ex_DUITrayIconSet(EXHANDLE hExDui, size_t hIcon, void* lpwzTips);
+bool Ex_DUITrayIconPopup(EXHANDLE hExDui, LPCWSTR lpwzInfo, LPCWSTR lpwzInfoTitle, int dwInfoFlags);
+bool Ex_DUITrayIconSet(EXHANDLE hExDui, size_t hIcon, LPCWSTR lpwzTips);
 bool Ex_DUIGetBackgroundImage(EXHANDLE hExDui, void* lpBackgroundImage);
 void _wnd_getclientrect(wnd_s* pWnd, void* lpRect, int* nError);
 BOOL Ex_DUIGetClientRect(EXHANDLE hExDui, void* lpClientRect);

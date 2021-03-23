@@ -520,13 +520,13 @@ std::string GetErrorMessage(DWORD error)
 	return ret;
 }
 
-void* copytstr(LPCWSTR lptstr, int len)
+LPCWSTR copytstr(LPCWSTR lptstr, int len)
 {
 	if (lptstr) {
-		auto addr = Ex_MemAlloc(len * 2 + 2);
+		LPCWSTR addr = (LPCWSTR)Ex_MemAlloc(len * 2 + 2);
 		if (addr != 0)
 		{
-			RtlMoveMemory(addr, lptstr, len * 2 + 2);
+			RtlMoveMemory((void*)addr, lptstr, len * 2 + 2);
 		}
 		else {
 			Ex_SetLastError(ERROR_EX_MEMORY_ALLOC);

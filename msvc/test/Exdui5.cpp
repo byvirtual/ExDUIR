@@ -5,6 +5,8 @@
 
 #include "help_ex.h"
 
+#include "test_obj.h"
+
 void 测试哈希表()
 {
 	auto aptr = LocalAlloc(64, sizeof(void*));
@@ -132,13 +134,12 @@ int list_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam,
 	{
 		EX_NMHDR ni{ 0 };
 		RtlMoveMemory(&ni, (void*)lParam, sizeof(EX_NMHDR));
-		//调试输出(L"列表回调");
 		if (hObj == ni.hObjFrom)
 		{
 			
 			if (ni.nCode == NM_CALCSIZE)
 			{
-				output(L"改变高度",__get_int((void*)ni.lParam, 4));
+				output(L"改变高度:",__get_int((void*)ni.lParam, 4));
 				__set_int((void*)ni.lParam, 4, 25);
 				
 				*lpResult = 1;
@@ -175,7 +176,7 @@ int list_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam,
 			else if (ni.nCode == LVN_ITEMCHANGED)
 			{
 				//wParam 新选中项,lParam 旧选中项
-				output(L"改变选中",  ni.idFrom, ni.wParam, ni.lParam);
+				output(L"改变选中ID:",  ni.idFrom,L"新选中项:", ni.wParam, L"旧选中项:", ni.lParam);
 			}
 		}
 	}
@@ -183,10 +184,7 @@ int list_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam,
 	return 0;
 }
 
-int button_clicked(EXHANDLE hObj, int nID, int nCode, WPARAM wParam, LPARAM lParam) {
-	Ex_MessageBoxEx(hObj, (void*)L"button clicked", (void*)L"button clicked", 0, 0, 0, 0, 0, 0);
-	return 0;
-}
+
 
 
 void 测试窗口()
@@ -201,35 +199,34 @@ void 测试窗口()
 	if (hWnd != 0)
 	{
 		size_t hExDui = Ex_DUIBindWindowEx(hWnd, 0, EWS_MAINWINDOW | EWS_BUTTON_CLOSE | EWS_BUTTON_MIN | EWS_BUTTON_MAX | EWS_MOVEABLE | EWS_CENTERWINDOW | EWS_ESCEXIT | EWS_TITLE | EWS_SIZEABLE | EWS_HASICON, 0, msgProc);
-		Ex_DUISetLong(hExDui, EWL_CRBKG, -100630528);//-97900239
+		//Ex_DUISetLong(hExDui, EWL_CRBKG, -100630528);//-97900239
+		std::vector<char> imgdata;
+		Ex_ReadFile(L".\\bkg.png", &imgdata);
+		Ex_ObjSetBackgroundImage(hExDui, imgdata.data(), imgdata.size(), 0, 0, BIR_DEFALUT, 0, BIF_PLAYIMAGE, 255,true);
+		test_button(hExDui);
+		test_label(hExDui);
 		//单选框选择框
 		LPCWSTR class_checkbutton = L"checkbutton";
-		EXHANDLE checkbutton = Ex_ObjCreateEx(-1, (void*)class_checkbutton, (void*)title, -1, 10, 30, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
+		EXHANDLE checkbutton = Ex_ObjCreateEx(-1, class_checkbutton, title, -1, 10, 30, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
 
 		LPCWSTR class_radiobutton = L"radiobutton";
-		EXHANDLE radiobuttona = Ex_ObjCreateEx(-1, (void*)class_radiobutton, (void*)title, -1, 10, 60, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
-		EXHANDLE radiobuttonb = Ex_ObjCreateEx(-1, (void*)class_radiobutton, (void*)title, -1, 80, 60, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
-		//标签
-		LPCWSTR class_label = L"static";
-		EXHANDLE label = Ex_ObjCreateEx(-1, (void*)class_label, NULL, -1, 10, 90, 100, 30, hExDui, 0, DT_VCENTER, 0, 0, NULL);
-		std::vector<char> imgdata;
-		Ex_ReadFile(L".\\00000.jpg", &imgdata);
-		Ex_ObjSetBackgroundImage(label, imgdata.data(), imgdata.size(), 0, 0, 0, 0, 0, 255, true);
+		EXHANDLE radiobuttona = Ex_ObjCreateEx(-1, class_radiobutton, title, -1, 10, 60, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
+		EXHANDLE radiobuttonb = Ex_ObjCreateEx(-1, class_radiobutton, title, -1, 80, 60, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
 		
-		//按钮
-		LPCWSTR class_button = L"button";
-		EXHANDLE button = Ex_ObjCreateEx(-1, (void*)class_button, (void*)title, -1, 10, 130, 100, 30, hExDui, 0, DT_VCENTER | DT_CENTER, 0, 0, NULL);
-		Ex_ObjHandleEvent(button, NM_CLICK, button_clicked);
+		
+		
 
 		//编辑框
 		LPCWSTR class_edit = L"edit";
-		EXHANDLE edit = Ex_ObjCreateEx(EOS_EX_FOCUSABLE, (void*)class_edit, (void*)title, EOS_VISIBLE | EES_HIDESELECTION, 10, 170, 100, 30, hExDui, 0, DT_VCENTER, 0, 0, NULL);
+		EXHANDLE edit = Ex_ObjCreateEx(EOS_EX_FOCUSABLE, class_edit, title, EOS_VISIBLE | EES_HIDESELECTION, 10, 210, 100, 30, hExDui, 0, DT_VCENTER, 0, 0, NULL);
 
 		//列表框
 		LPCWSTR class_list = L"listview";
-		EXHANDLE listview = Ex_ObjCreateEx(-1, (void*)class_list, (void*)title, EOS_VISIBLE  | ELS_VERTICALLIST | EOS_VSCROLL, 130, 30, 150, 200, hExDui, 0, -1, 0, 0, &list_proc);
+		EXHANDLE listview = Ex_ObjCreateEx(-1, class_list, title, EOS_VISIBLE  | ELS_VERTICALLIST | EOS_VSCROLL, 130, 30, 150, 200, hExDui, 0, -1, 0, 0, &list_proc);
 		Ex_ObjSetColor(listview, COLOR_EX_BACKGROUND, ExRGB2ARGB(16711680, 50), true);
 		Ex_ObjSendMessage(listview, LVM_SETITEMCOUNT, 100, 100);
+
+		
 		//信息框
 		Ex_DUIShowWindow(hExDui, 5, 0, 0, 0);
 	}

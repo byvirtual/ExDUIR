@@ -88,7 +88,7 @@ size_t _cb_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lPara
 		array_s* hArr =(array_s *) pObj->dwOwnerData_;
 		EXHANDLE hLayout=_layout_create(ELT_PAGE, lParam);
 		LPCWSTR class_name = L"listview";
-		EXHANDLE hObjItem = Ex_ObjCreateEx(-1, (void*)class_name, 0, -1, 10, 10, 100, 100, lParam, 101, DT_VCENTER | DT_SINGLELINE,(size_t) hArr, pObj->hTheme_, &_cblv_proc);
+		EXHANDLE hObjItem = Ex_ObjCreateEx(-1, class_name, 0, -1, 10, 10, 100, 100, lParam, 101, DT_VCENTER | DT_SINGLELINE,(size_t) hArr, pObj->hTheme_, &_cblv_proc);
 		int nItem = Array_GetCount(hArr);
 		Ex_ObjSendMessage(hObjItem, LVM_SETITEMCOUNT, nItem, nItem);
 		int height = nItem * 25;
@@ -106,7 +106,7 @@ size_t _cb_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lPara
 		if (nItem != 0)
 		{
 			Ex_ObjDispatchNotify(hObj, LVN_ITEMCHANGED, nItem, 0);
-			Ex_ObjSetText(hObj, (void*)__get((void*)Array_GetMember(hArr, nItem), offsetof(cbi_s, wzItem_)), true);
+			Ex_ObjSetText(hObj, (LPCWSTR)__get((void*)Array_GetMember(hArr, nItem), offsetof(cbi_s, wzItem_)), true);
 		}
 	}
 	else if (uMsg == LVM_INSERTITEM)

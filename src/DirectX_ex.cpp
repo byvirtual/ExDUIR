@@ -327,3 +327,76 @@ void ARGB2ColorF(int argb, D2D1_COLOR_F *color) {
 	color->r = (float)((argb >> 16) & 0xFF) / 255;
 	color->a = (float)((argb >> 24) & 0xFF) / 255;
 }
+
+void _dx_drawframe_apng(img_s* pImage, void* pImgSrc, int x, int y,int w,int h, char dispose, char blend, int nIndex)
+{
+	
+	D2D1_RENDER_TARGET_PROPERTIES pro;
+	pro.pixelFormat.format = DXGI_FORMAT_B8G8R8A8_UNORM;
+	pro.pixelFormat.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED;
+	pro.dpiX = 96;
+	pro.dpiY = 96;
+	pro.usage = D2D1_RENDER_TARGET_USAGE_GDI_COMPATIBLE;
+	ID2D1RenderTarget* rt = nullptr;
+	auto ret=((ID2D1Factory1*)g_Ri.pD2Dfactory)->CreateWicBitmapRenderTarget((IWICBitmap*)pImgSrc, &pro,&rt);
+	output(L"画APNG", ret,(size_t)rt);
+	if (rt != 0)
+	{
+		
+		_dx_begindraw(rt);
+		if (nIndex == 0)
+		{
+			_dx_clear(rt, 0);
+		}
+		else {
+			void* pFramePrev = (void*)__get(pImage->lpFrames_, (nIndex-1) * sizeof(void*));
+			char disposePrev = __get_char(pFramePrev, 32);
+			if (disposePrev != 0)
+			{
+				D2D1_RECT_F rcf;
+				rcf.left = pImage->p_x_;
+				rcf.top = pImage->p_y_;
+				rcf.right = pImage->p_w_;
+				rcf.bottom = pImage->p_h_;
+				_dx_cliprect(rt, rcf.left, rcf.top, rcf.right, rcf.bottom);
+				_dx_clear(rt, 0);
+				_dx_resetclip(rt);
+				if (disposePrev == 2)//恢复之前帧区域图像
+				{
+					void* pImgPrev=pImage->pPrev_;
+					if (pImgPrev != 0)
+					{
+						ID2D1Bitmap* pBitmap = nullptr;
+						auto ret=rt->CreateBitmapFromWicBitmap((IWICBitmapSource*)pImgPrev, NULL, &pBitmap);
+						if (ret == 0)
+						{
+							rt->DrawBitmap(pBitmap, &rcf, 1.0, D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR, NULL);
+							((ID2D1Bitmap*)pBitmap)->Release();
+						}
+						((IWICBitmapSource*)pImgPrev)->Release();
+						pImage->pPrev_ = 0;
+					}
+				}
+			}
+		}
+		if (dispose != 0)
+		{
+			pImage->p_x_ = x;
+			pImage->p_y_ = y;
+			pImage->p_w_ = w;
+			pImage->p_h_ = h;
+			if (dispose == 2)//保存当前帧区域图像给下一帧使用
+			{
+				_dx_enddraw(rt);
+				IWICBitmap* pWicBitmap = nullptr;
+				((IWICImagingFactory*)g_Ri.pWICFactory)->CreateBitmapFromSourceRect((IWICBitmapSource*)pImgSrc, x, y, w, h, &pWicBitmap);
+				pImage->pPrev_ = pWicBitmap;
+				_dx_begindraw(rt);
+			}
+		}
+		
+		void* pgdi = _dx_get_gdiInterop(rt);
+		_dx_enddraw(rt);
+		rt->Release();
+	}
+}
