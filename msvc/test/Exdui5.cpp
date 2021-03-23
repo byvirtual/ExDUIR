@@ -213,9 +213,6 @@ void 测试窗口()
 		EXHANDLE radiobuttona = Ex_ObjCreateEx(-1, class_radiobutton, title, -1, 10, 60, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
 		EXHANDLE radiobuttonb = Ex_ObjCreateEx(-1, class_radiobutton, title, -1, 80, 60, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
 		
-		
-		
-
 		//编辑框
 		LPCWSTR class_edit = L"edit";
 		EXHANDLE edit = Ex_ObjCreateEx(EOS_EX_FOCUSABLE, class_edit, title, EOS_VISIBLE | EES_HIDESELECTION, 10, 210, 100, 30, hExDui, 0, DT_VCENTER, 0, 0, NULL);
@@ -226,8 +223,6 @@ void 测试窗口()
 		Ex_ObjSetColor(listview, COLOR_EX_BACKGROUND, ExRGB2ARGB(16711680, 50), true);
 		Ex_ObjSendMessage(listview, LVM_SETITEMCOUNT, 100, 100);
 
-		
-		//信息框
 		Ex_DUIShowWindow(hExDui, 5, 0, 0, 0);
 	}
 	Ex_WndMsgLoop();

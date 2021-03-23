@@ -34,12 +34,7 @@ void test_button(EXHANDLE hExDui)
 	button1 = Ex_ObjCreateEx(-1, L"button", L"禁用", -1, 10, 130, 100, 30, hExDui, 0, DT_VCENTER | DT_CENTER, 0, 0, NULL);
 	Ex_ObjHandleEvent(button1, NM_CLICK, button_clicked);
 	button2 = Ex_ObjCreateEx(-1, L"button", L"解除禁用测试前", -1, 10, 170, 100, 30, hExDui, 0, DT_VCENTER | DT_CENTER, 0, 0, NULL);
-	
-	
-	
-	
-	
-	//Ex_ObjHandleEvent(button2, NM_CLICK, button_clicked2);
+	Ex_ObjHandleEvent(button2, NM_CLICK, button_clicked2);
 }
 
 void test_label(EXHANDLE hExDui)
