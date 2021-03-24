@@ -973,32 +973,65 @@ size_t Ex_ObjGetLong(EXHANDLE hObj, int nIndex)
 {
 	int nError = 0;
 	obj_s* pObj = nullptr;
-	size_t ret = 0;
 	if (_handle_validate(hObj, HT_OBJECT, (void**)&pObj, &nError))
 	{
-		if (nIndex == EOL_USERDATA) {
-			return (size_t)pObj->dwUserData_;
-		} 
-		else if(nIndex == EOL_HFONT) {
+		if (nIndex == EOL_ALPHA) {
+		return pObj->dwAlpha_;
+		}
+		else if (nIndex == EOL_BLUR) {
+			return (size_t)(pObj->fBlur_*100);
+		}
+		else if (nIndex == EOL_CURSOR) {
+			return (size_t)pObj->hCursor_;
+		}
+		else if (nIndex == EOL_EXSTYLE) {
+			return (size_t)pObj->dwStyleEx_;
+		}
+		else if (nIndex == EOL_HCANVAS) {
+			return (size_t)pObj->canvas_obj_;
+		}
+		else if (nIndex == EOL_HFONT) {
 			return (size_t)pObj->hFont_;
 		}
-		else if (nIndex == EOL_LPWZTITLE) {
-			return (size_t)pObj->pstrTitle_;
-		}
-		else if (nIndex == EOL_TEXTFORMAT) {
-			return (size_t)pObj->dwTextFormat_;
+		else if (nIndex == EOL_ID) {
+			return (size_t)pObj->id_;
 		}
 		else if (nIndex == EOL_LPARAM) {
 			return pObj->lParam_;
 		}
-		else if (nIndex < 0) {
-			//nIndex >= 0是组件自定义偏移 nIndex < 0 时偏移不正确
+		else if (nIndex == EOL_LPWZTITLE) {
+			return (size_t)pObj->pstrTitle_;
+		}
+		else if (nIndex == EOL_NODEID) {
+			return (size_t)pObj->nodeid_;
+		}
+		else if (nIndex == EOL_OBJPARENT) {
+			return (size_t)pObj->objParent_;
+		}
+		else if (nIndex == EOL_OBJPROC) {
+			return (size_t)pObj->pfnSubClass_;
+		}
+		else if (nIndex == EOL_OWNER) {
+			return (size_t)pObj->dwOwnerData_;
+		}
+		else if (nIndex == EOL_STATE) {
+			return (size_t)pObj->dwState_;
+		}
+		else if (nIndex == EOL_STYLE) {
+			return (size_t)pObj->dwStyle_;
+		}
+		else if (nIndex == EOL_TEXTFORMAT) {
+			return (size_t)pObj->dwTextFormat_;
+		}
+		else if (nIndex == EOL_USERDATA) {
+			return (size_t)pObj->dwUserData_;
+		}
+		else {
 			EX_ASSERT(false, L"Ex_ObjGetLong: unknown EOL index: %ld", nIndex);
 		}
-		ret = __get(pObj, offsetof(obj_s, index_start_) + nIndex * sizeof(void*));
 	}
 	Ex_SetLastError(nError);
-	return ret;
+	return 0;
 }
 
 size_t Ex_ObjSetLong(EXHANDLE hObj, int nIndex, size_t dwNewLong)
@@ -1008,25 +1041,18 @@ size_t Ex_ObjSetLong(EXHANDLE hObj, int nIndex, size_t dwNewLong)
 	size_t ret = 0;
 	if (_handle_validate(hObj, HT_OBJECT, (void**)&pObj, &nError))
 	{
-		if (nIndex == EOL_ID)
+		if (nIndex == EOL_ALPHA)
 		{
-			auto oldLong = pObj->id_;
-			pObj->id_ = dwNewLong;
-			if (oldLong != 0)
-			{
-				HashTable_Remove(pObj->pWnd_->hTableObjects_, oldLong);
-			}
-			wnd_s* pWnd = pObj->pWnd_;
-			auto hTableObjects = pWnd->hTableObjects_;
-			HashTable_Set(hTableObjects, dwNewLong, hObj);
+			ret = (size_t)pObj->dwAlpha_;
+			pObj->dwAlpha_ = (int)dwNewLong;
 		}
-		else if (nIndex == EOL_STYLE)
-		{
-			if (Ex_ObjSendMessage(hObj, WM_STYLECHANGING, EOL_STYLE, dwNewLong) == 0)
-			{
-				ret = pObj->dwStyle_;
-				Ex_ObjSendMessage(hObj, WM_STYLECHANGED, EOL_STYLE, dwNewLong);
-			}
+		else if (nIndex == EOL_BLUR) {
+			ret = (size_t)(pObj->fBlur_* 100);
+			pObj->fBlur_ = dwNewLong / 100;
+		}
+		else if (nIndex == EOL_CURSOR) {
+			ret = (size_t)pObj->hCursor_;
+			pObj->hCursor_ = (void*)dwNewLong;
 		}
 		else if (nIndex == EOL_EXSTYLE)
 		{
@@ -1036,37 +1062,72 @@ size_t Ex_ObjSetLong(EXHANDLE hObj, int nIndex, size_t dwNewLong)
 				Ex_ObjSendMessage(hObj, WM_STYLECHANGED, EOL_EXSTYLE, dwNewLong);
 			}
 		}
-		else if (nIndex == EOL_USERDATA) {
-			ret = (size_t)pObj->dwUserData_;
-			pObj->dwUserData_ = (void*)dwNewLong;
+		else if (nIndex == EOL_HCANVAS) {
+			ret = (size_t)pObj->canvas_obj_;
+			pObj->canvas_obj_ = (EXHANDLE)dwNewLong;
 		}
 		else if (nIndex == EOL_HFONT) {
 			ret = (size_t)pObj->hFont_;
 			pObj->hFont_ = (void*)dwNewLong;
 		}
-		else if (nIndex == EOL_LPWZTITLE) {
-			ret = (size_t)pObj->pstrTitle_;
-			pObj->pstrTitle_ = (LPWSTR)dwNewLong;
-		}
-		else if (nIndex == EOL_TEXTFORMAT) {
-			ret = (size_t)pObj->dwTextFormat_;
-			pObj->dwTextFormat_ = (int)dwNewLong;
+		else if (nIndex == EOL_ID)
+		{
+			ret = (size_t)pObj->id_;
+			pObj->id_ = (int)dwNewLong;
+			if (ret != 0)
+			{
+				HashTable_Remove(pObj->pWnd_->hTableObjects_, ret);
+			}
+			wnd_s* pWnd = pObj->pWnd_;
+			auto hTableObjects = pWnd->hTableObjects_;
+			HashTable_Set(hTableObjects, dwNewLong, hObj);
 		}
 		else if (nIndex == EOL_LPARAM) {
 			ret = pObj->lParam_;
 			pObj->lParam_ = dwNewLong;
 		}
-		else if (nIndex == EOL_BLUR) {
-			ret = pObj->fBlur_;
-			pObj->fBlur_ = dwNewLong / 100;
+		else if (nIndex == EOL_LPWZTITLE) {
+			ret = (size_t)pObj->pstrTitle_;
+			pObj->pstrTitle_ = (LPCWSTR)dwNewLong;
 		}
-		else if (nIndex >= 0) {
-			ret = __set(pObj, offsetof(obj_s, index_start_) + nIndex * sizeof(void*), dwNewLong);
+		else if (nIndex == EOL_NODEID) {
+			ret = (size_t)pObj->nodeid_;
+			pObj->nodeid_ = (int)dwNewLong;
+		}
+		else if (nIndex == EOL_OBJPARENT) {
+			ret = (size_t)pObj->objParent_;
+			pObj->objParent_ = (EXHANDLE)dwNewLong;
+		}
+		else if (nIndex == EOL_OBJPROC) {
+			ret = (size_t)pObj->pfnSubClass_;
+			pObj->pfnSubClass_ = (void*)dwNewLong;
+		}
+		else if (nIndex == EOL_OWNER) {
+			ret = (size_t)pObj->dwOwnerData_;
+			pObj->dwOwnerData_ = (void*)dwNewLong;
+		}
+		else if (nIndex == EOL_STATE) {
+			ret = pObj->dwState_;
+			pObj->dwState_ = dwNewLong;
+		}
+		else if (nIndex == EOL_STYLE)
+		{
+			if (Ex_ObjSendMessage(hObj, WM_STYLECHANGING, EOL_STYLE, dwNewLong) == 0)
+			{
+				ret = pObj->dwStyle_;
+				Ex_ObjSendMessage(hObj, WM_STYLECHANGED, EOL_STYLE, dwNewLong);
+			}
+		}
+		else if (nIndex == EOL_TEXTFORMAT) {
+			ret = (size_t)pObj->dwTextFormat_;
+			pObj->dwTextFormat_ = (int)dwNewLong;
+		}
+		else if (nIndex == EOL_USERDATA) {
+			ret = (size_t)pObj->dwUserData_;
+			pObj->dwUserData_ = (void*)dwNewLong;
 		}
 		else {
-			//这里的偏移已经不正确了
 			EX_ASSERT(false, L"Ex_ObjSetLong: unknown EOL index: %ld", nIndex);
-			//ret = __set(pObj, offsetof(obj_s, index_start_) + nIndex * sizeof(void*), dwNewLong);
 		}
 	}
 	Ex_SetLastError(nError);

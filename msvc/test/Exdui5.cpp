@@ -7,6 +7,90 @@
 
 #include "test_obj.h"
 
+
+
+
+size_t msgProc(HWND, EXHANDLE handle, UINT, size_t, size_t, void*)
+{
+	return 0;
+}
+
+
+
+HWND hWnd;
+
+int button_click(EXHANDLE hObj, int nID, int nCode, WPARAM wParam, LPARAM lParam)
+{
+	
+	if (nID == 101)//测试按钮
+	{
+		test_button(hWnd);
+	}
+	if (nID == 102)//测试标签
+	{
+		test_label(hWnd);
+	}
+	if (nID == 103)//测试单选框选择框
+	{
+		test_checkbutton(hWnd);
+	}
+	if (nID == 104)//测试编辑框
+	{
+		test_edit(hWnd);
+	}
+	if (nID == 105)//测试列表框
+	{
+		test_listview(hWnd);
+	}
+	return 0;
+}
+
+
+void 测试窗口()
+{
+	std::vector<char> data;
+	Ex_ReadFile(L".\\Default.ext", &data);
+	Ex_Init(GetModuleHandleW(NULL), EXGF_RENDER_METHOD_D2D | EXGF_DPI_ENABLE, 0, 0, data.data(), data.size(), 0, 0);
+	LPCWSTR class_wnd = L"Ex_DirectUI";
+	Ex_WndRegisterClass(L"Ex_DirectUI", 0, 0, 0);
+	LPCWSTR title = L"test";
+	hWnd = Ex_WndCreate(0, L"Ex_DirectUI", L"test", 0, 0, 800, 600, 0, 0);
+	if (hWnd != 0)
+	{
+		size_t hExDui = Ex_DUIBindWindowEx(hWnd, 0, EWS_MAINWINDOW | EWS_BUTTON_CLOSE | EWS_BUTTON_MIN | EWS_BUTTON_MAX | EWS_MOVEABLE | EWS_CENTERWINDOW | EWS_ESCEXIT | EWS_TITLE | EWS_SIZEABLE | EWS_HASICON, 0, msgProc);
+		//Ex_DUISetLong(hExDui, EWL_CRBKG, -100630528);//-97900239
+		std::vector<char> imgdata;
+		Ex_ReadFile(L".\\bkg.png", &imgdata);
+		Ex_ObjSetBackgroundImage(hExDui, imgdata.data(), imgdata.size(), 0, 0, BIR_DEFALUT, 0, 0, 255,true);
+		
+		std::vector<EXHANDLE> buttons;
+		buttons.push_back(Ex_ObjCreateEx(-1, L"button", L"按钮测试", -1, 10, 30, 100, 30, hExDui, 101, DT_VCENTER | DT_CENTER, 0, 0, NULL));
+		buttons.push_back(Ex_ObjCreateEx(-1, L"button", L"标签测试", -1, 10, 70, 100, 30, hExDui, 102, DT_VCENTER | DT_CENTER, 0, 0, NULL));
+		buttons.push_back(Ex_ObjCreateEx(-1, L"button", L"标签单选框", -1, 10, 110, 100, 30, hExDui, 103, DT_VCENTER | DT_CENTER, 0, 0, NULL));
+		buttons.push_back(Ex_ObjCreateEx(-1, L"button", L"标签编辑框", -1, 10, 150, 100, 30, hExDui, 104, DT_VCENTER | DT_CENTER, 0, 0, NULL));
+		buttons.push_back(Ex_ObjCreateEx(-1, L"button", L"标签列表框", -1, 10, 190, 100, 30, hExDui, 105, DT_VCENTER | DT_CENTER, 0, 0, NULL));
+		for (auto button : buttons)
+		{
+			Ex_ObjHandleEvent(button, NM_CLICK, button_click);
+		}
+		
+		Ex_DUIShowWindow(hExDui, SW_NORMAL, 0, 0, 0);
+	}
+	Ex_WndMsgLoop();
+	Ex_UnInit();
+}
+
+int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hInstancePrev, _In_ LPWSTR wzCmd, _In_ int nCmdShow)
+{
+	//测试句柄池();
+	//数组遍历();
+	//测试哈希表();
+	//测试数组();
+	//测试RC4();
+	测试窗口();
+	return 0;
+}
+
 void 测试哈希表()
 {
 	auto aptr = LocalAlloc(64, sizeof(void*));
@@ -19,7 +103,7 @@ void 测试哈希表()
 	HashTable_Get(table, 8, &ret);
 	std::cout << ret << std::endl;
 	std::vector<size_t> arry_key;
-	std::vector<size_t> arry_value ;
+	std::vector<size_t> arry_value;
 	HashTable_GetAllKeysAndValues(table, arry_key, arry_value);
 	std::cout << arry_key[1] << std::endl;
 	std::cout << arry_value[1] << std::endl;
@@ -120,121 +204,6 @@ void 测试RC4()
 		std::cout << "A= " << (int)A[index] << std::endl;
 	}
 	std::cout << "M = " << ToHexString(A, 6) << std::endl;
-}
-
-
-size_t msgProc(HWND, EXHANDLE handle, UINT, size_t, size_t, void*)
-{
-	return 0;
-}
-
-int list_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, int* lpResult)
-{
-	if (uMsg == WM_NOTIFY)
-	{
-		EX_NMHDR ni{ 0 };
-		RtlMoveMemory(&ni, (void*)lParam, sizeof(EX_NMHDR));
-		if (hObj == ni.hObjFrom)
-		{
-			
-			if (ni.nCode == NM_CALCSIZE)
-			{
-				output(L"改变高度:",__get_int((void*)ni.lParam, 4));
-				__set_int((void*)ni.lParam, 4, 25);
-				
-				*lpResult = 1;
-				return 1;
-			}
-			else if (ni.nCode == NM_CUSTOMDRAW)
-			{
-				
-				EX_CUSTOMDRAW cd{ 0 };
-				RtlMoveMemory(&cd, (void*)ni.lParam, sizeof(EX_CUSTOMDRAW));
-				if (cd.iItem > 0 && cd.iItem <= 100)
-				{
-					
-					int crItemBkg = 0;
-					if ((cd.dwState & STATE_SELECT) != 0)
-					{
-						crItemBkg = ExRGB2ARGB(16777215, 255);
-					}
-					else if ((cd.dwState & STATE_HOVER) != 0)
-					{
-						crItemBkg = ExRGB2ARGB(16777215, 150);
-					}
-					if (crItemBkg != 0)
-					{
-						void* hBrush = _brush_create(crItemBkg);
-						_canvas_fillrect(cd.hCanvas, hBrush, cd.rcDraw.left, cd.rcDraw.top, cd.rcDraw.right, cd.rcDraw.bottom);
-						_brush_destroy(hBrush);
-					}
-					_canvas_drawtext(cd.hCanvas, Ex_ObjGetFont(hObj), ExRGB2ARGB(0, 180), L"你好123", -1, DT_SINGLELINE | DT_VCENTER, cd.rcDraw.left + 10, cd.rcDraw.top, cd.rcDraw.right, cd.rcDraw.bottom);
-				}
-				*lpResult = 1;
-				return 1;
-			}
-			else if (ni.nCode == LVN_ITEMCHANGED)
-			{
-				//wParam 新选中项,lParam 旧选中项
-				output(L"改变选中ID:",  ni.idFrom,L"新选中项:", ni.wParam, L"旧选中项:", ni.lParam);
-			}
-		}
-	}
-
-	return 0;
-}
-
-
-
-
-void 测试窗口()
-{
-	std::vector<char> data;
-	Ex_ReadFile(L".\\Default.ext", &data);
-	Ex_Init(GetModuleHandleW(NULL), EXGF_RENDER_METHOD_D2D | EXGF_DPI_ENABLE, 0, 0, data.data(), data.size(), 0, 0);
-	LPCWSTR class_wnd = L"Ex_DirectUI";
-	Ex_WndRegisterClass(class_wnd, 0, 0, 0);
-	LPCWSTR title = L"test";
-	HWND hWnd = Ex_WndCreate(0, class_wnd, title, 0, 0, 800, 600, 0, 0);
-	if (hWnd != 0)
-	{
-		size_t hExDui = Ex_DUIBindWindowEx(hWnd, 0, EWS_MAINWINDOW | EWS_BUTTON_CLOSE | EWS_BUTTON_MIN | EWS_BUTTON_MAX | EWS_MOVEABLE | EWS_CENTERWINDOW | EWS_ESCEXIT | EWS_TITLE | EWS_SIZEABLE | EWS_HASICON, 0, msgProc);
-		Ex_DUISetLong(hExDui, EWL_CRBKG, -100630528);//-97900239
-		std::vector<char> imgdata;
-		Ex_ReadFile(L".\\bkg.png", &imgdata);
-		Ex_ObjSetBackgroundImage(hExDui, imgdata.data(), imgdata.size(), 0, 0, BIR_DEFALUT, 0, BIF_PLAYIMAGE, 255,true);
-		test_button(hExDui);
-		test_label(hExDui);
-
-		//单选框选择框
-		EXHANDLE checkbutton = Ex_ObjCreateEx(-1, L"checkbutton", title, -1, 10, 30, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
-
-		EXHANDLE radiobuttona = Ex_ObjCreateEx(-1, L"radiobutton", title, -1, 10, 60, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
-		EXHANDLE radiobuttonb = Ex_ObjCreateEx(-1, L"radiobutton", title, -1, 80, 60, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
-		
-		//编辑框
-		EXHANDLE edit = Ex_ObjCreateEx(EOS_EX_FOCUSABLE | EOS_EX_COMPOSITED | EOS_EX_BLUR, L"edit", title, EOS_VISIBLE | EES_HIDESELECTION, 10, 210, 100, 30, hExDui, 0, DT_VCENTER, 0, 0, NULL);
-
-		//列表框
-		EXHANDLE listview = Ex_ObjCreateEx(EOS_EX_COMPOSITED | EOS_EX_BLUR, L"listview", title, EOS_VISIBLE  | ELS_VERTICALLIST | EOS_VSCROLL, 130, 30, 150, 200, hExDui, 0, -1, 0, 0, &list_proc);
-		Ex_ObjSetColor(listview, COLOR_EX_BACKGROUND, ExRGBA(255, 255, 255, 150), true);
-		Ex_ObjSendMessage(listview, LVM_SETITEMCOUNT, 100, 100);
-
-		Ex_DUIShowWindow(hExDui, 5, 0, 0, 0);
-	}
-	Ex_WndMsgLoop();
-	Ex_UnInit();
-}
-
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hInstancePrev, _In_ LPWSTR wzCmd, _In_ int nCmdShow)
-{
-	//测试句柄池();
-	//数组遍历();
-	//测试哈希表();
-	//测试数组();
-	//测试RC4();
-	测试窗口();
-	return 0;
 }
 
 

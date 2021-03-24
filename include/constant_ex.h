@@ -154,40 +154,41 @@
 #define EPP_END	4
 // 需要与GDI交互
 #define ECF_D2D_GDI_COMPATIBLE	1
-// 组件节点ID
-#define EOL_NODEID	-1
-// 组件模糊系数
-#define EOL_BLUR	-2
-// 组件回调
-#define EOL_OBJPROC	-4
-// 组件透明度
-#define EOL_ALPHA	-5
-// 自定义参数
-#define EOL_LPARAM	-7
-// 父句柄
-#define EOL_OBJPARENT	-8
-// 组件文本格式
-#define EOL_TEXTFORMAT	-11
-// 组件ID
-#define EOL_ID	-12
-// 组件基本风格
-#define EOL_STYLE	-16
-// 组件字体句柄
-#define EOL_HFONT	-19
-// 组件扩展风格
-#define EOL_EXSTYLE	-20
-// 用户数据
-#define EOL_USERDATA	-21
-// 画布句柄（不要乱改）
-#define EOL_HCANVAS	-22
-// 控件数据（不要乱改）
-#define EOL_OWNER	-23
-// 组件状态
-#define EOL_STATE	-24
-// 组件标题内容指针
-#define EOL_LPWZTITLE	-28
-// 光标句柄
-#define EOL_CURSOR	-17
+// 组件数值_透明度
+#define EOL_ALPHA	0
+// 组件数值_模糊系数
+#define EOL_BLUR	1
+// 组件数值_光标句柄
+#define EOL_CURSOR	2
+// 组件数值_扩展风格
+#define EOL_EXSTYLE	3
+// 组件数值_画布句柄
+#define EOL_HCANVAS	4
+// 组件数值_字体句柄
+#define EOL_HFONT	5
+// 组件数值_组件ID
+#define EOL_ID	6
+// 组件数值_自定义参数
+#define EOL_LPARAM	7
+// 组件数值_标题内容指针
+#define EOL_LPWZTITLE	8
+// 组件数值_节点ID
+#define EOL_NODEID	9
+// 组件数值_父句柄
+#define EOL_OBJPARENT	10
+// 组件数值_组件回调
+#define EOL_OBJPROC	11
+// 组件数值_控件数据
+#define EOL_OWNER	12
+// 组件数值_组件状态
+#define EOL_STATE	13
+// 组件数值_基本风格
+#define EOL_STYLE	14
+// 组件数值_文本格式
+#define EOL_TEXTFORMAT	15
+// 组件数值_用户数据
+#define EOL_USERDATA	16
+
 // 状态_正常
 #define STATE_NORMAL	0
 // 状态_禁止
