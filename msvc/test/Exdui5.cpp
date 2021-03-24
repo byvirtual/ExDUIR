@@ -6,6 +6,7 @@
 #include "help_ex.h"
 
 #include "test_obj.h"
+#include "resource.h"
 
 void 测试哈希表()
 {
@@ -19,7 +20,7 @@ void 测试哈希表()
 	HashTable_Get(table, 8, &ret);
 	std::cout << ret << std::endl;
 	std::vector<size_t> arry_key;
-	std::vector<size_t> arry_value ;
+	std::vector<size_t> arry_value;
 	HashTable_GetAllKeysAndValues(table, arry_key, arry_value);
 	std::cout << arry_key[1] << std::endl;
 	std::cout << arry_value[1] << std::endl;
@@ -136,23 +137,23 @@ int list_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam,
 		RtlMoveMemory(&ni, (void*)lParam, sizeof(EX_NMHDR));
 		if (hObj == ni.hObjFrom)
 		{
-			
+
 			if (ni.nCode == NM_CALCSIZE)
 			{
-				output(L"改变高度:",__get_int((void*)ni.lParam, 4));
+				output(L"改变高度:", __get_int((void*)ni.lParam, 4));
 				__set_int((void*)ni.lParam, 4, 25);
-				
+
 				*lpResult = 1;
 				return 1;
 			}
 			else if (ni.nCode == NM_CUSTOMDRAW)
 			{
-				
+
 				EX_CUSTOMDRAW cd{ 0 };
 				RtlMoveMemory(&cd, (void*)ni.lParam, sizeof(EX_CUSTOMDRAW));
 				if (cd.iItem > 0 && cd.iItem <= 100)
 				{
-					
+
 					int crItemBkg = 0;
 					if ((cd.dwState & STATE_SELECT) != 0)
 					{
@@ -176,7 +177,7 @@ int list_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam,
 			else if (ni.nCode == LVN_ITEMCHANGED)
 			{
 				//wParam 新选中项,lParam 旧选中项
-				output(L"改变选中ID:",  ni.idFrom,L"新选中项:", ni.wParam, L"旧选中项:", ni.lParam);
+				output(L"改变选中ID:", ni.idFrom, L"新选中项:", ni.wParam, L"旧选中项:", ni.lParam);
 			}
 		}
 	}
@@ -202,7 +203,7 @@ void 测试窗口()
 		Ex_DUISetLong(hExDui, EWL_CRBKG, -100630528);//-97900239
 		std::vector<char> imgdata;
 		Ex_ReadFile(L".\\bkg.png", &imgdata);
-		Ex_ObjSetBackgroundImage(hExDui, imgdata.data(), imgdata.size(), 0, 0, BIR_DEFALUT, 0, BIF_PLAYIMAGE, 255,true);
+		Ex_ObjSetBackgroundImage(hExDui, imgdata.data(), imgdata.size(), 0, 0, BIR_DEFALUT, 0, BIF_PLAYIMAGE, 255, true);
 		test_button(hExDui);
 		test_label(hExDui);
 
@@ -211,14 +212,36 @@ void 测试窗口()
 
 		EXHANDLE radiobuttona = Ex_ObjCreateEx(-1, L"radiobutton", title, -1, 10, 60, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
 		EXHANDLE radiobuttonb = Ex_ObjCreateEx(-1, L"radiobutton", title, -1, 80, 60, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
-		
+
 		//编辑框
 		EXHANDLE edit = Ex_ObjCreateEx(EOS_EX_FOCUSABLE | EOS_EX_COMPOSITED | EOS_EX_BLUR, L"edit", title, EOS_VISIBLE | EES_HIDESELECTION, 10, 210, 100, 30, hExDui, 0, DT_VCENTER, 0, 0, NULL);
 
 		//列表框
-		EXHANDLE listview = Ex_ObjCreateEx(EOS_EX_COMPOSITED | EOS_EX_BLUR, L"listview", title, EOS_VISIBLE  | ELS_VERTICALLIST | EOS_VSCROLL, 130, 30, 150, 200, hExDui, 0, -1, 0, 0, &list_proc);
+		EXHANDLE listview = Ex_ObjCreateEx(EOS_EX_COMPOSITED | EOS_EX_BLUR, L"listview", title, EOS_VISIBLE | ELS_VERTICALLIST | EOS_VSCROLL, 130, 30, 150, 200, hExDui, 0, -1, 0, 0, &list_proc);
 		Ex_ObjSetColor(listview, COLOR_EX_BACKGROUND, ExRGBA(255, 255, 255, 150), true);
 		Ex_ObjSendMessage(listview, LVM_SETITEMCOUNT, 100, 100);
+
+		EXHANDLE hObjMenuBar = Ex_ObjCreate(L"Page", 0, -1, 300, 30, 400, 22, hExDui);
+		if (hObjMenuBar != 0) {
+			EXHANDLE hLayout = _layout_create(ELT_LINEAR, hObjMenuBar);
+			HMENU hMenu = LoadMenu(GetModuleHandle(0), (LPWSTR)IDR_MENU1);
+			if (hMenu) {
+				for (int i = 0; i < GetMenuItemCount(hMenu); i++) {
+					WCHAR wzText[256];
+					GetMenuString(hMenu, i, wzText, 256, MF_BYPOSITION);
+					EXHANDLE hObj = Ex_ObjCreateEx(-1, L"MenuButton", wzText, -1, 0, 0, 50, 22, hObjMenuBar, 0, -1, (size_t)GetSubMenu(hMenu, i), 0, 0);
+					if (hObj) {
+						Ex_ObjSetColor(hObj, COLOR_EX_BACKGROUND, 0, false);
+						Ex_ObjSetColor(hObj, COLOR_EX_TEXT_HOVER, ExRGBA(255, 255, 255, 50), false);
+						Ex_ObjSetColor(hObj, COLOR_EX_TEXT_DOWN, ExRGBA(255, 255, 255, 100), false);
+						Ex_ObjSetColor(hObj, COLOR_EX_TEXT_NORMAL, ExRGBA(255, 255, 255, 255), false);
+						_layout_addchild(hLayout, hObj);
+					}
+				}
+			}
+			Ex_ObjLayoutSet(hObjMenuBar, hLayout, true);
+		}
+
 
 		Ex_DUIShowWindow(hExDui, 5, 0, 0, 0);
 	}
