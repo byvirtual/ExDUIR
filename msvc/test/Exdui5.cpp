@@ -199,28 +199,25 @@ void 测试窗口()
 	if (hWnd != 0)
 	{
 		size_t hExDui = Ex_DUIBindWindowEx(hWnd, 0, EWS_MAINWINDOW | EWS_BUTTON_CLOSE | EWS_BUTTON_MIN | EWS_BUTTON_MAX | EWS_MOVEABLE | EWS_CENTERWINDOW | EWS_ESCEXIT | EWS_TITLE | EWS_SIZEABLE | EWS_HASICON, 0, msgProc);
-		//Ex_DUISetLong(hExDui, EWL_CRBKG, -100630528);//-97900239
+		Ex_DUISetLong(hExDui, EWL_CRBKG, -100630528);//-97900239
 		std::vector<char> imgdata;
 		Ex_ReadFile(L".\\bkg.png", &imgdata);
 		Ex_ObjSetBackgroundImage(hExDui, imgdata.data(), imgdata.size(), 0, 0, BIR_DEFALUT, 0, BIF_PLAYIMAGE, 255,true);
 		test_button(hExDui);
 		test_label(hExDui);
-		//单选框选择框
-		LPCWSTR class_checkbutton = L"checkbutton";
-		EXHANDLE checkbutton = Ex_ObjCreateEx(-1, class_checkbutton, title, -1, 10, 30, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
 
-		LPCWSTR class_radiobutton = L"radiobutton";
-		EXHANDLE radiobuttona = Ex_ObjCreateEx(-1, class_radiobutton, title, -1, 10, 60, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
-		EXHANDLE radiobuttonb = Ex_ObjCreateEx(-1, class_radiobutton, title, -1, 80, 60, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
+		//单选框选择框
+		EXHANDLE checkbutton = Ex_ObjCreateEx(-1, L"checkbutton", title, -1, 10, 30, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
+
+		EXHANDLE radiobuttona = Ex_ObjCreateEx(-1, L"radiobutton", title, -1, 10, 60, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
+		EXHANDLE radiobuttonb = Ex_ObjCreateEx(-1, L"radiobutton", title, -1, 80, 60, 60, 20, hExDui, 0, DT_VCENTER, 0, 0, NULL);
 		
 		//编辑框
-		LPCWSTR class_edit = L"edit";
-		EXHANDLE edit = Ex_ObjCreateEx(EOS_EX_FOCUSABLE, class_edit, title, EOS_VISIBLE | EES_HIDESELECTION, 10, 210, 100, 30, hExDui, 0, DT_VCENTER, 0, 0, NULL);
+		EXHANDLE edit = Ex_ObjCreateEx(EOS_EX_FOCUSABLE | EOS_EX_COMPOSITED | EOS_EX_BLUR, L"edit", title, EOS_VISIBLE | EES_HIDESELECTION, 10, 210, 100, 30, hExDui, 0, DT_VCENTER, 0, 0, NULL);
 
 		//列表框
-		LPCWSTR class_list = L"listview";
-		EXHANDLE listview = Ex_ObjCreateEx(-1, class_list, title, EOS_VISIBLE  | ELS_VERTICALLIST | EOS_VSCROLL, 130, 30, 150, 200, hExDui, 0, -1, 0, 0, &list_proc);
-		Ex_ObjSetColor(listview, COLOR_EX_BACKGROUND, ExRGB2ARGB(16711680, 50), true);
+		EXHANDLE listview = Ex_ObjCreateEx(EOS_EX_COMPOSITED | EOS_EX_BLUR, L"listview", title, EOS_VISIBLE  | ELS_VERTICALLIST | EOS_VSCROLL, 130, 30, 150, 200, hExDui, 0, -1, 0, 0, &list_proc);
+		Ex_ObjSetColor(listview, COLOR_EX_BACKGROUND, ExRGBA(255, 255, 255, 150), true);
 		Ex_ObjSendMessage(listview, LVM_SETITEMCOUNT, 100, 100);
 
 		Ex_DUIShowWindow(hExDui, 5, 0, 0, 0);
