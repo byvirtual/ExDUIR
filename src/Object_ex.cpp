@@ -1056,6 +1056,10 @@ size_t Ex_ObjSetLong(EXHANDLE hObj, int nIndex, size_t dwNewLong)
 			ret = pObj->lParam_;
 			pObj->lParam_ = dwNewLong;
 		}
+		else if (nIndex == EOL_BLUR) {
+			ret = pObj->fBlur_;
+			pObj->fBlur_ = dwNewLong / 100;
+		}
 		else if (nIndex >= 0) {
 			ret = __set(pObj, offsetof(obj_s, index_start_) + nIndex * sizeof(void*), dwNewLong);
 		}
@@ -2777,7 +2781,7 @@ void CALLBACK _obj_backgroundimage_timer(HWND hWnd, UINT uMsg, UINT_PTR idEvent,
 	void* lpBI = pObj->lpBackgroundImage_;
 	if (lpBI != 0)
 	{
-		void* pDelay = ((bkgimg_s*)lpBI)->lpDelay_;
+		int* pDelay = ((bkgimg_s*)lpBI)->lpDelay_;
 		if (pDelay != 0)
 		{
 			int iCur = ((bkgimg_s*)lpBI)->curFrame_ + 1;
@@ -2801,7 +2805,7 @@ void CALLBACK _obj_backgroundimage_timer(HWND hWnd, UINT uMsg, UINT_PTR idEvent,
 				_wnd_redraw_bkg(hWnd, (wnd_s*)pObj, 0, true, false);
 			}
 			UpdateWindow(hWnd);
-			SetTimer(hWnd, idEvent, __get_int(pDelay, (size_t)iCur * 4) * 10, &_obj_backgroundimage_timer);
+			SetTimer(hWnd, idEvent, pDelay[iCur] * 10, &_obj_backgroundimage_timer);
 		}
 	}
 }
@@ -2839,17 +2843,15 @@ bool _obj_backgroundimage_set(HWND hWnd, obj_s* pObj, void* lpImage, int dwImage
 				
 				if (nFrames > 1)
 				{
-					void* lpDelay2 = Ex_MemAlloc((size_t)nFrames * 4);
-					
+					int* lpDelay2 = (int*)Ex_MemAlloc(nFrames * sizeof(int));
 					if (_img_getframedelay(hImg, lpDelay2, nFrames))
 					{
 						((bkgimg_s*)lpBI)->lpDelay_ = lpDelay2;
 						((bkgimg_s*)lpBI)->maxFrame_ = nFrames;
 						if ((dwFlags & BIF_PLAYIMAGE) != 0)
 						{
-							
 							output(L"时钟", nFrames);
-							SetTimer(hWnd, (UINT_PTR)((size_t)pObj + TIMER_BKG), __get_int(lpDelay2, 0) * 10, &_obj_backgroundimage_timer);
+							SetTimer(hWnd, (UINT_PTR)((size_t)pObj + TIMER_BKG), lpDelay2[0] * 10, &_obj_backgroundimage_timer);
 						}
 					}
 					else {
@@ -2914,9 +2916,9 @@ void _obj_backgroundimage_frames(HWND hWnd, obj_s* pObj, bool bResetFrame, bool 
 			}
 			if (bPlayFrames)
 			{
-				void* lpdelay = ((bkgimg_s*)lpBI)->lpDelay_;
+				int* lpdelay = ((bkgimg_s*)lpBI)->lpDelay_;
 				int curFrame = ((bkgimg_s*)lpdelay)->curFrame_;
-				SetTimer(hWnd, (size_t)pObj + TIMER_BKG, __get_int(lpdelay, (size_t)curFrame * 4) * 10, &_obj_backgroundimage_timer);
+				SetTimer(hWnd, (size_t)pObj + TIMER_BKG, lpdelay[curFrame] * 10, &_obj_backgroundimage_timer);
 			}
 
 			if (((pObj->dwFlags_ & EOF_OBJECT) == EOF_OBJECT))

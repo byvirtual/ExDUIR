@@ -31,7 +31,7 @@ size_t CALLBACK _pbm_proc(HWND hWnd, EXHANDLE hExDUI, UINT uMsg, size_t wParam, 
 	int nError = 0;
 	if (_handle_validate(hExDUI, HT_DUI, (void**)&pWnd, &nError))
 	{
-		MENUINFO mi;
+		MENUINFO mi = { 0 };
 		mi.cbSize = sizeof(MENUINFO);
 		mi.fMask = MIM_MENUDATA;
 		pObj = (obj_s*)mi.dwMenuData;

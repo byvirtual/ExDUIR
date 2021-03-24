@@ -204,7 +204,7 @@ struct obj_s
 	int dwAlpha_;
 	void* pfnSubClass_;
 	bool fHUE_;
-	size_t fBlur_;
+	float fBlur_;
 	int nodeid_;
 	void* index_start_;
 };

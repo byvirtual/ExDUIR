@@ -1,5 +1,19 @@
 #include "Image_ex.h"
 
+struct EX_APNG_THUNK {
+    DWORD dwLen;
+    DWORD Type;
+    UINT sequence_number;// 序列
+    UINT width;// 宽度
+    UINT height;// 高度
+    UINT x_offset;// 水平偏移
+    UINT y_offset;// 垂直偏移
+    UINT delay_num;// 为这一帧显示时间的以秒为单位的分子
+    USHORT delay_den;// 为这一帧显示时间以秒为单位的分母
+    BYTE dispose_op;// 处理方式
+    BYTE blend_op;// 混合模式
+};
+
 
 bool _img_destroy(EXHANDLE hImg)
 {
@@ -97,12 +111,12 @@ void _apng_drawframe(img_s* pImage, int nIndex)//未完成
 	' 32 byte dispose_op 处理方式
 	' 33 byte blend_op 混合模式*/
 
-	if (nIndex<0 || nIndex>pImage->nMaxFrames_ - 1)
+	if (nIndex < 0 || nIndex > pImage->nMaxFrames_ - 1)
 	{
 		return;
 	}
 	void* pHeader = pImage->lpHeader_;
-	void* pFrame = (void*)__get(pImage->lpFrames_, nIndex * sizeof(void*));
+	void* pFrame = pImage->lpFrames_[nIndex];
 	void* pIDAT =(void*)( (size_t)pFrame + 26 + 12);
 	int type = __get_int(pIDAT, 4);
 	if (type == PNG_IDAT || type == PNG_fdAT)
@@ -740,7 +754,7 @@ size_t _img_savetomemory(EXHANDLE hImage, void* lpBuffer)
 	return ret;
 }
 
-bool _wic_getframedelay(void* pDecoder, void* lpDelay, int nCount, int* nError)
+bool _wic_getframedelay(void* pDecoder, int* lpDelay, int nCount, int* nError)
 {
 	bool fOK = false;
 	if (pDecoder != 0)
@@ -765,7 +779,7 @@ bool _wic_getframedelay(void* pDecoder, void* lpDelay, int nCount, int* nError)
 						{
 							nDelay = 10;
 						}
-						__set_int(lpDelay, i * (size_t)4, nDelay);
+						lpDelay[i] = nDelay;
 						fOK = true;
 					}
 					pReader->Release();
@@ -782,7 +796,7 @@ bool _wic_getframedelay(void* pDecoder, void* lpDelay, int nCount, int* nError)
 	return fOK;
 }
 
-bool _img_getframedelay(EXHANDLE hImg, void* lpDelayAry, int nFrames)
+bool _img_getframedelay(EXHANDLE hImg, int* lpDelayAry, int nFrames)
 {
 	img_s* pImg = nullptr;
 	int nError = 0;
@@ -907,12 +921,12 @@ void _apng_int(EXHANDLE hImage, void* lpStream)
 								RtlMoveMemory((void*)((size_t)pHeader + dwLen), pTRNS, dwTRNS);
 							}
 							nPos = 8;
-							void* pThunk = nullptr;
-							if (_apng_thunk_getnext(lpMem, &nPos, PNG_acTL, &pThunk, &dwLen))
+							EX_APNG_THUNK* pThunk = nullptr;
+							if (_apng_thunk_getnext(lpMem, &nPos, PNG_acTL, (void**)&pThunk, &dwLen))
 							{
 								int nCount = _apng_thunk_getlength((void*)((size_t)pThunk + 8));
 								
-								void* pFrames = Ex_MemAlloc(nCount * sizeof(void*));
+								PVOID* pFrames = (PVOID*)Ex_MemAlloc(nCount * sizeof(void*));
 								if (pFrames != 0)
 								{
 									
@@ -920,7 +934,7 @@ void _apng_int(EXHANDLE hImage, void* lpStream)
 									pImage->nMaxFrames_ = nCount;
 									pImage->lpFrames_ = pFrames;
 									pImage->lpHeader_ = pHeader;
-									while (_apng_thunk_getnext(lpMem, &nPos, PNG_fcTL, &pThunk, &dwLen))
+									while (_apng_thunk_getnext(lpMem, &nPos, PNG_fcTL, (void**)&pThunk, &dwLen))
 									{
 										/*' 0 dwLen
 										' 4 Type
@@ -933,11 +947,13 @@ void _apng_int(EXHANDLE hImage, void* lpStream)
 										' 30 ushort delay_den 为这一帧显示时间以秒为单位的分母
 										' 32 byte dispose_op 处理方式
 										' 33 byte blend_op 混合模式*/
-										__set_int(pThunk, 20, _apng_thunk_getlength((void*)((size_t)pThunk + 20)));
-										__set_int(pThunk, 24, _apng_thunk_getlength((void*)((size_t)pThunk + 24)));
-										__set_int(pThunk, 28, _apng_thunk_getlength((void*)((size_t)pThunk + 28)));
-										
-										((PVOID*)pFrames)[i] = pThunk;
+										//__set_int(pThunk, 20, _apng_thunk_getlength((void*)((size_t)pThunk + 20)));
+										//__set_int(pThunk, 24, _apng_thunk_getlength((void*)((size_t)pThunk + 24)));
+										//__set_int(pThunk, 28, _apng_thunk_getlength((void*)((size_t)pThunk + 28)));
+										pThunk->x_offset = _byteswap_ulong(pThunk->x_offset);
+										pThunk->y_offset = _byteswap_ulong(pThunk->y_offset);
+										pThunk->delay_num = _byteswap_ulong(pThunk->delay_num);
+										pFrames[i] = pThunk;
 										i++;
 									}
 								}
@@ -954,10 +970,10 @@ void _apng_int(EXHANDLE hImage, void* lpStream)
 	}
 }
 
-bool _apng_getframedelay(img_s* pImg, void* lpDelay, int nFrames)
+bool _apng_getframedelay(img_s* pImg, int* lpDelay, int nFrames)
 {
 	bool ret = false;
-	void* lpFrames = pImg->lpFrames_;
+	PVOID* lpFrames = pImg->lpFrames_;
 	if (lpFrames != 0)
 	{
 		/*' 0 dwLen
@@ -973,12 +989,11 @@ bool _apng_getframedelay(img_s* pImg, void* lpDelay, int nFrames)
 		' 33 byte blend_op 混合模式*/
 		for (int i = 0; i < nFrames; i++)
 		{
-			auto index = i * sizeof(void*);
-			short delay_num = __get_short((void*)__get(lpFrames, index), 28);
-			__set_int(lpDelay, index, 200);
+			short delay_num = __get_short(lpFrames[i], 28);
+			//lpDelay[i] = 200; //???
 			delay_num = HIWORD(delay_num) / LOWORD(delay_num) * 100;
 			if (delay_num == 0) delay_num = 10;
-			__set_int(lpDelay, index, delay_num);
+			lpDelay[i] = delay_num;
 		}
 		ret = true;
 	}

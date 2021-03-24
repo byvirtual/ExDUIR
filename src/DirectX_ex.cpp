@@ -331,25 +331,23 @@ void ARGB2ColorF(int argb, D2D1_COLOR_F *color) {
 void _dx_drawframe_apng(img_s* pImage, void* pImgSrc, int x, int y,int w,int h, char dispose, char blend, int nIndex)
 {
 	
-	D2D1_RENDER_TARGET_PROPERTIES pro;
+	D2D1_RENDER_TARGET_PROPERTIES pro = { 0 };
 	pro.pixelFormat.format = DXGI_FORMAT_B8G8R8A8_UNORM;
 	pro.pixelFormat.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED;
 	pro.dpiX = 96;
 	pro.dpiY = 96;
 	pro.usage = D2D1_RENDER_TARGET_USAGE_GDI_COMPATIBLE;
 	ID2D1RenderTarget* rt = nullptr;
-	auto ret=((ID2D1Factory1*)g_Ri.pD2Dfactory)->CreateWicBitmapRenderTarget((IWICBitmap*)pImgSrc, &pro,&rt);
-	output(L"画APNG", ret,(size_t)rt);
+	auto ret = ((ID2D1Factory1*)g_Ri.pD2Dfactory)->CreateWicBitmapRenderTarget((IWICBitmap*)pImgSrc, &pro,&rt);
 	if (rt != 0)
-	{
-		
+	{	
 		_dx_begindraw(rt);
 		if (nIndex == 0)
 		{
 			_dx_clear(rt, 0);
 		}
 		else {
-			void* pFramePrev = (void*)__get(pImage->lpFrames_, (nIndex-1) * sizeof(void*));
+			void* pFramePrev = pImage->lpFrames_[nIndex - 1];
 			char disposePrev = __get_char(pFramePrev, 32);
 			if (disposePrev != 0)
 			{

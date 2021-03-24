@@ -533,12 +533,12 @@ void CALLBACK _wnd_backgroundimage_timer_inherit(HWND hWnd, UINT uMsg, UINT_PTR 
 			bkgimg_s* lpBI = (bkgimg_s*)ppWnd->lpBackgroundImage_;
 			if (lpBI)
 			{
-				void* pDelay = lpBI->lpDelay_;
+				int* pDelay = lpBI->lpDelay_;
 				if (pDelay != 0)
 				{
 					_wnd_redraw_bkg(hWnd, pWnd, 0, true, false);
 					UpdateWindow(hWnd);
-					SetTimer(hWnd, idEvent, __get_int(pDelay, lpBI->curFrame_ * 4) * 10, &_wnd_backgroundimage_timer_inherit);
+					SetTimer(hWnd, idEvent, pDelay[lpBI->curFrame_] * 10, &_wnd_backgroundimage_timer_inherit);
 				}
 			}
 		}
