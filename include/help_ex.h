@@ -463,7 +463,7 @@ UCHAR __get_unsignedchar(void* lpAddr, size_t offset);
 wchar_t __get_wchar(void* lpAddr, size_t offset);
 size_t __set(void* lpAddr, size_t offset, size_t value);
 void __set_float(void* lpAddr, size_t offset, float value);
-void __set_int(void* lpAddr, size_t offset, int value);
+int __set_int(void* lpAddr, size_t offset, int value);
 void __set_char(void* lpAddr, size_t offset, char value);
 void __set_unsignedchar(void* lpAddr, size_t offset, UCHAR value);
 void __set_wchar(void* lpAddr, size_t offset, wchar_t value);

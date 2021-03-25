@@ -92,10 +92,12 @@ size_t __set(void* lpAddr, size_t offset, size_t value)
 	return old;
 }
 
-void __set_int(void* lpAddr, size_t offset, int value)
+int __set_int(void* lpAddr, size_t offset, int value)
 {
-	size_t a = (size_t)lpAddr + offset;
-	*(int*)a = value;
+	int* a = (int*)((size_t)lpAddr + offset);
+	int old = *a;
+	*a = value;
+	return old;
 }
 
 void __set_char(void* lpAddr, size_t offset, char value)

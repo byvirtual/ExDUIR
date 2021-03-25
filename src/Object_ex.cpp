@@ -1026,6 +1026,9 @@ size_t Ex_ObjGetLong(EXHANDLE hObj, int nIndex)
 		else if (nIndex == EOL_USERDATA) {
 			return (size_t)pObj->dwUserData_;
 		}
+		else if (nIndex >= 0) {
+			return __get_int(pObj, offsetof(obj_s, index_start_));
+		}
 		else {
 			EX_ASSERT(false, L"Ex_ObjGetLong: unknown EOL index: %ld", nIndex);
 		}
@@ -1125,6 +1128,9 @@ size_t Ex_ObjSetLong(EXHANDLE hObj, int nIndex, size_t dwNewLong)
 		else if (nIndex == EOL_USERDATA) {
 			ret = (size_t)pObj->dwUserData_;
 			pObj->dwUserData_ = (void*)dwNewLong;
+		}
+		else if (nIndex >= 0) {
+			return (size_t)__set_int(pObj, offsetof(obj_s, index_start_), dwNewLong);
 		}
 		else {
 			EX_ASSERT(false, L"Ex_ObjSetLong: unknown EOL index: %ld", nIndex);
