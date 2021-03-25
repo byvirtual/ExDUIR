@@ -2911,8 +2911,7 @@ bool _obj_backgroundimage_set(HWND hWnd, obj_s* pObj, void* lpImage, int dwImage
 						((bkgimg_s*)lpBI)->maxFrame_ = nFrames;
 						if ((dwFlags & BIF_PLAYIMAGE) != 0)
 						{
-							output(L"时钟", nFrames);
-							SetTimer(hWnd, (UINT_PTR)((size_t)pObj + TIMER_BKG), lpDelay2[0] * 10, &_obj_backgroundimage_timer);
+							SetTimer(hWnd, ((size_t)pObj + TIMER_BKG), lpDelay2[0] * 10, &_obj_backgroundimage_timer);
 						}
 					}
 					else {

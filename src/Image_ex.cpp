@@ -973,11 +973,8 @@ bool _apng_getframedelay(img_s* pImg, int* lpDelay, int nFrames)
 		' 33 byte blend_op 混合模式*/
 		for (int i = 0; i < nFrames; i++)
 		{
-			UINT delay_num = lpFrames[i]->delay_num;
-			//lpDelay[i] = 200; //???
-			//output(lpFrames[i]->delay_num, (double)HIWORD(delay_num) / (double)LOWORD(delay_num) * 100,HIWORD(delay_num), LOWORD(delay_num));
-			delay_num = (double)HIWORD(delay_num) / (double)LOWORD(delay_num) * 100;
-			//output(delay_num);
+			UINT delay_num = 0;
+			delay_num = lpFrames[i]->delay_num / lpFrames[i]->delay_den * 100;
 			if (delay_num == 0)
 				delay_num = 10;
 			lpDelay[i] = delay_num;
