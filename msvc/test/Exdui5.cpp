@@ -47,7 +47,7 @@ void 测试窗口()
         //Ex_DUISetLong(hExDui, EWL_CRBKG, -100630528);//-97900239
         std::vector<char> imgdata;
         Ex_ReadFile(L".\\bkg.png", &imgdata);
-        Ex_ObjSetBackgroundImage(hExDui, imgdata.data(), imgdata.size(), 0, 0, BIR_DEFALUT, 0, 0, 255,true);
+        Ex_ObjSetBackgroundImage(hExDui, imgdata.data(), imgdata.size(), 0, 0, BIR_DEFALUT, 0, BIF_PLAYIMAGE, 255,true);
 
         std::vector<EXHANDLE> buttons;
         buttons.push_back(Ex_ObjCreateEx(-1, L"button", L"按钮测试", -1, 10, 60, 100, 30, hExDui, 101, DT_VCENTER | DT_CENTER, 0, 0, NULL));
