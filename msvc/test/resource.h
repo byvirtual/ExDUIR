@@ -1475,6 +1475,21 @@
 #define ID_CCCC_ASDF                    40007
 #define ID_CCCC_ASDF40008               40008
 #define ID_BBB_CCCC                     40009
+#define ID_40010                        40010
+#define ID_40011                        40011
+#define ID_40012                        40012
+#define ID_40013                        40013
+#define ID_40014                        40014
+#define ID_40015                        40015
+#define ID_40016                        40016
+#define ID_40017                        40017
+#define ID_40018                        40018
+#define ID_40019                        40019
+#define ID_40020                        40020
+#define ID_40021                        40021
+#define ID_40022                        40022
+#define ID_GIT_HTTPS                    40023
+#define ID_GIT_HTTPS40024               40024
 #define SC_SIZE                         0xF000
 #define SC_SEPARATOR                    0xF00F
 #define SC_MOVE                         0xF010
@@ -1505,7 +1520,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        102
-#define _APS_NEXT_COMMAND_VALUE         40010
+#define _APS_NEXT_COMMAND_VALUE         40025
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

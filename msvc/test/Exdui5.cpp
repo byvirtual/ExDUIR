@@ -6,7 +6,77 @@
 #include "help_ex.h"
 
 #include "test_obj.h"
-#include "resource.h"
+
+
+size_t CALLBACK msgProc(HWND, EXHANDLE handle, UINT, size_t, size_t, void*)
+{
+    return 0;
+}
+
+
+
+HWND hWnd;
+
+int CALLBACK button_click(EXHANDLE hObj, int nID, int nCode, WPARAM wParam, LPARAM lParam)
+{
+	void(*buttonProc[])(HWND) = {
+		test_button, //101，测试按钮
+		test_label, //102，测试标签
+		test_checkbutton, //103，测试单选框选择框
+		test_edit, //104，测试编辑框
+		test_listview, //105，测试列表框
+		test_menubutton //106，菜单按钮 
+	};
+	buttonProc[nID - 101](hWnd);
+    return 0;
+}
+
+
+void 测试窗口()
+{
+    std::vector<char> data;
+    Ex_ReadFile(L".\\Default.ext", &data);
+    Ex_Init(GetModuleHandleW(NULL), EXGF_RENDER_METHOD_D2D | EXGF_DPI_ENABLE, 0, 0, data.data(), data.size(), 0, 0);
+    LPCWSTR class_wnd = L"Ex_DirectUI";
+    Ex_WndRegisterClass(L"Ex_DirectUI", 0, 0, 0);
+    LPCWSTR title = L"test";
+    hWnd = Ex_WndCreate(0, L"Ex_DirectUI", L"test", 0, 0, 800, 600, 0, 0);
+    if (hWnd != 0)
+    {
+        size_t hExDui = Ex_DUIBindWindowEx(hWnd, 0, EWS_MAINWINDOW | EWS_BUTTON_CLOSE | EWS_BUTTON_MIN | EWS_BUTTON_MAX | EWS_MOVEABLE | EWS_CENTERWINDOW | EWS_ESCEXIT | EWS_TITLE | EWS_SIZEABLE | EWS_HASICON, 0, msgProc);
+        //Ex_DUISetLong(hExDui, EWL_CRBKG, -100630528);//-97900239
+        std::vector<char> imgdata;
+        Ex_ReadFile(L".\\bkg.png", &imgdata);
+        Ex_ObjSetBackgroundImage(hExDui, imgdata.data(), imgdata.size(), 0, 0, BIR_DEFALUT, 0, 0, 255,true);
+
+        std::vector<EXHANDLE> buttons;
+        buttons.push_back(Ex_ObjCreateEx(-1, L"button", L"按钮测试", -1, 10, 60, 100, 30, hExDui, 101, DT_VCENTER | DT_CENTER, 0, 0, NULL));
+        buttons.push_back(Ex_ObjCreateEx(-1, L"button", L"标签测试", -1, 10, 100, 100, 30, hExDui, 102, DT_VCENTER | DT_CENTER, 0, 0, NULL));
+        buttons.push_back(Ex_ObjCreateEx(-1, L"button", L"标签单选框", -1, 10, 140, 100, 30, hExDui, 103, DT_VCENTER | DT_CENTER, 0, 0, NULL));
+        buttons.push_back(Ex_ObjCreateEx(-1, L"button", L"标签编辑框", -1, 10, 180, 100, 30, hExDui, 104, DT_VCENTER | DT_CENTER, 0, 0, NULL));
+        buttons.push_back(Ex_ObjCreateEx(-1, L"button", L"标签列表框", -1, 10, 220, 100, 30, hExDui, 105, DT_VCENTER | DT_CENTER, 0, 0, NULL));
+		buttons.push_back(Ex_ObjCreateEx(-1, L"button", L"菜单测试", -1, 10, 260, 100, 30, hExDui, 106, DT_VCENTER | DT_CENTER, 0, 0, NULL));
+        for (auto button : buttons)
+        {
+            Ex_ObjHandleEvent(button, NM_CLICK, button_click);
+        }
+
+        Ex_DUIShowWindow(hExDui, SW_NORMAL, 0, 0, 0);
+    }
+    Ex_WndMsgLoop();
+    Ex_UnInit();
+}
+
+int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hInstancePrev, _In_ LPWSTR wzCmd, _In_ int nCmdShow)
+{
+    //测试句柄池();
+    //数组遍历();
+    //测试哈希表();
+    //测试数组();
+    //测试RC4();
+    测试窗口();
+    return 0;
+}
 
 void 测试哈希表()
 {

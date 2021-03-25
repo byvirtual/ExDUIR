@@ -7,3 +7,4 @@ void test_label(HWND hWnd);
 void test_checkbutton(HWND hWnd);
 void test_edit(HWND hWnd);
 void test_listview(HWND hWnd);
+void test_menubutton(HWND hWnd);

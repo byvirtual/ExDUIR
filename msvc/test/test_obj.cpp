@@ -1,9 +1,9 @@
 #include "test_obj.h"
-
+#include "resource.h"
 
 EXHANDLE hExDui_button;
 
-int button_clicked(EXHANDLE hObj, int nID, int nCode, WPARAM wParam, LPARAM lParam)
+int CALLBACK button_clicked(EXHANDLE hObj, int nID, int nCode, WPARAM wParam, LPARAM lParam)
 {
 	if (nID == 201)//通过组件ID判断按钮
 	{
@@ -86,6 +86,35 @@ void test_edit(HWND hWnd)
 
 	auto edit = Ex_ObjCreateEx(EOS_EX_FOCUSABLE | EOS_EX_COMPOSITED | EOS_EX_BLUR, L"edit", L"测试编辑框", EOS_VISIBLE | EES_HIDESELECTION, 10, 30, 100, 30, hExDui_edit, 0, DT_VCENTER, 0, 0, NULL);
 	Ex_DUIShowWindow(hExDui_edit, SW_NORMAL, 0, 0, 0);
+}
+
+VOID test_menubutton(HWND hWnd)
+{
+	auto hWnd_menubutton = Ex_WndCreate(hWnd, L"Ex_DirectUI", L"测试菜单按钮", 0, 0, 400, 300, 0, 0);
+	auto hExDui_menubutton = Ex_DUIBindWindowEx(hWnd_menubutton, 0, EWS_BUTTON_CLOSE | EWS_BUTTON_MIN | EWS_MOVEABLE | EWS_CENTERWINDOW | EWS_TITLE | EWS_SIZEABLE | EWS_HASICON, 0, 0);
+	Ex_DUISetLong(hExDui_menubutton, EWL_CRBKG, ExRGBA(150, 150, 150, 255));
+
+	EXHANDLE hObjMenuBar = Ex_ObjCreate(L"Page", 0, -1, 0, 30, 400, 22, hExDui_menubutton);
+	if (hObjMenuBar != 0) {
+		EXHANDLE hLayout = _layout_create(ELT_LINEAR, hObjMenuBar);
+		HMENU hMenu = LoadMenu(GetModuleHandle(0), (LPWSTR)IDR_MENU1);
+		if (hMenu) {
+			for (int i = 0; i < GetMenuItemCount(hMenu); i++) {
+				WCHAR wzText[256];
+				GetMenuString(hMenu, i, wzText, 256, MF_BYPOSITION);
+				EXHANDLE hObj = Ex_ObjCreateEx(-1, L"MenuButton", wzText, -1, 0, 0, 50, 22, hObjMenuBar, 0, -1, (size_t)GetSubMenu(hMenu, i), 0, 0);
+				if (hObj) {
+					Ex_ObjSetColor(hObj, COLOR_EX_BACKGROUND, 0, false);
+					Ex_ObjSetColor(hObj, COLOR_EX_TEXT_HOVER, ExRGBA(255, 255, 255, 50), false);
+					Ex_ObjSetColor(hObj, COLOR_EX_TEXT_DOWN, ExRGBA(255, 255, 255, 100), false);
+					Ex_ObjSetColor(hObj, COLOR_EX_TEXT_NORMAL, ExRGBA(255, 255, 255, 255), false);
+					_layout_addchild(hLayout, hObj);
+				}
+			}
+		}
+		Ex_ObjLayoutSet(hObjMenuBar, hLayout, true);
+	}
+	Ex_DUIShowWindow(hExDui_menubutton, SW_NORMAL, 0, 0, 0);
 }
 
 int list_proc(HWND hWnd, EXHANDLE hObj, UINT uMsg, size_t wParam, size_t lParam, int* lpResult)
