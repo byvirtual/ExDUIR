@@ -219,3 +219,4 @@ bool Ex_DUIShowWindowEx(EXHANDLE hExDui, int nCmdShow, int dwTimer, int dwFrames
 bool Ex_DUIShowWindow(EXHANDLE hExDui, int nCmdShow, int dwTimer, int dwFrames, int dwFlags);
 EXHANDLE Ex_DUIBindWindowEx(HWND hWnd, theme_s* hTheme, int dwStyle, LPARAM lParam, MsgPROC lpfnMsgProc);
 EXHANDLE Ex_DUIBindWindow(HWND hWnd, theme_s* hTheme, int dwStyle);
+EXHANDLE Ex_DUIGetObjFromPoint(HWND handle, POINT point);

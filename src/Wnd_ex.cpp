@@ -3322,3 +3322,31 @@ EXHANDLE Ex_DUIBindWindow(HWND hWnd, theme_s* hTheme, int dwStyle)
 {
 	return Ex_DUIBindWindowEx(hWnd, hTheme, dwStyle, 0, 0);
 }
+
+EXHANDLE Ex_DUIGetObjFromPoint(HWND handle, POINT point)
+{
+	wnd_s* pWnd;
+	RECT rect = { 0 };
+	HWND hWnd = 0;
+	obj_s* pObj = 0;
+
+	if (!handle)
+	{
+		GetCursorPos(&point);
+		handle = WindowFromPoint(point);
+		if (handle)
+		{
+			GetWindowRect(handle, &rect);
+			point.x -= rect.left;
+			point.y -= rect.top;
+		}
+	}
+	if (_wnd_getfromhandle((size_t)handle, &hWnd, &pWnd))
+	{
+		int hitCode = 0;
+		_wnd_wm_nchittest_obj(hWnd, pWnd, pWnd->objChildLast_, point.x, point.y, &hitCode, &pObj);
+		if (pObj)
+			return pObj->hObj_;
+	}
+	return 0;
+}

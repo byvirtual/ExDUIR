@@ -6,90 +6,7 @@
 #include "help_ex.h"
 
 #include "test_obj.h"
-
-
-
-
-size_t msgProc(HWND, EXHANDLE handle, UINT, size_t, size_t, void*)
-{
-	return 0;
-}
-
-
-
-HWND hWnd;
-
-int button_click(EXHANDLE hObj, int nID, int nCode, WPARAM wParam, LPARAM lParam)
-{
-	
-	if (nID == 101)//测试按钮
-	{
-		test_button(hWnd);
-	}
-	if (nID == 102)//测试标签
-	{
-		test_label(hWnd);
-	}
-	if (nID == 103)//测试单选框选择框
-	{
-		test_checkbutton(hWnd);
-	}
-	if (nID == 104)//测试编辑框
-	{
-		test_edit(hWnd);
-	}
-	if (nID == 105)//测试列表框
-	{
-		test_listview(hWnd);
-	}
-	return 0;
-}
-
-
-void 测试窗口()
-{
-	std::vector<char> data;
-	Ex_ReadFile(L".\\Default.ext", &data);
-	Ex_Init(GetModuleHandleW(NULL), EXGF_RENDER_METHOD_D2D | EXGF_DPI_ENABLE, 0, 0, data.data(), data.size(), 0, 0);
-	LPCWSTR class_wnd = L"Ex_DirectUI";
-	Ex_WndRegisterClass(L"Ex_DirectUI", 0, 0, 0);
-	LPCWSTR title = L"test";
-	hWnd = Ex_WndCreate(0, L"Ex_DirectUI", L"test", 0, 0, 800, 600, 0, 0);
-	if (hWnd != 0)
-	{
-		size_t hExDui = Ex_DUIBindWindowEx(hWnd, 0, EWS_MAINWINDOW | EWS_BUTTON_CLOSE | EWS_BUTTON_MIN | EWS_BUTTON_MAX | EWS_MOVEABLE | EWS_CENTERWINDOW | EWS_ESCEXIT | EWS_TITLE | EWS_SIZEABLE | EWS_HASICON, 0, msgProc);
-		//Ex_DUISetLong(hExDui, EWL_CRBKG, -100630528);//-97900239
-		std::vector<char> imgdata;
-		Ex_ReadFile(L".\\bkg.png", &imgdata);
-		Ex_ObjSetBackgroundImage(hExDui, imgdata.data(), imgdata.size(), 0, 0, BIR_DEFALUT, 0, 0, 255,true);
-		
-		std::vector<EXHANDLE> buttons;
-		buttons.push_back(Ex_ObjCreateEx(-1, L"button", L"按钮测试", -1, 10, 30, 100, 30, hExDui, 101, DT_VCENTER | DT_CENTER, 0, 0, NULL));
-		buttons.push_back(Ex_ObjCreateEx(-1, L"button", L"标签测试", -1, 10, 70, 100, 30, hExDui, 102, DT_VCENTER | DT_CENTER, 0, 0, NULL));
-		buttons.push_back(Ex_ObjCreateEx(-1, L"button", L"标签单选框", -1, 10, 110, 100, 30, hExDui, 103, DT_VCENTER | DT_CENTER, 0, 0, NULL));
-		buttons.push_back(Ex_ObjCreateEx(-1, L"button", L"标签编辑框", -1, 10, 150, 100, 30, hExDui, 104, DT_VCENTER | DT_CENTER, 0, 0, NULL));
-		buttons.push_back(Ex_ObjCreateEx(-1, L"button", L"标签列表框", -1, 10, 190, 100, 30, hExDui, 105, DT_VCENTER | DT_CENTER, 0, 0, NULL));
-		for (auto button : buttons)
-		{
-			Ex_ObjHandleEvent(button, NM_CLICK, button_click);
-		}
-		
-		Ex_DUIShowWindow(hExDui, SW_NORMAL, 0, 0, 0);
-	}
-	Ex_WndMsgLoop();
-	Ex_UnInit();
-}
-
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hInstancePrev, _In_ LPWSTR wzCmd, _In_ int nCmdShow)
-{
-	//测试句柄池();
-	//数组遍历();
-	//测试哈希表();
-	//测试数组();
-	//测试RC4();
-	测试窗口();
-	return 0;
-}
+#include "resource.h"
 
 void 测试哈希表()
 {
@@ -103,7 +20,7 @@ void 测试哈希表()
 	HashTable_Get(table, 8, &ret);
 	std::cout << ret << std::endl;
 	std::vector<size_t> arry_key;
-	std::vector<size_t> arry_value;
+	std::vector<size_t> arry_value ;
 	HashTable_GetAllKeysAndValues(table, arry_key, arry_value);
 	std::cout << arry_key[1] << std::endl;
 	std::cout << arry_value[1] << std::endl;

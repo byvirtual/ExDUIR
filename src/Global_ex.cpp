@@ -1,4 +1,5 @@
 #include "Global_ex.h"
+#include "Class_MenuButton_ex.h"
 
 void pfnDefaultFreeData(void* dwData)
 {
@@ -152,6 +153,7 @@ void _object_init()
 
 	_obj_register(ATOM_POPUPBOX, EOS_VISIBLE, EOS_EX_FOCUSABLE, DT_VCENTER | DT_SINGLELINE, 0, 0, &_pb_proc, 0, 0);
 	_obj_register(ATOM_COMBOBOX, EOS_VISIBLE, EOS_EX_FOCUSABLE, DT_VCENTER | DT_SINGLELINE, 0, 0, &_cb_proc, 0, 0);
+	_menubutton_register();
 }
 
 float Ex_Scale(float n)//OK
