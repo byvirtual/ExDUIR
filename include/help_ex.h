@@ -6,6 +6,12 @@
 #include <string>
 #include <Windows.h>
 
+#define GDIPVER 0x110   /*定义高版本的GDI+(1.1)*/
+#include "gdiplus.h"
+#pragma comment(lib, "Gdiplus.lib") /*链接GDIPlus库*/
+using namespace Gdiplus; /*使用Gdiplus命名空间*/
+using namespace DllExports;
+
 template <class Ty>//这里实现了 int long float double  unsigned int/... 等等
 static void pt(std::wstring& str, Ty v)
 {
@@ -83,7 +89,7 @@ struct mempoolmsg_s;
 struct EX_THUNK_DATA;
 struct EX_EVENT_HANDLER;
 struct EX_EVENT_HANDLER_TABLE;
-
+struct EX_APNG_THUNK;
 struct obj_base {
 	union {
 		EXHANDLE hexdui_;

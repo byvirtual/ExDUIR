@@ -328,73 +328,108 @@ void ARGB2ColorF(int argb, D2D1_COLOR_F *color) {
 	color->a = (float)((argb >> 24) & 0xFF) / 255;
 }
 
-void _dx_drawframe_apng(img_s* pImage, void* pImgSrc, int x, int y,int w,int h, char dispose, char blend, int nIndex)
+void _dx_drawframe_apng(img_s* pImage, IWICBitmap* pImgSrc, IStream* lpStream, int x, int y, BYTE dispose, BYTE blend, int nIndex)
 {
-	
-	D2D1_RENDER_TARGET_PROPERTIES pro = { 0 };
-	pro.pixelFormat.format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	pro.pixelFormat.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED;
-	pro.dpiX = 96;
-	pro.dpiY = 96;
-	pro.usage = D2D1_RENDER_TARGET_USAGE_GDI_COMPATIBLE;
-	ID2D1RenderTarget* rt = nullptr;
-	auto ret = ((ID2D1Factory1*)g_Ri.pD2Dfactory)->CreateWicBitmapRenderTarget((IWICBitmap*)pImgSrc, &pro,&rt);
-	if (rt != 0)
-	{	
-		_dx_begindraw(rt);
-		if (nIndex == 0)
+	UINT w = NULL, h = NULL;
+	GpImage* hImgDst = nullptr;
+	GdipLoadImageFromStream(lpStream, &hImgDst);
+	if (hImgDst)
+	{
+		GdipGetImageWidth(hImgDst, &w);
+		GdipGetImageHeight(hImgDst, &h);
+		const D2D1_PIXEL_FORMAT format =
+			D2D1::PixelFormat(
+				DXGI_FORMAT_B8G8R8A8_UNORM,
+				D2D1_ALPHA_MODE_PREMULTIPLIED);
+		const D2D1_RENDER_TARGET_PROPERTIES pro =
+			D2D1::RenderTargetProperties(
+				D2D1_RENDER_TARGET_TYPE_DEFAULT,
+				format,
+				96.0f, // default dpi
+				96.0f, // default dpi
+				D2D1_RENDER_TARGET_USAGE_GDI_COMPATIBLE);
+		//APNG播放不会动，问题就是这个定义原本代码错了，现已改正
+		ID2D1RenderTarget* rt = nullptr;
+		auto ret = ((ID2D1Factory1*)g_Ri.pD2Dfactory)->CreateWicBitmapRenderTarget((IWICBitmap*)pImgSrc, &pro, &rt);
+		if (rt != 0)
 		{
-			_dx_clear(rt, 0);
-		}
-		else {
-			void* pFramePrev = pImage->lpFrames_[nIndex - 1];
-			char disposePrev = __get_char(pFramePrev, 32);
-			if (disposePrev != 0)
+			_dx_begindraw(rt);
+			if (nIndex == 0)
 			{
-				D2D1_RECT_F rcf;
-				rcf.left = pImage->p_x_;
-				rcf.top = pImage->p_y_;
-				rcf.right = pImage->p_w_;
-				rcf.bottom = pImage->p_h_;
-				_dx_cliprect(rt, rcf.left, rcf.top, rcf.right, rcf.bottom);
 				_dx_clear(rt, 0);
-				_dx_resetclip(rt);
-				if (disposePrev == 2)//恢复之前帧区域图像
+			}
+			else {
+				sizeof(EX_APNG_THUNK);
+				EX_APNG_THUNK* pFramePrev = pImage->lpFrames_[nIndex - 1];
+				BYTE disposePrev = pFramePrev->dispose_op;
+				if (disposePrev != 0)
 				{
-					void* pImgPrev=pImage->pPrev_;
-					if (pImgPrev != 0)
+					D2D1_RECT_F rcf;
+					rcf.left = pImage->p_x_;
+					rcf.top = pImage->p_y_;
+					rcf.right = rcf.left+ pImage->p_w_;
+					rcf.bottom = rcf.top+pImage->p_h_;
+					_dx_cliprect(rt, rcf.left, rcf.top, rcf.right, rcf.bottom);
+					_dx_clear(rt, 0);
+					_dx_resetclip(rt);
+					if (disposePrev == 2)//恢复之前帧区域图像
 					{
-						ID2D1Bitmap* pBitmap = nullptr;
-						auto ret=rt->CreateBitmapFromWicBitmap((IWICBitmapSource*)pImgPrev, NULL, &pBitmap);
-						if (ret == 0)
+						void* pImgPrev = pImage->pPrev_;
+						if (pImgPrev != 0)
 						{
-							rt->DrawBitmap(pBitmap, &rcf, 1.0, D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR, NULL);
-							((ID2D1Bitmap*)pBitmap)->Release();
+							ID2D1Bitmap* pBitmap = nullptr;
+							auto ret = rt->CreateBitmapFromWicBitmap((IWICBitmapSource*)pImgPrev, NULL, &pBitmap);
+							if (ret == 0)
+							{
+								rt->DrawBitmap(pBitmap, &rcf, 1.0, D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR, NULL);
+								((ID2D1Bitmap*)pBitmap)->Release();
+							}
+							((IWICBitmapSource*)pImgPrev)->Release();
+							pImage->pPrev_ = 0;
 						}
-						((IWICBitmapSource*)pImgPrev)->Release();
-						pImage->pPrev_ = 0;
 					}
 				}
 			}
-		}
-		if (dispose != 0)
-		{
-			pImage->p_x_ = x;
-			pImage->p_y_ = y;
-			pImage->p_w_ = w;
-			pImage->p_h_ = h;
-			if (dispose == 2)//保存当前帧区域图像给下一帧使用
+			if (dispose != 0)
 			{
-				_dx_enddraw(rt);
-				IWICBitmap* pWicBitmap = nullptr;
-				((IWICImagingFactory*)g_Ri.pWICFactory)->CreateBitmapFromSourceRect((IWICBitmapSource*)pImgSrc, x, y, w, h, &pWicBitmap);
-				pImage->pPrev_ = pWicBitmap;
-				_dx_begindraw(rt);
+				pImage->p_x_ = x;
+				pImage->p_y_ = y;
+				pImage->p_w_ = w;
+				pImage->p_h_ = h;
+				if (dispose == 2)//保存当前帧区域图像给下一帧使用
+				{
+					_dx_enddraw(rt);
+					IWICBitmap* pWicBitmap = nullptr;
+					((IWICImagingFactory*)g_Ri.pWICFactory)->CreateBitmapFromSourceRect((IWICBitmapSource*)pImgSrc, x, y, w, h, &pWicBitmap);
+					pImage->pPrev_ = pWicBitmap;
+					_dx_begindraw(rt);
+				}
 			}
+
+			ID2D1GdiInteropRenderTarget* pgdi = (ID2D1GdiInteropRenderTarget*)_dx_get_gdiInterop(rt);
+			if (pgdi)
+			{
+				HDC hDC = NULL;
+				pgdi->GetDC(D2D1_DC_INITIALIZE_MODE_COPY, &hDC);
+				if (hDC)
+				{
+					GpGraphics* graphics = nullptr;
+					GdipCreateFromHDC(hDC, &graphics);
+					if (blend == 0) //APNG_BLEND_OP_SOURCE 显示本帧源文件
+						GdipSetCompositingMode(graphics, CompositingModeSourceCopy);
+					else if (blend == 1)//APNG_BLEND_OP_OVER 覆盖
+						GdipSetCompositingMode(graphics, CompositingModeSourceOver);
+
+					GdipDrawImageRectRect(graphics, hImgDst, x, y, w, h, 0, 0, w, h, GpUnit::UnitPixel, 0, 0, 0);
+					GdipDeleteGraphics(graphics);
+				}
+				pgdi->ReleaseDC(0);
+				pgdi->Release();
+				pgdi = nullptr;
+			}
+			_dx_enddraw(rt);
+			rt->Release();
 		}
-		
-		void* pgdi = _dx_get_gdiInterop(rt);
-		_dx_enddraw(rt);
-		rt->Release();
+		GdipDisposeImage(hImgDst);
 	}
 }

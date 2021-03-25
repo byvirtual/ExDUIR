@@ -12,6 +12,22 @@
 
 #define IMGF_APNG 1
 
+#pragma pack(1)
+struct EX_APNG_THUNK {
+	DWORD dwLen;
+	DWORD Type;
+	UINT sequence_number;// 序列
+	UINT width;// 宽度
+	UINT height;// 高度
+	UINT x_offset;// 水平偏移
+	UINT y_offset;// 垂直偏移
+	USHORT delay_num;// 为这一帧显示时间的以秒为单位的分子
+	USHORT delay_den;// 为这一帧显示时间以秒为单位的分母
+	char dispose_op;// 处理方式
+	char blend_op;// 混合模式
+};
+#pragma pack()
+
 struct lockedbitmapdata_s
 {
 	int width_;
@@ -30,7 +46,7 @@ struct img_s
 	int nMaxFrames_;
 	int nCurFrame_;
 	void* pWicDecoder_;
-	PVOID* lpFrames_;
+	EX_APNG_THUNK** lpFrames_;
 	void* lpHeader_;
 	void* pPrev_;
 	int p_x_;
@@ -86,8 +102,9 @@ size_t _img_savetomemory(EXHANDLE hImage, void* lpBuffer);
 bool _img_getframedelay(EXHANDLE hImg, int* lpDelayAry, int nFrames);
 int _img_getframecount(EXHANDLE hImage);
 void* _img_getcontext(EXHANDLE hImage);
+void _apng_drawframe(img_s* pImage, int nIndex);
 int _apng_thunk_getlength(void* lpMem);
-bool _apng_thunk_getnext(void* lpMem, int* nPos, int dwThunkType, void** lpThunk, int* dwThunkLen);
+bool _apng_thunk_getnext(void* lpMem, int* nPos, int dwThunkType, EX_APNG_THUNK** lpThunk, int* dwThunkLen);
 void _apng_int(EXHANDLE hImage, void* lpStream);
 bool _apng_getframedelay(img_s* pImg, int* lpDelay, int nFrames);
 bool _img_selectactiveframe(EXHANDLE hImg, int nIndex);

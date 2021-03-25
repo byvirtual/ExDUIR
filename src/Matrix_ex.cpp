@@ -1,6 +1,4 @@
 #include "Matrix_ex.h"
-#include <gdiplusflat.h>
-using namespace DllExports;
 
 bool _matrix_destroy(matrix_s* pMatrix)
 {

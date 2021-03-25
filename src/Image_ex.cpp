@@ -1,20 +1,5 @@
 #include "Image_ex.h"
 
-struct EX_APNG_THUNK {
-    DWORD dwLen;
-    DWORD Type;
-    UINT sequence_number;// 序列
-    UINT width;// 宽度
-    UINT height;// 高度
-    UINT x_offset;// 水平偏移
-    UINT y_offset;// 垂直偏移
-    UINT delay_num;// 为这一帧显示时间的以秒为单位的分子
-    USHORT delay_den;// 为这一帧显示时间以秒为单位的分母
-    BYTE dispose_op;// 处理方式
-    BYTE blend_op;// 混合模式
-};
-
-
 bool _img_destroy(EXHANDLE hImg)
 {
 	img_s* pImage = nullptr;
@@ -97,93 +82,6 @@ void* _wic_selectactiveframe(void* pDecoder, int nIndex, int* nError)
 	return ret;
 }
 
-void _apng_drawframe(img_s* pImage, int nIndex)//未完成
-{
-	/*' 0 dwLen
-	' 4 Type
-	' 8 uint sequence_number 序列
-	' 12 uint width 宽度
-	' 16 uint height 高度
-	' 20 uint x_offset 水平偏移
-	' 24 uint y_offset 垂直偏移
-	' 28 ushort delay_num 为这一帧显示时间的以秒为单位的分子
-	' 30 ushort delay_den 为这一帧显示时间以秒为单位的分母
-	' 32 byte dispose_op 处理方式
-	' 33 byte blend_op 混合模式*/
-
-	if (nIndex < 0 || nIndex > pImage->nMaxFrames_ - 1)
-	{
-		return;
-	}
-	void* pHeader = pImage->lpHeader_;
-	void* pFrame = pImage->lpFrames_[nIndex];
-	void* pIDAT =(void*)( (size_t)pFrame + 26 + 12);
-	int type = __get_int(pIDAT, 4);
-	if (type == PNG_IDAT || type == PNG_fdAT)
-	{
-		char dispose = __get_char(pFrame , 32);
-		char blend= __get_char(pFrame, 33);
-		int x = __get_int(pFrame, 20);
-		int y = __get_int(pFrame, 24);
-		int dwHeader=  __get_int(pHeader, 0);
-		int dwLen = dwHeader;
-		void* pIDATNext = pIDAT;
-		size_t lpStream = 0;
-		while (type== PNG_fdAT || type== PNG_IDAT)
-		{
-			lpStream= (size_t)_apng_thunk_getlength(pIDATNext) + (size_t)12;
-			dwLen = dwLen + lpStream + (type == PNG_fdAT ? -4 : 0);
-			pIDATNext =(void*)((size_t) pIDATNext + lpStream);
-			type = __get_int(pIDATNext, 4);
-		}
-		dwLen = dwLen + 12;
-		void* hMem = GlobalAlloc(2, dwLen);
-		if (hMem != 0)
-		{
-			if (CreateStreamOnHGlobal(hMem, 1, (LPSTREAM*)&lpStream) == 0)
-			{
-				void* pBuffer = GlobalLock(hMem);
-				if (pBuffer != 0)
-				{
-					RtlMoveMemory(pBuffer,(void*)((size_t) pHeader + 4), dwHeader);
-					__set_int(pBuffer, 16, __get_int(pFrame, 12));
-					__set_int(pBuffer, 20, __get_int(pFrame, 16));
-					__set_int(pBuffer, 29,_byteswap_ulong(Crc32_Addr((void*)((size_t)pBuffer+12),17)));
-					void* pOffset =(void*)((size_t)pBuffer + dwHeader);
-					pIDATNext = pIDAT;
-					type = __get_int(pIDAT, 4);
-					while (type == PNG_fdAT || type == PNG_IDAT)
-					{
-						int dwDat = _apng_thunk_getlength(pIDATNext);
-						if (type == PNG_fdAT)
-						{
-							__set_int(pOffset, 0, _byteswap_ulong(dwDat - 4));
-							__set_int(pOffset, 4, PNG_IDAT);
-							RtlMoveMemory((void*)((size_t)pOffset + 8), (void*)((size_t)pIDATNext + (size_t)8 + (size_t)4), dwDat - (size_t)4);
-							__set_int(pOffset, dwDat + (size_t)12 - (size_t)4, _byteswap_ulong(Crc32_Addr((void*)((size_t)pOffset + 4), dwDat)));
-							pOffset =(void*) ((size_t)pOffset + dwDat + 12 - 4);
-						}
-						else {
-							__set_int(pOffset, 0, __get_int(pIDATNext,4));
-							RtlMoveMemory(pOffset, pIDATNext, dwDat + (size_t)12);
-							pOffset = (void*)((size_t)pOffset + dwDat + 12 );
-						}
-						pIDATNext = (void*)((size_t)pIDATNext + dwDat + 12);
-						type = __get_int(pIDATNext, 4);
-					}
-					__set_int(pBuffer, dwLen - 8, 1145980233);
-					__set_int(pBuffer, dwLen - 4, -2107620690);
-
-					GlobalUnlock(hMem);
-					void* pObj = pImage->pObj_;
-					_dx_drawframe_apng(pImage, pObj, x, y, __get_int(pFrame, 12), __get_int(pFrame, 16), dispose, blend, nIndex);
-				}
-				((LPSTREAM)lpStream)->Release();
-			}
-			GlobalFree(hMem);
-		}
-	}
-}
 
 bool _img_selectactiveframe(EXHANDLE hImg, int nIndex)
 {
@@ -843,12 +741,98 @@ void* _img_getcontext(EXHANDLE hImage)
 	return ret;
 }
 
+void _apng_drawframe(img_s* pImage, int nIndex)//未完成
+{
+	/*' 0 dwLen
+	' 4 Type
+	' 8 uint sequence_number 序列
+	' 12 uint width 宽度
+	' 16 uint height 高度
+	' 20 uint x_offset 水平偏移
+	' 24 uint y_offset 垂直偏移
+	' 28 ushort delay_num 为这一帧显示时间的以秒为单位的分子
+	' 30 ushort delay_den 为这一帧显示时间以秒为单位的分母
+	' 32 byte dispose_op 处理方式
+	' 33 byte blend_op 混合模式*/
+
+	if (nIndex < 0 || nIndex > pImage->nMaxFrames_ - 1)
+	{
+		return;
+	}
+	void* pHeader = pImage->lpHeader_;
+	EX_APNG_THUNK* pFrame = pImage->lpFrames_[nIndex];
+	
+	void* pIDAT = (void*)((size_t)pFrame + 26 + 12);
+	int type = __get_int(pIDAT, 4);
+	if (type == PNG_IDAT || type == PNG_fdAT)
+	{
+		int dwHeader = __get_int(pHeader, 0);
+		int dwLen = dwHeader;
+		void* pIDATNext = pIDAT;
+		size_t lpStream = 0;
+		while (type == PNG_fdAT || type == PNG_IDAT)
+		{
+			lpStream = (size_t)_apng_thunk_getlength(pIDATNext) + (size_t)12;
+			dwLen = dwLen + lpStream + (type == PNG_fdAT ? -4 : 0);
+			pIDATNext = (void*)((size_t)pIDATNext + lpStream);
+			type = __get_int(pIDATNext, 4);
+		}
+		dwLen = dwLen + 12;
+		void* hMem = GlobalAlloc(2, dwLen);
+		if (hMem != 0)
+		{
+			if (CreateStreamOnHGlobal(hMem, 1, (LPSTREAM*)&lpStream) == 0)
+			{
+				void* pBuffer = GlobalLock(hMem);
+				if (pBuffer != 0)
+				{
+					RtlMoveMemory(pBuffer, (void*)((size_t)pHeader + 4), dwHeader);
+					__set_int(pBuffer, 16, pFrame->width);
+					__set_int(pBuffer, 20, pFrame->height);
+					__set_int(pBuffer, 29, _byteswap_ulong(Crc32_Addr((void*)((size_t)pBuffer + 12), 17)));
+					void* pOffset = (void*)((size_t)pBuffer + dwHeader);
+					pIDATNext = pIDAT;
+					type = __get_int(pIDAT, 4);
+					while (type == PNG_fdAT || type == PNG_IDAT)
+					{
+						int dwDat = _apng_thunk_getlength(pIDATNext);
+						if (type == PNG_fdAT)
+						{
+							__set_int(pOffset, 0, _byteswap_ulong(dwDat - 4));
+							__set_int(pOffset, 4, PNG_IDAT);
+							RtlMoveMemory((void*)((size_t)pOffset + 8), (void*)((size_t)pIDATNext + (size_t)8 + (size_t)4), dwDat - (size_t)4);
+							__set_int(pOffset, dwDat + (size_t)12 - (size_t)4, _byteswap_ulong(Crc32_Addr((void*)((size_t)pOffset + 4), dwDat)));
+							pOffset = (void*)((size_t)pOffset + dwDat + 12 - 4);
+						}
+						else {
+							__set_int(pOffset, 0, __get_int(pIDATNext, 4));
+							RtlMoveMemory(pOffset, pIDATNext, dwDat + (size_t)12);
+							pOffset = (void*)((size_t)pOffset + dwDat + 12);
+						}
+						pIDATNext = (void*)((size_t)pIDATNext + dwDat + 12);
+						type = __get_int(pIDATNext, 4);
+					}
+					__set_int(pBuffer, dwLen - 8, 1145980233);
+					__set_int(pBuffer, dwLen - 4, -2107620690);
+
+					GlobalUnlock(hMem);
+
+					void* pObj = pImage->pObj_;
+					_dx_drawframe_apng(pImage, (IWICBitmap*)pObj, (LPSTREAM)lpStream, pFrame->x_offset, pFrame->y_offset, pFrame->dispose_op, pFrame->blend_op, nIndex);
+				}
+				((LPSTREAM)lpStream)->Release();
+			}
+			GlobalFree(hMem);
+		}
+	}
+}
+
 int _apng_thunk_getlength(void* lpMem)
 {
 	return _byteswap_ulong(__get_int(lpMem, 0));
 }
 
-bool _apng_thunk_getnext(void* lpMem, int* nPos, int dwThunkType, void** lpThunk, int* dwThunkLen)
+bool _apng_thunk_getnext(void* lpMem, int* nPos, int dwThunkType, EX_APNG_THUNK** lpThunk, int* dwThunkLen)
 {
 	int i = *nPos;
 	bool ret = false;
@@ -862,7 +846,7 @@ bool _apng_thunk_getnext(void* lpMem, int* nPos, int dwThunkType, void** lpThunk
 		i = i + dwThunkDataLen + 12;
 		if (ret)
 		{
-			*lpThunk = (void*)((size_t)lpMem + i - dwThunkDataLen - 12);
+			*lpThunk = (EX_APNG_THUNK*)((size_t)lpMem + i - dwThunkDataLen - 12);
 			*dwThunkLen = dwThunkDataLen + 12;
 			*nPos = i;
 			break;
@@ -889,15 +873,15 @@ void _apng_int(EXHANDLE hImage, void* lpStream)
 				if (_handle_validate(hImage, HT_IMAGE, (void**)&pImage, &nError))
 				{
 					int nPos = 8;
-					void* pIHDR = nullptr;
+					EX_APNG_THUNK* pIHDR = nullptr;
 					int dwIHDR = 0;
 					
 					if (_apng_thunk_getnext(lpMem, &nPos, PNG_IHDR, &pIHDR, &dwIHDR))
 					{
 						
-						void* pPLTE = nullptr;
+						EX_APNG_THUNK* pPLTE = nullptr;
 						int dwPLTE = 0;
-						void* pTRNS = nullptr;
+						EX_APNG_THUNK* pTRNS = nullptr;
 						int dwTRNS = 0;
 						_apng_thunk_getnext(lpMem, &nPos, PNG_PLTE, &pPLTE, &dwPLTE);
 						_apng_thunk_getnext(lpMem, &nPos, PNG_tRNS, &pTRNS, &dwTRNS);
@@ -922,11 +906,11 @@ void _apng_int(EXHANDLE hImage, void* lpStream)
 							}
 							nPos = 8;
 							EX_APNG_THUNK* pThunk = nullptr;
-							if (_apng_thunk_getnext(lpMem, &nPos, PNG_acTL, (void**)&pThunk, &dwLen))
+							if (_apng_thunk_getnext(lpMem, &nPos, PNG_acTL,&pThunk, &dwLen))
 							{
 								int nCount = _apng_thunk_getlength((void*)((size_t)pThunk + 8));
 								
-								PVOID* pFrames = (PVOID*)Ex_MemAlloc(nCount * sizeof(void*));
+								EX_APNG_THUNK** pFrames = (EX_APNG_THUNK**)Ex_MemAlloc(nCount * sizeof(void*));
 								if (pFrames != 0)
 								{
 									
@@ -934,7 +918,7 @@ void _apng_int(EXHANDLE hImage, void* lpStream)
 									pImage->nMaxFrames_ = nCount;
 									pImage->lpFrames_ = pFrames;
 									pImage->lpHeader_ = pHeader;
-									while (_apng_thunk_getnext(lpMem, &nPos, PNG_fcTL, (void**)&pThunk, &dwLen))
+									while (_apng_thunk_getnext(lpMem, &nPos, PNG_fcTL, &pThunk, &dwLen))
 									{
 										/*' 0 dwLen
 										' 4 Type
@@ -973,7 +957,7 @@ void _apng_int(EXHANDLE hImage, void* lpStream)
 bool _apng_getframedelay(img_s* pImg, int* lpDelay, int nFrames)
 {
 	bool ret = false;
-	PVOID* lpFrames = pImg->lpFrames_;
+	EX_APNG_THUNK** lpFrames = pImg->lpFrames_;
 	if (lpFrames != 0)
 	{
 		/*' 0 dwLen
@@ -989,10 +973,13 @@ bool _apng_getframedelay(img_s* pImg, int* lpDelay, int nFrames)
 		' 33 byte blend_op 混合模式*/
 		for (int i = 0; i < nFrames; i++)
 		{
-			short delay_num = __get_short(lpFrames[i], 28);
+			UINT delay_num = lpFrames[i]->delay_num;
 			//lpDelay[i] = 200; //???
-			delay_num = HIWORD(delay_num) / LOWORD(delay_num) * 100;
-			if (delay_num == 0) delay_num = 10;
+			//output(lpFrames[i]->delay_num, (double)HIWORD(delay_num) / (double)LOWORD(delay_num) * 100,HIWORD(delay_num), LOWORD(delay_num));
+			delay_num = (double)HIWORD(delay_num) / (double)LOWORD(delay_num) * 100;
+			//output(delay_num);
+			if (delay_num == 0)
+				delay_num = 10;
 			lpDelay[i] = delay_num;
 		}
 		ret = true;
