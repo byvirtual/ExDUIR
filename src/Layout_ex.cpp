@@ -1693,22 +1693,23 @@ bool _layout_addchild(EXHANDLE hLayout, EXHANDLE hObj)
 	layout_s* pLayout = nullptr;
 	int nError = 0;
 	void* pInfo = nullptr;
+	obj_s* pObj = NULL;
 	bool fIsChild = false;
 	if (_handle_validate(hLayout, HT_LAYOUT, (void**)&pLayout, &nError))
 	{
 		if (hObj != 0)
-		{
-			if (__get(pLayout, 12) == HT_OBJECT)
+		{			
+			if (pLayout->nBindType_ == HT_OBJECT)
 			{
-				if (Ex_ObjGetParent(hObj) == __get(pLayout, 8))
+				if (Ex_ObjGetParent(hObj) == pLayout->hBind_)
 				{
 					fIsChild = true;
 				}
 			}
 			else {
-				if (_handle_validate(hObj, HT_OBJECT, &pInfo, &nError))
+				if (_handle_validate(hObj, HT_OBJECT, (void**)&pObj, &nError))
 				{
-					if (__get(pInfo, 368) == 0 && __get((void*)__get(pInfo, 0), 114) == __get(pLayout, 8))
+					if (pObj->objParent_ == 0 && pObj->pWnd_->hexdui_ == pLayout->hBind_)
 					{
 						fIsChild = true;
 					}
